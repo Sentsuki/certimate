@@ -47,7 +47,7 @@ const SettingsSSLProvider = () => {
     [CA_PROVIDERS.SECTIGO, "provider.sectigo", "sectigo.com", "/imgs/providers/sectigo.svg"],
     [CA_PROVIDERS.SSLCOM, "provider.sslcom", "ssl.com", "/imgs/providers/sslcom.svg"],
     [CA_PROVIDERS.ZEROSSL, "provider.zerossl", "zerossl.com", "/imgs/providers/zerossl.svg"],
-    [CA_PROVIDERS.ACMECA, "provider.acmeca", "\u00A0", "/imgs/providers/acmeca.svg"],
+    [CA_PROVIDERS.ACMECA, "provider.acmeca", "ACME v2 (RFC 8555)", "/imgs/providers/acmeca.svg"],
   ].map(([value, name, description, icon]) => {
     return {
       value: value as CAProviderType,

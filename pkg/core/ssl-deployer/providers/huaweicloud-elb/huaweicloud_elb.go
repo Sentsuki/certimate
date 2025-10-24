@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/basic"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
@@ -15,7 +16,6 @@ import (
 	hciammodel "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/model"
 	hciamregion "github.com/huaweicloud/huaweicloud-sdk-go-v3/services/iam/v3/region"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-elb"
@@ -301,7 +301,7 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 				newCertInfo := showNewCertificateResp.Certificate
 
 				if oldCertInfo.SubjectAlternativeNames != nil && newCertInfo.SubjectAlternativeNames != nil {
-					if slices.Equal(*oldCertInfo.SubjectAlternativeNames, *newCertInfo.SubjectAlternativeNames) {
+					if strings.Join(*oldCertInfo.SubjectAlternativeNames, ",") == strings.Join(*newCertInfo.SubjectAlternativeNames, ",") {
 						continue
 					}
 				} else {

@@ -469,7 +469,7 @@ const AccessList = () => {
         </div>
 
         <AccessEditDrawer mode="create" usage={filters["usage"] as AccessUsages} {...createDrawerProps} />
-        <AccessEditDrawer mode="edit" usage={filters["usage"] as AccessUsages} {...detailDrawerProps} />
+        <AccessEditDrawer mode="modify" usage={filters["usage"] as AccessUsages} {...detailDrawerProps} />
       </div>
     </div>
   );

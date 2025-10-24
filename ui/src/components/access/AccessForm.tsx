@@ -90,7 +90,7 @@ import AccessConfigFieldsProviderWeComBot from "./forms/AccessConfigFieldsProvid
 import AccessConfigFieldsProviderWestcn from "./forms/AccessConfigFieldsProviderWestcn";
 import AccessConfigFieldsProviderZeroSSL from "./forms/AccessConfigFieldsProviderZeroSSL";
 
-export type AccessFormModes = "create" | "edit";
+export type AccessFormModes = "create" | "modify";
 export type AccessFormUsages = "dns" | "hosting" | "dns-hosting" | "ca" | "notification";
 
 export interface AccessFormProps {
@@ -101,9 +101,10 @@ export interface AccessFormProps {
   form: FormInstance;
   mode: AccessFormModes;
   usage?: AccessFormUsages;
+  onFormValuesChange?: (changedValues: Nullish<MaybeModelRecord<AccessModel>>, values: Nullish<MaybeModelRecord<AccessModel>>) => void;
 }
 
-const AccessForm = ({ className, style, disabled, initialValues, mode, usage, ...props }: AccessFormProps) => {
+const AccessForm = ({ className, style, disabled, initialValues, mode, usage, onFormValuesChange, ...props }: AccessFormProps) => {
   const { t } = useTranslation();
 
   const formSchema = z.object({
@@ -381,6 +382,7 @@ const AccessForm = ({ className, style, disabled, initialValues, mode, usage, ..
       layout="vertical"
       preserve={false}
       scrollToFirstError
+      onValuesChange={onFormValuesChange}
     >
       <Form.Item name="name" label={t("access.form.name.label")} rules={[formRule]}>
         <Input placeholder={t("access.form.name.placeholder")} />

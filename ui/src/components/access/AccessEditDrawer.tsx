@@ -8,6 +8,7 @@ import AccessProviderPicker from "@/components/provider/AccessProviderPicker";
 import Show from "@/components/Show";
 import { type AccessModel } from "@/domain/access";
 import { ACCESS_USAGES } from "@/domain/provider";
+import { notifyTest } from "@/api/notify";
 import { useTriggerElement, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 import { getErrMsg } from "@/utils/error";
@@ -26,7 +27,7 @@ export interface AccessEditDrawerProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-const AccessEditDrawer = ({ afterClose, afterSubmit, mode, data, loading, trigger, usage, ...props }: AccessEditDrawerProps) => {
+const AccessEditDrawer = ({ afterSubmit, mode, data, loading, trigger, usage, ...props }: AccessEditDrawerProps) => {
   const { t } = useTranslation();
 
   const { message, notification } = App.useApp();
@@ -39,17 +40,31 @@ const AccessEditDrawer = ({ afterClose, afterSubmit, mode, data, loading, trigge
     trigger: "onOpenChange",
   });
 
+  const afterClose = () => {
+    setFormPending(false);
+    setFormChanged(false);
+    setIsTesting(false);
+    props.afterClose?.();
+  };
+
   const triggerEl = useTriggerElement(trigger, { onClick: () => setOpen(true) });
 
   const providerFilter = AccessForm.useProviderFilterByUsage(usage);
 
   const [formInst] = Form.useForm();
   const [formPending, setFormPending] = useState(false);
+  const [formChanged, setFormChanged] = useState(false);
 
   const fieldProvider = Form.useWatch<string>("provider", { form: formInst, preserve: true });
 
+  const [isTesting, setIsTesting] = useState(false);
+
   const handleProviderPick = (value: string) => {
     formInst.setFieldValue("provider", value);
+  };
+
+  const handleFormChange = () => {
+    setFormChanged(true);
   };
 
   const handleOkClick = async () => {
@@ -73,7 +88,7 @@ const AccessEditDrawer = ({ afterClose, afterSubmit, mode, data, loading, trigge
         }
 
         formValues = await createAccess(formValues);
-      } else if (mode === "edit") {
+      } else if (mode === "modify") {
         if (!data?.id) {
           throw "Invalid props: `data`";
         }
@@ -100,6 +115,26 @@ const AccessEditDrawer = ({ afterClose, afterSubmit, mode, data, loading, trigge
     setOpen(false);
   };
 
+  const handleTestPushClick = async () => {
+    setIsTesting(true);
+
+    try {
+      await formInst.validateFields();
+    } catch {
+      setIsTesting(false);
+      return;
+    }
+
+    try {
+      await notifyTest({ provider: fieldProvider, accessId: data?.id! });
+      message.success(t("common.text.operation_succeeded"));
+    } catch (err) {
+      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   return (
     <>
       {triggerEl}
@@ -111,11 +146,22 @@ const AccessEditDrawer = ({ afterClose, afterSubmit, mode, data, loading, trigge
         destroyOnHidden
         footer={
           fieldProvider ? (
-            <Flex className="px-2" justify="end" gap="small">
-              <Button onClick={handleCancelClick}>{t("common.button.cancel")}</Button>
-              <Button loading={formPending} type="primary" onClick={handleOkClick}>
-                {mode === "edit" ? t("common.button.save") : t("common.button.submit")}
-              </Button>
+            <Flex className="px-2" justify="space-between">
+              {usage === "notification" ? (
+                <Button disabled={mode !== "modify" || formChanged} loading={isTesting} onClick={handleTestPushClick}>
+                  {t("access.action.test_push.button")}
+                </Button>
+              ) : (
+                <span>{/* TODO: 测试连接 */}</span>
+              )}
+              <Flex justify="end" gap="small">
+                <Button disabled={isTesting} onClick={handleCancelClick}>
+                  {t("common.button.cancel")}
+                </Button>
+                <Button disabled={isTesting} loading={formPending} type="primary" onClick={handleOkClick}>
+                  {mode === "modify" ? t("common.button.save") : t("common.button.submit")}
+                </Button>
+              </Flex>
             </Flex>
           ) : (
             false
@@ -128,7 +174,7 @@ const AccessEditDrawer = ({ afterClose, afterSubmit, mode, data, loading, trigge
         title={
           <Flex align="center" justify="space-between" gap="small">
             <div className="flex-1 truncate">
-              {mode === "edit" && !!data ? t("access.action.edit.modal.title") + ` #${data.id}` : t(`access.action.${mode}.modal.title`)}
+              {mode === "modify" && !!data ? t("access.action.edit.modal.title") + ` #${data.id}` : t(`access.action.${mode}.modal.title`)}
             </div>
             <Button
               className="ant-drawer-close"
@@ -158,7 +204,7 @@ const AccessEditDrawer = ({ afterClose, afterSubmit, mode, data, loading, trigge
         </Show>
 
         <div style={{ display: fieldProvider || data?.provider ? "block" : "none" }}>
-          <AccessForm form={formInst} disabled={formPending} initialValues={data} mode={mode} usage={usage} />
+          <AccessForm form={formInst} disabled={formPending} initialValues={data} mode={mode} usage={usage} onFormValuesChange={handleFormChange} />
         </div>
       </Drawer>
     </>

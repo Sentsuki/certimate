@@ -167,11 +167,11 @@ func assign(source *hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent, 
 		return source
 	}
 
-	if *target.OriginProtocol == "follow" {
+	if lo.FromPtr(target.OriginProtocol) == "follow" {
 		source.AccessOriginWay = lo.ToPtr(int32(1))
-	} else if *target.OriginProtocol == "http" {
+	} else if lo.FromPtr(target.OriginProtocol) == "http" {
 		source.AccessOriginWay = lo.ToPtr(int32(2))
-	} else if *target.OriginProtocol == "https" {
+	} else if lo.FromPtr(target.OriginProtocol) == "https" {
 		source.AccessOriginWay = lo.ToPtr(int32(3))
 	}
 
@@ -182,14 +182,14 @@ func assign(source *hccdnmodel.UpdateDomainMultiCertificatesRequestBodyContent, 
 
 		if target.ForceRedirect.Status == "on" {
 			source.ForceRedirectConfig.Switch = 1
-			source.ForceRedirectConfig.RedirectType = target.ForceRedirect.Type
+			source.ForceRedirectConfig.RedirectType = lo.FromPtr(target.ForceRedirect.Type)
 		} else {
 			source.ForceRedirectConfig.Switch = 0
 		}
 	}
 
 	if target.Https != nil {
-		if *target.Https.Http2Status == "on" {
+		if lo.FromPtr(target.Https.Http2Status) == "on" {
 			source.Http2 = lo.ToPtr(int32(1))
 		}
 	}

@@ -23,9 +23,9 @@ type SSLDeployerProviderConfig struct {
 	// 可取值 "client"、"master"。
 	ApiRole string `json:"apiRole"`
 	// LeCDN 用户名。
-	Username string `json:"accessKeyId"`
+	Username string `json:"username"`
 	// LeCDN 用户密码。
-	Password string `json:"accessKey"`
+	Password string `json:"password"`
 	// 是否允许不安全的连接。
 	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
 	// 部署资源类型。

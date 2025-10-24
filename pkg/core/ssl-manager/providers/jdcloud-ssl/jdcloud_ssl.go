@@ -13,7 +13,6 @@ import (
 	jdcore "github.com/jdcloud-api/jdcloud-sdk-go/core"
 	jdsslapi "github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/apis"
 	jdsslclient "github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/client"
-	"golang.org/x/exp/slices"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
@@ -100,7 +99,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 			}
 
 			// 再对比证书多域名
-			if !slices.Equal(certX509.DNSNames, certDetail.DnsNames) {
+			if !strings.EqualFold(strings.Join(certX509.DNSNames, ","), strings.Join(certDetail.DnsNames, ",")) {
 				continue
 			}
 

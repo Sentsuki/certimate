@@ -14,7 +14,6 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
-	"golang.org/x/exp/slices"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
@@ -366,7 +365,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 					continue
 				} else {
 					certCNMatched := tea.StringValue(getUserCertificateDetailResp.Body.Common) == d.config.Domain
-					certSANMatched := slices.Contains(strings.Split(tea.StringValue(getUserCertificateDetailResp.Body.Sans), ","), d.config.Domain)
+					certSANMatched := lo.Contains(strings.Split(tea.StringValue(getUserCertificateDetailResp.Body.Sans), ","), d.config.Domain)
 					if !certCNMatched && !certSANMatched {
 						continue
 					}

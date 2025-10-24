@@ -23,6 +23,7 @@ var (
 )
 
 func Register(router *router.Router[*core.RequestEvent]) {
+	accessRepo := repository.NewAccessRepository()
 	workflowRepo := repository.NewWorkflowRepository()
 	workflowRunRepo := repository.NewWorkflowRunRepository()
 	certificateRepo := repository.NewCertificateRepository()
@@ -32,7 +33,7 @@ func Register(router *router.Router[*core.RequestEvent]) {
 	certificateSvc = certificate.NewCertificateService(certificateRepo, settingsRepo)
 	workflowSvc = workflow.NewWorkflowService(workflowRepo, workflowRunRepo, settingsRepo)
 	statisticsSvc = statistics.NewStatisticsService(statisticsRepo)
-	notifySvc = notify.NewNotifyService()
+	notifySvc = notify.NewNotifyService(accessRepo)
 
 	group := router.Group("/api")
 	group.Bind(apis.RequireSuperuserAuth())

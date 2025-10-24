@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	aws "github.com/aws/aws-sdk-go-v2/aws"
 	awscfg "github.com/aws/aws-sdk-go-v2/config"
 	awscred "github.com/aws/aws-sdk-go-v2/credentials"
 	awsacm "github.com/aws/aws-sdk-go-v2/service/acm"
-	"golang.org/x/exp/slices"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
@@ -102,7 +102,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 			}
 
 			// 再对比证书多域名
-			if !slices.Equal(certX509.DNSNames, certSummary.SubjectAlternativeNameSummaries) {
+			if !strings.EqualFold(strings.Join(certX509.DNSNames, ","), strings.Join(certSummary.SubjectAlternativeNameSummaries, ",")) {
 				continue
 			}
 

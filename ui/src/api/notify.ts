@@ -2,7 +2,7 @@ import { ClientResponseError } from "pocketbase";
 
 import { getPocketBase } from "@/repository/_pocketbase";
 
-export const notifyTest = async (provider: string) => {
+export const notifyTest = async ({ provider, accessId }: { provider: string; accessId: string }) => {
   const pb = getPocketBase();
 
   const resp = await pb.send<BaseResponse>("/api/notify/test", {
@@ -12,6 +12,7 @@ export const notifyTest = async (provider: string) => {
     },
     body: {
       provider,
+      accessId,
     },
   });
 

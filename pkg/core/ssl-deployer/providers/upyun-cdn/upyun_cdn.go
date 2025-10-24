@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"golang.org/x/exp/slices"
+	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/upyun-ssl"
@@ -88,7 +88,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	}
 
 	// 判断域名是否已启用 HTTPS。如果已启用，迁移域名证书；否则，设置新证书
-	lastCertIndex := slices.IndexFunc(getHttpsServiceManagerResp.Data.Domains, func(item upyunsdk.HttpsServiceManagerDomain) bool {
+	_, lastCertIndex, _ := lo.FindIndexOf(getHttpsServiceManagerResp.Data.Domains, func(item upyunsdk.HttpsServiceManagerDomain) bool {
 		return item.Https
 	})
 	if lastCertIndex == -1 {
