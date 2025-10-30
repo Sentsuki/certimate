@@ -19,7 +19,7 @@ export interface SharedSelectProps<T extends Provider>
 export const useSelectDataSource = <T extends Provider>({
   dataSource,
   filters,
-  deps,
+  deps = [],
 }: {
   dataSource: T[];
   filters?: Array<(value: string, option: T) => boolean>;
@@ -39,7 +39,7 @@ export const useSelectDataSource = <T extends Provider>({
 
       return true;
     });
-  }, [dataSource, filters, ...(deps ?? [])]);
+  }, [dataSource, filters, deps]);
 
   const availableDataSource = useMemo(() => {
     return filteredDataSource.filter((provider) => {
@@ -49,11 +49,11 @@ export const useSelectDataSource = <T extends Provider>({
         return access.provider === provider.type;
       });
     });
-  }, [accesses, filteredDataSource, ...(deps ?? [])]);
+  }, [accesses, filteredDataSource, deps]);
 
   const unavailableDataSource = useMemo(() => {
     return filteredDataSource.filter((item) => !availableDataSource.includes(item));
-  }, [filteredDataSource, availableDataSource, ...(deps ?? [])]);
+  }, [filteredDataSource, availableDataSource, deps]);
 
   return {
     raw: dataSource,
@@ -94,7 +94,7 @@ export const usePickerDataSource = <T extends Provider>({
   dataSource,
   filters,
   keyword,
-  deps,
+  deps = [],
 }: {
   dataSource: T[];
   filters?: Array<(value: string, option: T) => boolean>;
@@ -126,7 +126,7 @@ export const usePickerDataSource = <T extends Provider>({
 
         return true;
       });
-  }, [dataSource, filters, keyword, ...(deps ?? [])]);
+  }, [dataSource, filters, keyword, deps]);
 
   const availableDataSource = useMemo(() => {
     return filteredDataSource.filter((provider) => {
@@ -136,11 +136,11 @@ export const usePickerDataSource = <T extends Provider>({
         return access.provider === provider.type;
       });
     });
-  }, [accesses, filteredDataSource, ...(deps ?? [])]);
+  }, [accesses, filteredDataSource, deps]);
 
   const unavailableDataSource = useMemo(() => {
     return filteredDataSource.filter((item) => !availableDataSource.includes(item));
-  }, [filteredDataSource, availableDataSource, ...(deps ?? [])]);
+  }, [filteredDataSource, availableDataSource, deps]);
 
   return {
     raw: dataSource,

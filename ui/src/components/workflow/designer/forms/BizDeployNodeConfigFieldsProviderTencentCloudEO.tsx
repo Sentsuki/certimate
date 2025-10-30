@@ -93,10 +93,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
   return z.object({
     endpoint: z.string().nullish(),
     zoneId: z.string().nonempty(t("workflow_node.deploy.form.tencentcloud_eo_zone_id.placeholder")),
-    matchPattern: z.enum(
-      [MATCH_PATTERN_EXACT, MATCH_PATTERN_WILDCARD],
-      t("workflow_node.deploy.form.shared_domain_match_pattern.placeholder")
-    ),
+    matchPattern: z.enum([MATCH_PATTERN_EXACT, MATCH_PATTERN_WILDCARD], t("workflow_node.deploy.form.shared_domain_match_pattern.placeholder")),
     domains: z.string().refine((v) => {
       if (!v) return false;
       return String(v)

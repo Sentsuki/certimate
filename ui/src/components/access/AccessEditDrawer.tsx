@@ -4,11 +4,11 @@ import { IconX } from "@tabler/icons-react";
 import { useControllableValue, useGetState } from "ahooks";
 import { App, Button, Drawer, Flex, Form } from "antd";
 
+import { notifyTest } from "@/api/notify";
 import AccessProviderPicker from "@/components/provider/AccessProviderPicker";
 import Show from "@/components/Show";
 import { type AccessModel } from "@/domain/access";
 import { ACCESS_USAGES } from "@/domain/provider";
-import { notifyTest } from "@/api/notify";
 import { useTriggerElement, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 import { getErrMsg } from "@/utils/error";
@@ -126,7 +126,7 @@ const AccessEditDrawer = ({ afterSubmit, mode, data, loading, trigger, usage, ..
     }
 
     try {
-      await notifyTest({ provider: fieldProvider, accessId: data?.id! });
+      await notifyTest({ provider: fieldProvider, accessId: data!.id });
       message.success(t("common.text.operation_succeeded"));
     } catch (err) {
       notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });

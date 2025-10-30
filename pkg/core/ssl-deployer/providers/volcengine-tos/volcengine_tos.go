@@ -88,7 +88,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	}
 
 	// 设置自定义域名
-	// REF: https://www.volcengine.com/docs/6559/1250189
+	// REF: https://www.volcengine.com/docs/6349/764779
 	putBucketCustomDomainReq := &tos.PutBucketCustomDomainInput{
 		Bucket: d.config.Bucket,
 		Rule: tos.CustomDomainRule{
@@ -106,7 +106,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 }
 
 func createSDKClient(accessKeyId, accessKeySecret, region string) (*tos.ClientV2, error) {
-	endpoint := fmt.Sprintf("tos-%s.ivolces.com", region)
+	endpoint := fmt.Sprintf("tos-%s.volces.com", region)
 
 	client, err := tos.NewClientV2(
 		endpoint,

@@ -44,6 +44,7 @@ func main() {
 	})
 
 	app.RootCmd.AddCommand(cmd.NewInternalCommand(app))
+	app.RootCmd.AddCommand(cmd.NewWinscCommand(app))
 
 	app.OnServe().BindFunc(func(e *core.ServeEvent) error {
 		scheduler.Register()
@@ -72,7 +73,7 @@ func main() {
 		return e.Next()
 	})
 
-	if err := app.Start(); err != nil {
+	if err := cmd.Serve(app); err != nil {
 		slog.Error("[CERTIMATE] Start failed.", slog.Any("error", err))
 	}
 }

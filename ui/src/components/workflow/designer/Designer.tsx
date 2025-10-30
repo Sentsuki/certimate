@@ -4,10 +4,10 @@ import {
   EditorRenderer,
   EditorState,
   FixedLayoutEditorProvider,
-  FlowLayoutDefault,
   type FixedLayoutPluginContext,
   type FixedLayoutProps,
   type FlowDocumentJSON,
+  FlowLayoutDefault,
   type FlowNodeEntity,
   FlowTextKey,
 } from "@flowgram.ai/fixed-layout-editor";

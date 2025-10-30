@@ -29,7 +29,7 @@ const WorkflowDetailDesign = () => {
 
   const designerRef = useRef<WorkflowDesignerInstance>(null);
   const designerPending = useRef(false); // 保存中时阻止刷新画布
-  const [designerError, setDesignerError] = useState<any>();
+  const [designerError, setDesignerError] = useState<unknown>();
   useDeepCompareEffect(() => {
     if (designerRef.current == null || designerRef.current.document.disposed) return;
     if (designerPending.current) return;
@@ -212,7 +212,7 @@ const WorkflowDetailDesign = () => {
             </div>
           </div>
 
-          {designerError && (
+          {!!designerError && (
             <div className="absolute top-1/2 left-1/2 z-10 w-full -translate-1/2 px-4">
               <Result status="warning" title="Data corruption!" subTitle={`Error: ${getErrMsg(designerError)}`} />
             </div>
