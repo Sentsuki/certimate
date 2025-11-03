@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/alibabacloud-go/tea/tea"
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
+
 	"github.com/certimate-go/certimate/pkg/core"
 )
 
@@ -68,18 +71,21 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 
 	// 为存储空间绑定自定义域名
 	// REF: https://help.aliyun.com/zh/oss/developer-reference/putcname
-	putBucketCnameWithCertificateReq := oss.PutBucketCname{
-		Cname: d.config.Domain,
-		CertificateConfiguration: &oss.CertificateConfiguration{
-			Certificate: certPEM,
-			PrivateKey:  privkeyPEM,
-			Force:       true,
+	putCnameReq := &oss.PutCnameRequest{
+		Bucket: tea.String(d.config.Bucket),
+		BucketCnameConfiguration: &oss.BucketCnameConfiguration{
+			Domain: tea.String(d.config.Domain),
+			CertificateConfiguration: &oss.CertificateConfiguration{
+				Certificate: tea.String(certPEM),
+				PrivateKey:  tea.String(privkeyPEM),
+				Force:       tea.Bool(true),
+			},
 		},
 	}
-	err := d.sdkClient.PutBucketCnameWithCertificate(d.config.Bucket, putBucketCnameWithCertificateReq)
-	d.logger.Debug("sdk request 'oss.PutBucketCnameWithCertificate'", slog.Any("bucket", d.config.Bucket), slog.Any("request", putBucketCnameWithCertificateReq))
+	putCnameResp, err := d.sdkClient.PutCname(context.TODO(), putCnameReq)
+	d.logger.Debug("sdk request 'oss.PutCname'", slog.Any("request", putCnameReq), slog.Any("response", putCnameResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'oss.PutBucketCnameWithCertificate': %w", err)
+		return nil, fmt.Errorf("failed to execute sdk request 'oss.PutCname': %w", err)
 	}
 
 	return &core.SSLDeployResult{}, nil
@@ -106,10 +112,14 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*oss.Client, 
 		endpoint = fmt.Sprintf("oss-%s.aliyuncs.com", region)
 	}
 
-	client, err := oss.New(endpoint, accessKeyId, accessKeySecret)
-	if err != nil {
-		return nil, err
+	provider := credentials.NewStaticCredentialsProvider(accessKeyId, accessKeySecret)
+	config := oss.LoadDefaultConfig().
+		WithCredentialsProvider(provider).
+		WithEndpoint(endpoint)
+	if region != "" {
+		config = config.WithRegion(region)
 	}
 
+	client := oss.NewClient(config)
 	return client, nil
 }

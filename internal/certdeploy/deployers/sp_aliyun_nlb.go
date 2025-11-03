@@ -21,7 +21,7 @@ func init() {
 			AccessKeySecret: credentials.AccessKeySecret,
 			ResourceGroupId: credentials.ResourceGroupId,
 			Region:          xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ResourceType:    aliyunnlb.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:    xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			LoadbalancerId:  xmaps.GetString(options.ProviderExtendedConfig, "loadbalancerId"),
 			ListenerId:      xmaps.GetString(options.ProviderExtendedConfig, "listenerId"),
 		})

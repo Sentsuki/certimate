@@ -10,6 +10,12 @@ type CertificateArchiveFileResp struct {
 	FileFormat string `json:"fileFormat"`
 }
 
+type CertificateRevokeReq struct {
+	CertificateId string `json:"-"`
+}
+
+type CertificateRevokeResp struct{}
+
 type CertificateValidateCertificateReq struct {
 	Certificate string `json:"certificate"`
 }
@@ -24,5 +30,6 @@ type CertificateValidatePrivateKeyReq struct {
 }
 
 type CertificateValidatePrivateKeyResp struct {
-	IsValid bool `json:"isValid"`
+	IsValid      bool   `json:"isValid"`
+	KeyAlgorithm string `json:"keyAlgorithm,omitempty"`
 }

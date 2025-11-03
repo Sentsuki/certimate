@@ -66,12 +66,6 @@ func (m *SSLManagerProvider) SetLogger(logger *slog.Logger) {
 }
 
 func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*core.SSLManageUploadResult, error) {
-	// 解析证书内容
-	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
-	if err != nil {
-		return nil, err
-	}
-
 	// 遍历查询已有证书，避免重复上传
 	// REF: https://support.huaweicloud.com/api-elb/ListCertificates.html
 	listCertificatesLimit := int32(2000)
@@ -96,20 +90,8 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 
 		if listCertificatesResp.Certificates != nil {
 			for _, certInfo := range *listCertificatesResp.Certificates {
-				var isSameCert bool
-				if certInfo.Certificate == certPEM {
-					isSameCert = true
-				} else {
-					oldCertX509, err := xcert.ParseCertificateFromPEM(certInfo.Certificate)
-					if err != nil {
-						continue
-					}
-
-					isSameCert = xcert.EqualCertificates(certX509, oldCertX509)
-				}
-
 				// 如果已存在相同证书，直接返回
-				if isSameCert {
+				if xcert.EqualCertificatesFromPEM(certPEM, certInfo.Certificate) {
 					m.logger.Info("ssl certificate already exists")
 					return &core.SSLManageUploadResult{
 						CertId:   certInfo.Id,

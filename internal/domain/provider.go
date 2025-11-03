@@ -54,6 +54,7 @@ const (
 	AccessProviderTypeGoEdge              = AccessProviderType("goedge")
 	AccessProviderTypeGoogleTrustServices = AccessProviderType("googletrustservices")
 	AccessProviderTypeHetzner             = AccessProviderType("hetzner")
+	AccessProviderTypeHostingde           = AccessProviderType("hostingde")
 	AccessProviderTypeHostinger           = AccessProviderType("hostinger")
 	AccessProviderTypeHuaweiCloud         = AccessProviderType("huaweicloud")
 	AccessProviderTypeIONOS               = AccessProviderType("ionos")
@@ -165,6 +166,7 @@ const (
 	ACMEDns01ProviderTypeGname             = ACMEDns01ProviderType(AccessProviderTypeGname)
 	ACMEDns01ProviderTypeGoDaddy           = ACMEDns01ProviderType(AccessProviderTypeGoDaddy)
 	ACMEDns01ProviderTypeHetzner           = ACMEDns01ProviderType(AccessProviderTypeHetzner)
+	ACMEDns01ProviderTypeHostingde         = ACMEDns01ProviderType(AccessProviderTypeHostingde)
 	ACMEDns01ProviderTypeHostinger         = ACMEDns01ProviderType(AccessProviderTypeHostinger)
 	ACMEDns01ProviderTypeHuaweiCloud       = ACMEDns01ProviderType(AccessProviderTypeHuaweiCloud) // 兼容旧值，等同于 [ACMEDns01ProviderTypeHuaweiCloudDNS]
 	ACMEDns01ProviderTypeHuaweiCloudDNS    = ACMEDns01ProviderType(AccessProviderTypeHuaweiCloud + "-dns")

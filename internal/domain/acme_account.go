@@ -41,6 +41,6 @@ func (a *ACMEAccount) GetPrivateKey() crypto.PrivateKey {
 		return nil
 	}
 
-	rs, _ := xcert.ParseECPrivateKeyFromPEM(a.PrivateKey)
+	rs, _ := xcert.ParsePrivateKeyFromPEM(a.PrivateKey)
 	return rs
 }

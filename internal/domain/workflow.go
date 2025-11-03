@@ -146,7 +146,9 @@ func (c WorkflowNodeConfig) AsBizApply() WorkflowNodeConfigForBizApply {
 		Provider:              xmaps.GetString(c, "provider"),
 		ProviderAccessId:      xmaps.GetString(c, "providerAccessId"),
 		ProviderConfig:        xmaps.GetKVMapAny(c, "providerConfig"),
+		KeySource:             xmaps.GetOrDefaultString(c, "keySource", "auto"),
 		KeyAlgorithm:          xmaps.GetOrDefaultString(c, "keyAlgorithm", string(CertificateKeyAlgorithmTypeRSA2048)),
+		KeyContent:            xmaps.GetString(c, "keyContent"),
 		CAProvider:            xmaps.GetString(c, "caProvider"),
 		CAProviderAccessId:    xmaps.GetString(c, "caProviderAccessId"),
 		CAProviderConfig:      xmaps.GetKVMapAny(c, "caProviderConfig"),
@@ -220,8 +222,10 @@ type WorkflowNodeConfigForBizApply struct {
 	CAProvider            string         `json:"caProvider,omitempty"`            // CA 提供商（零值时使用全局配置）
 	CAProviderAccessId    string         `json:"caProviderAccessId,omitempty"`    // CA 提供商授权记录 ID
 	CAProviderConfig      map[string]any `json:"caProviderConfig,omitempty"`      // CA 提供商额外配置
-	KeyAlgorithm          string         `json:"keyAlgorithm,omitempty"`          // 证书算法
-	ValidityLifetime      string         `json:"validityLifetime,omitempty"`      // 证书有效期，形如 "30d"、"6h"
+	KeySource             string         `json:"keySource"`                       // 私钥来源，可取值 "auto"、"reuse"、"custom"（零值时默认值 "auto"）
+	KeyAlgorithm          string         `json:"keyAlgorithm,omitempty"`          // 私钥算法
+	KeyContent            string         `json:"keyContent,omitempty"`            // 私钥内容
+	ValidityLifetime      string         `json:"validityLifetime,omitempty"`      // 有效期，形如 "30d"、"6h"
 	ACMEProfile           string         `json:"acmeProfile,omitempty"`           // ACME Profiles Extension
 	Nameservers           []string       `json:"nameservers,omitempty"`           // DNS 服务器列表，以半角分号分隔
 	DnsPropagationWait    int32          `json:"dnsPropagationWait,omitempty"`    // DNS 传播等待时间，等同于 lego 的 `--dns-propagation-wait` 参数
@@ -234,7 +238,7 @@ type WorkflowNodeConfigForBizApply struct {
 }
 
 type WorkflowNodeConfigForBizUpload struct {
-	Source      string `json:"source"`      // 证书来源（零值时默认值 "form"）
+	Source      string `json:"source"`      // 证书来源，可取值 "form"、"local"、"url"（零值时默认值 "form"）
 	Certificate string `json:"certificate"` // 证书，根据证书来源决定是 PEM 内容 / 文件路径 / URL
 	PrivateKey  string `json:"privateKey"`  // 私钥，根据证书来源决定是 PEM 内容 / 文件路径 / URL
 }

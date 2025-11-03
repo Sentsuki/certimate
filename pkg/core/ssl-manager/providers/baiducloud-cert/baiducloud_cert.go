@@ -91,11 +91,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'cert.GetCertRawData': %w", err)
 			} else {
-				oldCertX509, err := xcert.ParseCertificateFromPEM(getCertDetailResp.CertServerData)
-				if err != nil {
-					continue
-				}
-				if !xcert.EqualCertificates(certX509, oldCertX509) {
+				if !xcert.EqualCertificatesFromPEM(certPEM, getCertDetailResp.CertServerData) {
 					continue
 				}
 			}

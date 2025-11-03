@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { getI18n, useTranslation } from "react-i18next";
-import { type FlowNodeEntity, getNodeForm } from "@flowgram.ai/fixed-layout-editor";
+import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { type AnchorProps, Form, type FormInstance, Input, Radio } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
@@ -33,7 +33,7 @@ const BizUploadNodeConfigForm = ({ node, ...props }: BizUploadNodeConfigFormProp
   const { i18n, t } = useTranslation();
 
   const initialValues = useMemo(() => {
-    return getNodeForm(node)?.getValueIn("config") as WorkflowNodeConfigForBizUpload | undefined;
+    return node.form?.getValueIn("config") as WorkflowNodeConfigForBizUpload | undefined;
   }, [node]);
 
   const formSchema = getSchema({ i18n });
@@ -185,10 +185,9 @@ const getAnchorItems = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n
 
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
-    source: UPLOAD_SOURCE_FORM,
     certificate: "",
     privateKey: "",
-    ...defaultNodeConfigForBizUpload(),
+    ...(defaultNodeConfigForBizUpload() as Nullish<z.infer<ReturnType<typeof getSchema>>>),
   };
 };
 
@@ -197,9 +196,9 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
 
   return z
     .object({
-      source: z.string(t("workflow_node.upload.form.source.placeholder")).nonempty(t("workflow_node.upload.form.source.placeholder")),
-      certificate: z.string().max(20480, t("common.errmsg.string_max", { max: 20480 })),
-      privateKey: z.string().max(20480, t("common.errmsg.string_max", { max: 20480 })),
+      source: z.enum([UPLOAD_SOURCE_FORM, UPLOAD_SOURCE_LOCAL, UPLOAD_SOURCE_URL], t("workflow_node.upload.form.source.placeholder")),
+      certificate: z.string().nonempty(),
+      privateKey: z.string().nonempty(),
       domains: z.string().nullish(),
     })
     .superRefine((values, ctx) => {

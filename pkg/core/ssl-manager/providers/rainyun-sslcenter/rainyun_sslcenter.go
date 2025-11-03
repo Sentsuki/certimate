@@ -129,28 +129,16 @@ func (m *SSLManagerProvider) findCertIfExists(ctx context.Context, certPEM strin
 				sslCenterGetResp, err := m.sdkClient.SslCenterGet(sslRecord.ID)
 				if err != nil {
 					return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.Get': %w", err)
-				}
-
-				var isSameCert bool
-				if sslCenterGetResp.Data != nil {
-					if sslCenterGetResp.Data.Cert == certPEM {
-						isSameCert = true
-					} else {
-						oldCertX509, err := xcert.ParseCertificateFromPEM(sslCenterGetResp.Data.Cert)
-						if err != nil {
-							continue
-						}
-
-						isSameCert = xcert.EqualCertificates(certX509, oldCertX509)
+				} else {
+					if !xcert.EqualCertificatesFromPEM(certPEM, sslCenterGetResp.Data.Cert) {
+						continue
 					}
 				}
 
-				// 如果已存在相同证书，直接返回
-				if isSameCert {
-					return &core.SSLManageUploadResult{
-						CertId: fmt.Sprintf("%d", sslRecord.ID),
-					}, nil
-				}
+				// 如果以上信息都一致，则视为已存在相同证书，直接返回
+				return &core.SSLManageUploadResult{
+					CertId: fmt.Sprintf("%d", sslRecord.ID),
+				}, nil
 			}
 		}
 

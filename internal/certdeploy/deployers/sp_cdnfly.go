@@ -21,7 +21,7 @@ func init() {
 			ApiKey:                   credentials.ApiKey,
 			ApiSecret:                credentials.ApiSecret,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
-			ResourceType:             cdnfly.ResourceType(xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "resourceType", string(cdnfly.RESOURCE_TYPE_SITE))),
+			ResourceType:             xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			SiteId:                   xmaps.GetString(options.ProviderExtendedConfig, "siteId"),
 			CertificateId:            xmaps.GetString(options.ProviderExtendedConfig, "certificateId"),
 		})

@@ -55,12 +55,6 @@ func (m *SSLManagerProvider) SetLogger(logger *slog.Logger) {
 }
 
 func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*core.SSLManageUploadResult, error) {
-	// 解析证书内容
-	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
-	if err != nil {
-		return nil, err
-	}
-
 	// 查询证书列表，避免重复上传
 	// REF: https://www.volcengine.com/docs/6469/1186278#%E6%9F%A5%E8%AF%A2%E8%AF%81%E4%B9%A6%E5%88%97%E8%A1%A8
 	listCertReq := &velive.ListCertV2Body{}
@@ -82,21 +76,9 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				continue
 			}
 
-			var isSameCert bool
-			certificate := strings.Join(describeCertDetailSecretResp.Result.SSL.Chain, "\n\n")
-			if certificate == certPEM {
-				isSameCert = true
-			} else {
-				oldCertX509, err := xcert.ParseCertificateFromPEM(certificate)
-				if err != nil {
-					continue
-				}
-
-				isSameCert = xcert.EqualCertificates(certX509, oldCertX509)
-			}
-
+			oldCertPEM := strings.Join(describeCertDetailSecretResp.Result.SSL.Chain, "\n\n")
 			// 如果已存在相同证书，直接返回
-			if isSameCert {
+			if xcert.EqualCertificatesFromPEM(certPEM, oldCertPEM) {
 				m.logger.Info("ssl certificate already exists")
 				return &core.SSLManageUploadResult{
 					CertId:   certInfo.ChainID,

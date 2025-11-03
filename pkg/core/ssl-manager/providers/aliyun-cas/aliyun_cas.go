@@ -115,32 +115,22 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				m.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
 				if err != nil {
 					return nil, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err)
-				}
-
-				var isSameCert bool
-				if *getUserCertificateDetailResp.Body.Cert == certPEM {
-					isSameCert = true
 				} else {
-					oldCertX509, err := xcert.ParseCertificateFromPEM(*getUserCertificateDetailResp.Body.Cert)
-					if err != nil {
+					if !xcert.EqualCertificatesFromPEM(certPEM, tea.StringValue(getUserCertificateDetailResp.Body.Cert)) {
 						continue
 					}
-
-					isSameCert = xcert.EqualCertificates(certX509, oldCertX509)
 				}
 
-				// 如果已存在相同证书，直接返回
-				if isSameCert {
-					m.logger.Info("ssl certificate already exists")
-					return &core.SSLManageUploadResult{
-						CertId:   fmt.Sprintf("%d", tea.Int64Value(certOrder.CertificateId)),
-						CertName: *certOrder.Name,
-						ExtendedData: map[string]any{
-							"InstanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
-							"CertIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
-						},
-					}, nil
-				}
+				// 如果以上信息都一致，则视为已存在相同证书，直接返回
+				m.logger.Info("ssl certificate already exists")
+				return &core.SSLManageUploadResult{
+					CertId:   fmt.Sprintf("%d", tea.Int64Value(certOrder.CertificateId)),
+					CertName: *certOrder.Name,
+					ExtendedData: map[string]any{
+						"InstanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
+						"CertIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
+					},
+				}, nil
 			}
 		}
 

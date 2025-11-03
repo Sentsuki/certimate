@@ -11,19 +11,8 @@ func init() {
 		tracer := NewTracer("v0.4.1")
 		tracer.Printf("go ...")
 
-		// update collection `workflow`
-		//   - fix #982
+		// adapt to new workflow data structure
 		{
-			collection, err := app.FindCollectionByNameOrId("tovyif5ax6j62ur")
-			if err != nil {
-				return err
-			}
-
-			records, err := app.FindAllRecords(collection)
-			if err != nil {
-				return err
-			}
-
 			type dWorkflowNode struct {
 				Id     string           `json:"id"`
 				Type   string           `json:"type"`
@@ -71,51 +60,66 @@ func init() {
 				return nodes, migrated
 			}
 
-			for _, record := range records {
-				changed := false
+			// update collection `workflow`
+			//   - fix #982
+			{
+				collection, err := app.FindCollectionByNameOrId("tovyif5ax6j62ur")
+				if err != nil {
+					return err
+				}
 
-				graphDraft := make(map[string]any)
-				if err := record.UnmarshalJSONField("graphDraft", &graphDraft); err == nil {
-					if _, ok := graphDraft["nodes"]; ok {
-						nodes := make([]*dWorkflowNode, 0)
-						if err := mapstructure.Decode(graphDraft["nodes"], &nodes); err != nil {
+				records, err := app.FindAllRecords(collection)
+				if err != nil {
+					return err
+				}
+
+				for _, record := range records {
+					changed := false
+
+					graphDraft := make(map[string]any)
+					if err := record.UnmarshalJSONField("graphDraft", &graphDraft); err == nil {
+						if _, ok := graphDraft["nodes"]; ok {
+							nodes := make([]*dWorkflowNode, 0)
+							if err := mapstructure.Decode(graphDraft["nodes"], &nodes); err != nil {
+								return err
+							}
+
+							if newNodes, migrated := deepMigrateNodes(nodes); migrated {
+								graphDraft["nodes"] = newNodes
+								record.Set("graphDraft", graphDraft)
+								changed = true
+							}
+						}
+					}
+
+					graphContent := make(map[string]any)
+					if err := record.UnmarshalJSONField("graphContent", &graphContent); err == nil {
+						if _, ok := graphContent["nodes"]; ok {
+							nodes := make([]*dWorkflowNode, 0)
+							if err := mapstructure.Decode(graphContent["nodes"], &nodes); err != nil {
+								return err
+							}
+
+							if newNodes, migrated := deepMigrateNodes(nodes); migrated {
+								graphContent["nodes"] = newNodes
+								record.Set("graphContent", graphContent)
+								changed = true
+							}
+						}
+					}
+
+					if changed {
+						if err := app.Save(record); err != nil {
 							return err
 						}
 
-						if newNodes, migrated := deepMigrateNodes(nodes); migrated {
-							graphDraft["nodes"] = newNodes
-							record.Set("graphDraft", graphDraft)
-							changed = true
-						}
+						tracer.Printf("record #%s in collection '%s' updated", record.Id, collection.Name)
 					}
-				}
-
-				graphContent := make(map[string]any)
-				if err := record.UnmarshalJSONField("graphContent", &graphContent); err == nil {
-					if _, ok := graphContent["nodes"]; ok {
-						nodes := make([]*dWorkflowNode, 0)
-						if err := mapstructure.Decode(graphContent["nodes"], &nodes); err != nil {
-							return err
-						}
-
-						if newNodes, migrated := deepMigrateNodes(nodes); migrated {
-							graphContent["nodes"] = newNodes
-							record.Set("graphContent", graphContent)
-							changed = true
-						}
-					}
-				}
-
-				if changed {
-					if err := app.Save(record); err != nil {
-						return err
-					}
-
-					tracer.Printf("record #%s in collection '%s' updated", record.Id, collection.Name)
 				}
 			}
 		}
 
+		tracer.Printf("done")
 		return nil
 	}, func(app core.App) error {
 		return nil

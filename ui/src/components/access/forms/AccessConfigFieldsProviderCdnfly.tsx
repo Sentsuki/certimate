@@ -74,14 +74,8 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
 
   return z.object({
     serverUrl: z.url(t("common.errmsg.url_invalid")),
-    apiKey: z
-      .string()
-      .min(1, t("access.form.cdnfly_api_key.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
-    apiSecret: z
-      .string()
-      .min(1, t("access.form.cdnfly_api_secret.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
+    apiKey: z.string().nonempty(t("access.form.cdnfly_api_key.placeholder")),
+    apiSecret: z.string().nonempty(t("access.form.cdnfly_api_secret.placeholder")),
     allowInsecureConnections: z.boolean().nullish(),
   });
 };

@@ -1,6 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getNodeForm } from "@flowgram.ai/fixed-layout-editor";
 import { IconCircleMinus, IconCirclePlus } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { Button, Form, Input, Radio, Select, theme } from "antd";
@@ -171,7 +170,7 @@ const BranchBlockNodeConfigExprInputBox = forwardRef<BranchBlockNodeConfigExprIn
       return getAllPreviousNodes(node)
         .filter((node) => node.flowNodeType === NodeType.BizApply || node.flowNodeType === NodeType.BizUpload || node.flowNodeType === NodeType.BizMonitor)
         .map((node) => {
-          const form = getNodeForm(node);
+          const form = node.form;
           const group = {
             data: {
               name: form?.getValueIn("name"),

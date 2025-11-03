@@ -10,10 +10,10 @@ import (
 func init() {
 	if err := Registries.Register(domain.DeploymentProviderTypeLocal, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		provider, err := local.NewSSLDeployerProvider(&local.SSLDeployerProviderConfig{
-			ShellEnv:                 local.ShellEnvType(xmaps.GetString(options.ProviderExtendedConfig, "shellEnv")),
+			ShellEnv:                 xmaps.GetString(options.ProviderExtendedConfig, "shellEnv"),
 			PreCommand:               xmaps.GetString(options.ProviderExtendedConfig, "preCommand"),
 			PostCommand:              xmaps.GetString(options.ProviderExtendedConfig, "postCommand"),
-			OutputFormat:             local.OutputFormatType(xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "format", string(local.OUTPUT_FORMAT_PEM))),
+			OutputFormat:             xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "format", local.OUTPUT_FORMAT_PEM),
 			OutputCertPath:           xmaps.GetString(options.ProviderExtendedConfig, "certPath"),
 			OutputServerCertPath:     xmaps.GetString(options.ProviderExtendedConfig, "certPathForServerOnly"),
 			OutputIntermediaCertPath: xmaps.GetString(options.ProviderExtendedConfig, "certPathForIntermediaOnly"),

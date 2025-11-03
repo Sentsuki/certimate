@@ -27,7 +27,7 @@ type SSLDeployerProviderConfig struct {
 	// 腾讯云地域。
 	Region string `json:"region"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 负载均衡器 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_SSLDEPLOY]、[RESOURCE_TYPE_LOADBALANCER]、[RESOURCE_TYPE_RULEDOMAIN] 时必填。
 	LoadbalancerId string `json:"loadbalancerId,omitempty"`

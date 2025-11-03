@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	aliapig "github.com/alibabacloud-go/apig-20240327/v4/client"
+	aliapig "github.com/alibabacloud-go/apig-20240327/v5/client"
 	alicloudapi "github.com/alibabacloud-go/cloudapi-20160714/v5/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/tea"
@@ -28,7 +28,7 @@ type SSLDeployerProviderConfig struct {
 	// 阿里云地域。
 	Region string `json:"region"`
 	// 服务类型。
-	ServiceType ServiceType `json:"serviceType"`
+	ServiceType string `json:"serviceType"`
 	// API 网关 ID。
 	// 服务类型为 [SERVICE_TYPE_CLOUDNATIVE] 时必填。
 	GatewayId string `json:"gatewayId,omitempty"`

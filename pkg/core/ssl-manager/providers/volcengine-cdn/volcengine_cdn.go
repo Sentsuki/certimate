@@ -11,8 +11,9 @@ import (
 	"strings"
 	"time"
 
-	vecdn "github.com/volcengine/volc-sdk-golang/service/cdn"
+	vecdn "github.com/volcengine/volcengine-go-sdk/service/cdn"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
+	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
@@ -38,9 +39,10 @@ func NewSSLManagerProvider(config *SSLManagerProviderConfig) (*SSLManagerProvide
 		return nil, errors.New("the configuration of the ssl manager provider is nil")
 	}
 
-	client := vecdn.NewInstance()
-	client.Client.SetAccessKey(config.AccessKeyId)
-	client.Client.SetSecretKey(config.AccessKeySecret)
+	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
+	if err != nil {
+		return nil, fmt.Errorf("could not create sdk client: %w", err)
+	}
 
 	return &SSLManagerProvider{
 		config:    config,
@@ -66,13 +68,13 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 
 	// 查询证书列表，避免重复上传
 	// REF: https://www.volcengine.com/docs/6454/125709
-	listCertInfoPageNum := int64(1)
-	listCertInfoPageSize := int64(100)
+	listCertInfoPageNum := int32(1)
+	listCertInfoPageSize := int32(100)
 	listCertInfoTotal := 0
-	listCertInfoReq := &vecdn.ListCertInfoRequest{
-		PageNum:  ve.Int64(listCertInfoPageNum),
-		PageSize: ve.Int64(listCertInfoPageSize),
-		Source:   "volc_cert_center",
+	listCertInfoReq := &vecdn.ListCertInfoInput{
+		Source:   ve.String("volc_cert_center"),
+		PageNum:  ve.Int32(listCertInfoPageNum),
+		PageSize: ve.Int32(listCertInfoPageSize),
 	}
 	for {
 		select {
@@ -87,25 +89,25 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 			return nil, fmt.Errorf("failed to execute sdk request 'cdn.ListCertInfo': %w", err)
 		}
 
-		if listCertInfoResp.Result.CertInfo != nil {
-			for _, certInfo := range listCertInfoResp.Result.CertInfo {
+		if listCertInfoResp.CertInfo != nil {
+			for _, certInfo := range listCertInfoResp.CertInfo {
 				fingerprintSha1 := sha1.Sum(certX509.Raw)
 				fingerprintSha256 := sha256.Sum256(certX509.Raw)
-				isSameCert := strings.EqualFold(hex.EncodeToString(fingerprintSha1[:]), certInfo.CertFingerprint.Sha1) &&
-					strings.EqualFold(hex.EncodeToString(fingerprintSha256[:]), certInfo.CertFingerprint.Sha256)
+				isSameCert := strings.EqualFold(hex.EncodeToString(fingerprintSha1[:]), ve.StringValue(certInfo.CertFingerprint.Sha1)) &&
+					strings.EqualFold(hex.EncodeToString(fingerprintSha256[:]), ve.StringValue(certInfo.CertFingerprint.Sha256))
 				// 如果已存在相同证书，直接返回
 				if isSameCert {
 					m.logger.Info("ssl certificate already exists")
 					return &core.SSLManageUploadResult{
-						CertId:   certInfo.CertId,
-						CertName: certInfo.Desc,
+						CertId:   ve.StringValue(certInfo.CertId),
+						CertName: ve.StringValue(certInfo.Desc),
 					}, nil
 				}
 			}
 		}
 
-		listCertInfoLen := len(listCertInfoResp.Result.CertInfo)
-		if listCertInfoLen < int(listCertInfoPageSize) || int(listCertInfoResp.Result.Total) <= listCertInfoTotal+listCertInfoLen {
+		listCertInfoLen := len(listCertInfoResp.CertInfo)
+		if listCertInfoLen < int(listCertInfoPageSize) || int(ve.Int64Value(listCertInfoResp.Total)) <= listCertInfoTotal+listCertInfoLen {
 			break
 		} else {
 			listCertInfoPageNum++
@@ -118,10 +120,10 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 
 	// 上传新证书
 	// REF: https://www.volcengine.com/docs/6454/1245763
-	addCertificateReq := &vecdn.AddCertificateRequest{
-		Certificate: certPEM,
-		PrivateKey:  privkeyPEM,
+	addCertificateReq := &vecdn.AddCertificateInput{
 		Source:      ve.String("volc_cert_center"),
+		Certificate: ve.String(certPEM),
+		PrivateKey:  ve.String(privkeyPEM),
 		Desc:        ve.String(certName),
 	}
 	addCertificateResp, err := m.sdkClient.AddCertificate(addCertificateReq)
@@ -131,7 +133,20 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}
 
 	return &core.SSLManageUploadResult{
-		CertId:   addCertificateResp.Result.CertId,
+		CertId:   ve.StringValue(addCertificateResp.CertId),
 		CertName: certName,
 	}, nil
+}
+
+func createSDKClient(accessKeyId, accessKeySecret string) (*vecdn.CDN, error) {
+	config := ve.NewConfig().
+		WithAkSk(accessKeyId, accessKeySecret)
+
+	session, err := vesession.NewSession(config)
+	if err != nil {
+		return nil, err
+	}
+
+	client := vecdn.New(session)
+	return client, nil
 }

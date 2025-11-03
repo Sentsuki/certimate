@@ -23,7 +23,7 @@ type SSLDeployerProviderConfig struct {
 	// 火山引擎地域。
 	Region string `json:"region"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 负载均衡实例 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_LOADBALANCER] 时必填。
 	LoadbalancerId string `json:"loadbalancerId,omitempty"`
@@ -260,7 +260,9 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 }
 
 func createSDKClient(accessKeyId, accessKeySecret, region string) (*vealb.ALB, error) {
-	config := ve.NewConfig().WithRegion(region).WithAkSk(accessKeyId, accessKeySecret)
+	config := ve.NewConfig().
+		WithAkSk(accessKeyId, accessKeySecret).
+		WithRegion(region)
 
 	session, err := vesession.NewSession(config)
 	if err != nil {

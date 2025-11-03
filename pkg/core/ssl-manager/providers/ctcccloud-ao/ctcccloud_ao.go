@@ -104,6 +104,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 					continue
 				}
 
+				// 最后对比证书内容
 				// 查询证书详情
 				// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=113&api=13015&data=174&isNormal=1&vid=167
 				queryCertReq := &ctyunao.QueryCertRequest{
@@ -114,27 +115,17 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				if err != nil {
 					return nil, fmt.Errorf("failed to execute sdk request 'ao.QueryCert': %w", err)
 				} else if queryCertResp.ReturnObj != nil && queryCertResp.ReturnObj.Result != nil {
-					var isSameCert bool
-					if queryCertResp.ReturnObj.Result.Certs == certPEM {
-						isSameCert = true
-					} else {
-						oldCertX509, err := xcert.ParseCertificateFromPEM(queryCertResp.ReturnObj.Result.Certs)
-						if err != nil {
-							continue
-						}
-
-						isSameCert = xcert.EqualCertificates(certX509, oldCertX509)
-					}
-
-					// 如果已存在相同证书，直接返回
-					if isSameCert {
-						m.logger.Info("ssl certificate already exists")
-						return &core.SSLManageUploadResult{
-							CertId:   fmt.Sprintf("%d", queryCertResp.ReturnObj.Result.Id),
-							CertName: queryCertResp.ReturnObj.Result.Name,
-						}, nil
+					if !xcert.EqualCertificatesFromPEM(certPEM, queryCertResp.ReturnObj.Result.Certs) {
+						continue
 					}
 				}
+
+				// 如果以上信息都一致，则视为已存在相同证书，直接返回
+				m.logger.Info("ssl certificate already exists")
+				return &core.SSLManageUploadResult{
+					CertId:   fmt.Sprintf("%d", queryCertResp.ReturnObj.Result.Id),
+					CertName: queryCertResp.ReturnObj.Result.Name,
+				}, nil
 			}
 		}
 

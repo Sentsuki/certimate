@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 import { getI18n, useTranslation } from "react-i18next";
-import { type FlowNodeEntity, getNodeForm } from "@flowgram.ai/fixed-layout-editor";
+import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { type AnchorProps, Form, type FormInstance } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
@@ -35,7 +35,7 @@ const BranchBlockNodeConfigForm = ({ node, ...props }: BranchBlockNodeConfigForm
   const { i18n, t } = useTranslation();
 
   const initialValues = useMemo(() => {
-    return getNodeForm(node)?.getValueIn("config") as WorkflowNodeConfigForBranchBlock | undefined;
+    return node.form?.getValueIn("config") as WorkflowNodeConfigForBranchBlock | undefined;
   }, [node]);
 
   const formSchema = getSchema({ i18n }).superRefine(async (values, ctx) => {

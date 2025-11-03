@@ -50,7 +50,7 @@ type SSLDeployerProviderConfig struct {
 	// 后置命令。
 	PostCommand string `json:"postCommand,omitempty"`
 	// 输出证书格式。
-	OutputFormat OutputFormatType `json:"outputFormat,omitempty"`
+	OutputFormat string `json:"outputFormat,omitempty"`
 	// 输出私钥文件路径。
 	OutputKeyPath string `json:"outputKeyPath,omitempty"`
 	// 输出证书文件路径。
@@ -268,9 +268,6 @@ func createSshClient(conn net.Conn, host string, port int32, authMethod string, 
 		username = "root"
 	}
 
-	const AUTH_METHOD_NONE = "none"
-	const AUTH_METHOD_PASSWORD = "password"
-	const AUTH_METHOD_KEY = "key"
 	if authMethod == "" {
 		if key != "" {
 			authMethod = AUTH_METHOD_KEY

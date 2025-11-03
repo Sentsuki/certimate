@@ -21,7 +21,7 @@ func init() {
 			SecretKey:      credentials.SecretKey,
 			Endpoint:       xmaps.GetString(options.ProviderExtendedConfig, "endpoint"),
 			Region:         xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ResourceType:   tencentcloudclb.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:   xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			LoadbalancerId: xmaps.GetString(options.ProviderExtendedConfig, "loadbalancerId"),
 			ListenerId:     xmaps.GetString(options.ProviderExtendedConfig, "listenerId"),
 			Domain:         xmaps.GetString(options.ProviderExtendedConfig, "domain"),

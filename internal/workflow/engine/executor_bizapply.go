@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-acme/lego/v4/certcrypto"
 	legocertifier "github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	legolog "github.com/go-acme/lego/v4/log"
@@ -33,6 +32,12 @@ func init() {
 		useMultiProc = false
 	}
 }
+
+const (
+	BizApplyKeySourceAuto   = "auto"
+	BizApplyKeySourceReuse  = "reuse"
+	BizApplyKeySourceCustom = "custom"
+)
 
 /**
  * Outputs:
@@ -123,7 +128,7 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 
 	// 保存 ARI 替换状态
 	if lastCertificate != nil && obtainResp.ARIReplaced {
-		lastCertificate.ACMERenewed = true
+		lastCertificate.IsRenewed = true
 		ne.certificateRepo.Save(execCtx.ctx, lastCertificate)
 	}
 
@@ -204,10 +209,15 @@ func (ne *bizApplyNodeExecutor) checkCanSkip(execCtx *NodeExecutionContext, last
 }
 
 func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nodeCfg *domain.WorkflowNodeConfigForBizApply, lastCertificate *domain.Certificate) (*certapply.ObtainCertificateResponse, error) {
-	// 读取证书算法
+	// 读取私钥算法
+	// 如果复用私钥，则保持算法一致
 	legoKeyType, err := domain.CertificateKeyAlgorithmType(nodeCfg.KeyAlgorithm).KeyType()
 	if err != nil {
 		return nil, err
+	} else {
+		if nodeCfg.KeySource == BizApplyKeySourceReuse && lastCertificate != nil {
+			legoKeyType, _ = lastCertificate.KeyAlgorithm.KeyType()
+		}
 	}
 
 	// 读取质询提供商授权
@@ -257,8 +267,30 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 
 	// 构造证书申请请求
 	obtainReq := &certapply.ObtainCertificateRequest{
-		Domains:                nodeCfg.Domains,
-		KeyType:                legoKeyType,
+		Domains:        nodeCfg.Domains,
+		PrivateKeyType: legoKeyType,
+		PrivateKeyPEM: lo.
+			If(nodeCfg.KeySource == BizApplyKeySourceAuto, "").
+			ElseF(func() string {
+				switch nodeCfg.KeySource {
+				case BizApplyKeySourceReuse:
+					if lastCertificate != nil {
+						return lastCertificate.PrivateKey
+					}
+				case BizApplyKeySourceCustom:
+					return nodeCfg.KeyContent
+				}
+				return ""
+			}),
+		ValidityTo: lo.
+			If(nodeCfg.ValidityLifetime == "", time.Time{}).
+			ElseF(func() time.Time {
+				duration, err := str2duration.ParseDuration(nodeCfg.ValidityLifetime)
+				if err != nil {
+					return time.Time{}
+				}
+				return time.Now().Add(duration)
+			}),
 		ChallengeType:          nodeCfg.ChallengeType,
 		Provider:               nodeCfg.Provider,
 		ProviderAccessConfig:   providerAccessConfig,
@@ -269,26 +301,19 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 		DnsPropagationTimeout:  nodeCfg.DnsPropagationTimeout,
 		DnsTTL:                 nodeCfg.DnsTTL,
 		HttpDelayWait:          nodeCfg.HttpDelayWait,
-		ValidityTo: lo.If(nodeCfg.ValidityLifetime == "", time.Time{}).
-			ElseF(func() time.Time {
-				duration, err := str2duration.ParseDuration(nodeCfg.ValidityLifetime)
-				if err != nil {
-					return time.Time{}
-				}
-				return time.Now().Add(duration)
-			}),
-		ACMEProfile: nodeCfg.ACMEProfile,
-		ARIReplacesAcctUrl: lo.If(lastCertificate == nil, "").
+		ACMEProfile:            nodeCfg.ACMEProfile,
+		ARIReplacesAcctUrl: lo.
+			If(lastCertificate == nil, "").
 			ElseF(func() string {
-				if lastCertificate.ACMERenewed {
+				if lastCertificate.IsRenewed {
 					return ""
 				}
-
 				return lastCertificate.ACMEAcctUrl
 			}),
-		ARIReplacesCertId: lo.If(lastCertificate == nil, "").
+		ARIReplacesCertId: lo.
+			If(lastCertificate == nil, "").
 			ElseF(func() string {
-				if lastCertificate.ACMERenewed {
+				if lastCertificate.IsRenewed {
 					return ""
 				}
 
@@ -300,7 +325,7 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 					return ""
 				}
 
-				oldCertX509, err := certcrypto.ParsePEMCertificate([]byte(lastCertificate.Certificate))
+				oldCertX509, err := xcert.ParseCertificateFromPEM(lastCertificate.Certificate)
 				if err != nil {
 					return ""
 				}

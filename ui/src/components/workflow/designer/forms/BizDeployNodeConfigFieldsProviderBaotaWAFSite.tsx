@@ -53,13 +53,10 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
 
   return z.object({
     siteName: z.string().nonempty(t("workflow_node.deploy.form.baotawaf_site_name.placeholder")),
-    sitePort: z.preprocess(
-      (v) => Number(v),
-      z
-        .number()
-        .int(t("workflow_node.deploy.form.baotawaf_site_port.placeholder"))
-        .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid"))
-    ),
+    sitePort: z.coerce
+      .number()
+      .int(t("workflow_node.deploy.form.baotawaf_site_port.placeholder"))
+      .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
   });
 };
 

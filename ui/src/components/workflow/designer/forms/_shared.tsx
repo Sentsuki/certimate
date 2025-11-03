@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { type FlowNodeEntity, getNodeForm, useClientContext, useRefresh } from "@flowgram.ai/fixed-layout-editor";
+import { type FlowNodeEntity, useClientContext, useRefresh } from "@flowgram.ai/fixed-layout-editor";
 import { IconEye, IconEyeOff, IconX } from "@tabler/icons-react";
 import { useControllableValue } from "ahooks";
 import { Anchor, type AnchorProps, App, Button, Drawer, Flex, type FormInstance, Tooltip, Typography } from "antd";
@@ -60,13 +60,13 @@ export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, 
 
   const [isNodeDisabled, setIsNodeDisabled] = useState(() => {
     if (node) {
-      return getNodeForm(node)?.getValueIn<boolean>("disabled");
+      return node.form?.getValueIn<boolean>("disabled");
     }
     return false;
   });
   useEffect(() => {
     const d1 = playground.config.onDataChange(() => refresh());
-    const d2 = node?.onDataChange(() => setIsNodeDisabled(getNodeForm(node)?.getValueIn<boolean>("disabled")));
+    const d2 = node?.onDataChange(() => setIsNodeDisabled(node.form?.getValueIn<boolean>("disabled")));
 
     return () => {
       d1.dispose();
@@ -93,8 +93,8 @@ export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, 
     }
 
     try {
-      getNodeForm(node)!.setValueIn("config", formValues);
-      getNodeForm(node)!.validate();
+      node.form!.setValueIn("config", formValues);
+      node.form!.validate();
 
       setOpen(false);
     } catch (err) {
@@ -152,7 +152,7 @@ export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, 
   };
 
   const handleDisableNodeClick = () => {
-    getNodeForm(node)!.setValueIn("disabled", !isNodeDisabled);
+    node.form!.setValueIn("disabled", !isNodeDisabled);
   };
 
   return (

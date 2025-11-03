@@ -1,13 +1,13 @@
-﻿package cert_test
+﻿package hostname_test
 
 import (
 	"testing"
 
-	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
-func TestCertUtil_Hostname(t *testing.T) {
-	t.Run("MatchHostname", func(t *testing.T) {
+func TestCertHostnameUtil_IsMatch(t *testing.T) {
+	t.Run("IsMatch", func(t *testing.T) {
 		testCases := []struct {
 			wildcard string
 			target   string
@@ -36,7 +36,7 @@ func TestCertUtil_Hostname(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			result := xcert.MatchHostname(tc.wildcard, tc.target)
+			result := xcerthostname.IsMatch(tc.wildcard, tc.target)
 			status := "✓"
 			pf := t.Logf
 			if result != tc.expected {

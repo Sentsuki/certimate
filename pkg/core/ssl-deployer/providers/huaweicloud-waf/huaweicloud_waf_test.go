@@ -63,7 +63,7 @@ func TestDeploy(t *testing.T) {
 			AccessKeyId:     fAccessKeyId,
 			SecretAccessKey: fSecretAccessKey,
 			Region:          fRegion,
-			ResourceType:    provider.ResourceType(fResourceType),
+			ResourceType:    fResourceType,
 			Domain:          fDomain,
 		})
 		if err != nil {

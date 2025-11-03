@@ -107,6 +107,8 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				}
 
 				// 最后对比证书内容
+				// 导出证书
+				// REF: https://support.huaweicloud.com/api-ccm/ExportCertificate_0.html
 				exportCertificateReq := &hcscmmodel.ExportCertificateRequest{
 					CertificateId: certDetail.Id,
 				}
@@ -118,27 +120,17 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 					}
 					return nil, fmt.Errorf("failed to execute sdk request 'scm.ExportCertificate': %w", err)
 				} else {
-					var isSameCert bool
-					if *exportCertificateResp.Certificate == certPEM {
-						isSameCert = true
-					} else {
-						oldCertX509, err := xcert.ParseCertificateFromPEM(*exportCertificateResp.Certificate)
-						if err != nil {
-							continue
-						}
-
-						isSameCert = xcert.EqualCertificates(certX509, oldCertX509)
-					}
-
-					// 如果已存在相同证书，直接返回
-					if isSameCert {
-						m.logger.Info("ssl certificate already exists")
-						return &core.SSLManageUploadResult{
-							CertId:   certDetail.Id,
-							CertName: certDetail.Name,
-						}, nil
+					if !xcert.EqualCertificatesFromPEM(certPEM, lo.FromPtr(exportCertificateResp.Certificate)) {
+						continue
 					}
 				}
+
+				// 如果以上信息都一致，则视为已存在相同证书，直接返回
+				m.logger.Info("ssl certificate already exists")
+				return &core.SSLManageUploadResult{
+					CertId:   certDetail.Id,
+					CertName: certDetail.Name,
+				}, nil
 			}
 		}
 

@@ -66,12 +66,6 @@ func (m *SSLManagerProvider) SetLogger(logger *slog.Logger) {
 }
 
 func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*core.SSLManageUploadResult, error) {
-	// 解析证书内容
-	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
-	if err != nil {
-		return nil, err
-	}
-
 	// 遍历查询已有证书，避免重复上传
 	// REF: https://support.huaweicloud.com/api-waf/ListCertificates.html
 	// REF: https://support.huaweicloud.com/api-waf/ShowCertificate.html
@@ -107,20 +101,8 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 					return nil, fmt.Errorf("failed to execute sdk request 'waf.ShowCertificate': %w", err)
 				}
 
-				var isSameCert bool
-				if *showCertificateResp.Content == certPEM {
-					isSameCert = true
-				} else {
-					oldCertX509, err := xcert.ParseCertificateFromPEM(*showCertificateResp.Content)
-					if err != nil {
-						continue
-					}
-
-					isSameCert = xcert.EqualCertificates(certX509, oldCertX509)
-				}
-
 				// 如果已存在相同证书，直接返回
-				if isSameCert {
+				if xcert.EqualCertificatesFromPEM(certPEM, lo.FromPtr(showCertificateResp.Content)) {
 					m.logger.Info("ssl certificate already exists")
 					return &core.SSLManageUploadResult{
 						CertId:   certItem.Id,

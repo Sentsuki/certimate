@@ -94,6 +94,7 @@
   "provider.goedge": "GoEdge",
   "provider.googletrustservices": "Google Trust Services",
   "provider.hetzner": "Hetzner",
+  "provider.hostingde": "hosting.de",
   "provider.hostinger": "Hostinger",
   "provider.huaweicloud": "Huawei Cloud",
   "provider.huaweicloud.cdn": "Huawei Cloud - CDN (Content Delivery Network)",

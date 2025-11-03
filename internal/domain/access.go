@@ -159,7 +159,7 @@ type AccessConfigForDigitalOcean struct {
 
 type AccessConfigForDingTalkBot struct {
 	WebhookUrl string `json:"webhookUrl"`
-	Secret     string `json:"secret"`
+	Secret     string `json:"secret,omitempty"`
 }
 
 type AccessConfigForDiscordBot struct {
@@ -247,6 +247,10 @@ type AccessConfigForHetzner struct {
 	ApiToken string `json:"apiToken"`
 }
 
+type AccessConfigForHostingde struct {
+	ApiKey string `json:"apiKey"`
+}
+
 type AccessConfigForHostinger struct {
 	ApiToken string `json:"apiToken"`
 }
@@ -279,6 +283,7 @@ type AccessConfigForKubernetes struct {
 
 type AccessConfigForLarkBot struct {
 	WebhookUrl string `json:"webhookUrl"`
+	Secret     string `json:"secret,omitempty"`
 }
 
 type AccessConfigForLeCDN struct {

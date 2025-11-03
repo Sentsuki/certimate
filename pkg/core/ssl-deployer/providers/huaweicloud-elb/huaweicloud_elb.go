@@ -31,7 +31,7 @@ type SSLDeployerProviderConfig struct {
 	// 华为云区域。
 	Region string `json:"region"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 证书 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_CERTIFICATE] 时必填。
 	CertificateId string `json:"certificateId,omitempty"`

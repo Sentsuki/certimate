@@ -109,7 +109,9 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*vedcdn.DCDN,
 		region = "cn-beijing" // DCDN 服务默认区域：北京
 	}
 
-	config := ve.NewConfig().WithRegion(region).WithAkSk(accessKeyId, accessKeySecret)
+	config := ve.NewConfig().
+		WithAkSk(accessKeyId, accessKeySecret).
+		WithRegion(region)
 
 	session, err := vesession.NewSession(config)
 	if err != nil {

@@ -75,7 +75,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
 
   return z.object({
     serverUrl: z.url(t("common.errmsg.url_invalid")),
-    accessTokenId: z.preprocess((v) => Number(v), z.number().positive(t("access.form.ratpanel_access_token_id.placeholder"))),
+    accessTokenId: z.coerce.number().int(t("access.form.ratpanel_access_token_id.placeholder")).positive(t("access.form.ratpanel_access_token_id.placeholder")),
     accessToken: z.string().nonempty(t("access.form.ratpanel_access_token.placeholder")),
     allowInsecureConnections: z.boolean().nullish(),
   });

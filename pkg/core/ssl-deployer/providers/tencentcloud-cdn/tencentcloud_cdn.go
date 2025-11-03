@@ -15,7 +15,7 @@ import (
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
-	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -26,7 +26,7 @@ type SSLDeployerProviderConfig struct {
 	// 腾讯云接口端点。
 	Endpoint string `json:"endpoint,omitempty"`
 	// 域名匹配模式。
-	// 零值时默认值 [MatchPatternExact]。
+	// 零值时默认值 [MATCH_PATTERN_EXACT]。
 	MatchPattern string `json:"matchPattern,omitempty"`
 	// 加速域名（支持泛域名）。
 	Domain string `json:"domain"`
@@ -97,7 +97,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 获取待部署的 CDN 实例
 	domains := make([]string, 0)
 	switch d.config.MatchPattern {
-	case "", MatchPatternExact:
+	case "", MATCH_PATTERN_EXACT:
 		{
 			if d.config.Domain == "" {
 				return nil, errors.New("config `domain` is required")
@@ -106,7 +106,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			domains = append(domains, d.config.Domain)
 		}
 
-	case MatchPatternWildcard:
+	case MATCH_PATTERN_WILDCARD:
 		{
 			if d.config.Domain == "" {
 				return nil, errors.New("config `domain` is required")
@@ -124,7 +124,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			}
 		}
 
-	case MatchPatternCertSAN:
+	case MATCH_PATTERN_CERTSAN:
 		{
 			temp, err := d.getMatchedDomainsByCertId(ctx, upres.CertId)
 			if err != nil {
@@ -196,7 +196,7 @@ func (d *SSLDeployerProvider) getMatchedDomainsByWildcard(ctx context.Context, w
 
 		if describeDomainsResp.Response.Domains != nil {
 			for _, domain := range describeDomainsResp.Response.Domains {
-				if lo.FromPtr(domain.Product) == "cdn" && xcert.MatchHostname(wildcardDomain, lo.FromPtr(domain.Domain)) {
+				if lo.FromPtr(domain.Product) == "cdn" && xcerthostname.IsMatch(wildcardDomain, lo.FromPtr(domain.Domain)) {
 					domains = append(domains, *domain.Domain)
 				}
 			}

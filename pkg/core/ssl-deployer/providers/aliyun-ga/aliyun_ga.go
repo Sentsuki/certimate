@@ -24,7 +24,7 @@ type SSLDeployerProviderConfig struct {
 	// 阿里云资源组 ID。
 	ResourceGroupId string `json:"resourceGroupId,omitempty"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 全球加速实例 ID。
 	AcceleratorId string `json:"acceleratorId"`
 	// 全球加速监听 ID。

@@ -20,7 +20,7 @@ func init() {
 			AccessKeyId:     credentials.AccessKeyId,
 			AccessKeySecret: credentials.SecretAccessKey,
 			Region:          xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ResourceType:    volcengineclb.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:    xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			LoadbalancerId:  xmaps.GetString(options.ProviderExtendedConfig, "loadbalancerId"),
 			ListenerId:      xmaps.GetString(options.ProviderExtendedConfig, "listenerId"),
 		})

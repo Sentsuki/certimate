@@ -20,7 +20,7 @@ func init() {
 			ServerUrl:                credentials.ServerUrl,
 			ApiToken:                 credentials.ApiToken,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
-			ResourceType:             safeline.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:             xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			CertificateId:            xmaps.GetInt32(options.ProviderExtendedConfig, "certificateId"),
 		})
 		return provider, err

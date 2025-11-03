@@ -17,13 +17,13 @@ import (
 type SSLDeployerProviderConfig struct {
 	// Shell 执行环境。
 	// 零值时根据操作系统决定。
-	ShellEnv ShellEnvType `json:"shellEnv,omitempty"`
+	ShellEnv string `json:"shellEnv,omitempty"`
 	// 前置命令。
 	PreCommand string `json:"preCommand,omitempty"`
 	// 后置命令。
 	PostCommand string `json:"postCommand,omitempty"`
 	// 输出证书格式。
-	OutputFormat OutputFormatType `json:"outputFormat,omitempty"`
+	OutputFormat string `json:"outputFormat,omitempty"`
 	// 输出证书文件路径。
 	OutputCertPath string `json:"outputCertPath,omitempty"`
 	// 输出服务器证书文件路径。
@@ -157,10 +157,17 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func execCommand(shellEnv ShellEnvType, command string) (string, string, error) {
+func execCommand(shellEnv string, command string) (string, string, error) {
 	var cmd *exec.Cmd
 
 	switch shellEnv {
+	case "":
+		if runtime.GOOS == "windows" {
+			cmd = exec.Command("cmd", "/C", command)
+		} else {
+			cmd = exec.Command("sh", "-c", command)
+		}
+
 	case SHELL_ENV_SH:
 		cmd = exec.Command("sh", "-c", command)
 
@@ -169,13 +176,6 @@ func execCommand(shellEnv ShellEnvType, command string) (string, string, error) 
 
 	case SHELL_ENV_POWERSHELL:
 		cmd = exec.Command("powershell", "-Command", command)
-
-	case ShellEnvType(""):
-		if runtime.GOOS == "windows" {
-			cmd = exec.Command("cmd", "/C", command)
-		} else {
-			cmd = exec.Command("sh", "-c", command)
-		}
 
 	default:
 		return "", "", fmt.Errorf("unsupported shell env '%s'", shellEnv)

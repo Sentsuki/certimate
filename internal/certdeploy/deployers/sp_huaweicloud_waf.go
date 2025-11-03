@@ -21,7 +21,7 @@ func init() {
 			SecretAccessKey:     credentials.SecretAccessKey,
 			EnterpriseProjectId: credentials.EnterpriseProjectId,
 			Region:              xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ResourceType:        huaweicloudwaf.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:        xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			CertificateId:       xmaps.GetString(options.ProviderExtendedConfig, "certificateId"),
 			Domain:              xmaps.GetString(options.ProviderExtendedConfig, "domain"),
 		})

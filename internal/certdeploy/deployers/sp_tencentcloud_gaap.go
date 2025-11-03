@@ -20,7 +20,7 @@ func init() {
 			SecretId:     credentials.SecretId,
 			SecretKey:    credentials.SecretKey,
 			Endpoint:     xmaps.GetString(options.ProviderExtendedConfig, "endpoint"),
-			ResourceType: tencentcloudgaap.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType: xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			ProxyId:      xmaps.GetString(options.ProviderExtendedConfig, "proxyId"),
 			ListenerId:   xmaps.GetString(options.ProviderExtendedConfig, "listenerId"),
 		})

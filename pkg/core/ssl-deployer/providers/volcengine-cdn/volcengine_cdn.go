@@ -7,12 +7,13 @@ import (
 	"log/slog"
 	"strings"
 
-	vecdn "github.com/volcengine/volc-sdk-golang/service/cdn"
+	vecdn "github.com/volcengine/volcengine-go-sdk/service/cdn"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
+	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/certimate-go/certimate/pkg/core"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/volcengine-cdn"
-	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -21,7 +22,7 @@ type SSLDeployerProviderConfig struct {
 	// 火山引擎 AccessKeySecret。
 	AccessKeySecret string `json:"accessKeySecret"`
 	// 域名匹配模式。
-	// 零值时默认值 [MatchPatternExact]。
+	// 零值时默认值 [MATCH_PATTERN_EXACT]。
 	MatchPattern string `json:"matchPattern,omitempty"`
 	// 加速域名（支持泛域名）。
 	Domain string `json:"domain"`
@@ -41,9 +42,10 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 		return nil, errors.New("the configuration of the ssl deployer provider is nil")
 	}
 
-	client := vecdn.NewInstance()
-	client.Client.SetAccessKey(config.AccessKeyId)
-	client.Client.SetSecretKey(config.AccessKeySecret)
+	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
+	if err != nil {
+		return nil, fmt.Errorf("could not create sdk client: %w", err)
+	}
 
 	sslmgr, err := sslmgrsp.NewSSLManagerProvider(&sslmgrsp.SSLManagerProviderConfig{
 		AccessKeyId:     config.AccessKeyId,
@@ -83,7 +85,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	// 获取待部署的 CDN 实例
 	domains := make([]string, 0)
 	switch d.config.MatchPattern {
-	case "", MatchPatternExact:
+	case "", MATCH_PATTERN_EXACT:
 		{
 			if d.config.Domain == "" {
 				return nil, errors.New("config `domain` is required")
@@ -92,7 +94,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			domains = append(domains, d.config.Domain)
 		}
 
-	case MatchPatternWildcard:
+	case MATCH_PATTERN_WILDCARD:
 		{
 			if d.config.Domain == "" {
 				return nil, errors.New("config `domain` is required")
@@ -110,7 +112,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			}
 		}
 
-	case MatchPatternCertSAN:
+	case MATCH_PATTERN_CERTSAN:
 		{
 			temp, err := d.getMatchedDomainsByCertId(ctx, upres.CertId)
 			if err != nil {
@@ -164,7 +166,7 @@ func (d *SSLDeployerProvider) getMatchedDomainsByWildcard(ctx context.Context, w
 		default:
 		}
 
-		listCdnDomainsReq := &vecdn.ListCdnDomainsRequest{
+		listCdnDomainsReq := &vecdn.ListCdnDomainsInput{
 			Domain:   ve.String(strings.TrimPrefix(wildcardDomain, "*.")),
 			Status:   ve.String("online"),
 			PageNum:  ve.Int64(listCdnDomainsPageNum),
@@ -176,15 +178,15 @@ func (d *SSLDeployerProvider) getMatchedDomainsByWildcard(ctx context.Context, w
 			return nil, fmt.Errorf("failed to execute sdk request 'cdn.ListCdnDomains': %w", err)
 		}
 
-		if listCdnDomainsResp.Result.Data != nil {
-			for _, domain := range listCdnDomainsResp.Result.Data {
-				if xcert.MatchHostname(wildcardDomain, domain.Domain) {
-					domains = append(domains, domain.Domain)
+		if listCdnDomainsResp.Data != nil {
+			for _, domain := range listCdnDomainsResp.Data {
+				if xcerthostname.IsMatch(wildcardDomain, ve.StringValue(domain.Domain)) {
+					domains = append(domains, ve.StringValue(domain.Domain))
 				}
 			}
 		}
 
-		if len(listCdnDomainsResp.Result.Data) < int(listCdnDomainsPageSize) {
+		if len(listCdnDomainsResp.Data) < int(listCdnDomainsPageSize) {
 			break
 		} else {
 			listCdnDomainsPageSize++
@@ -199,8 +201,8 @@ func (d *SSLDeployerProvider) getMatchedDomainsByCertId(ctx context.Context, clo
 
 	// 获取指定证书可关联的域名
 	// REF: https://www.volcengine.com/docs/6454/125711
-	describeCertConfigReq := &vecdn.DescribeCertConfigRequest{
-		CertId: cloudCertId,
+	describeCertConfigReq := &vecdn.DescribeCertConfigInput{
+		CertId: ve.String(cloudCertId),
 	}
 	describeCertConfigResp, err := d.sdkClient.DescribeCertConfig(describeCertConfigReq)
 	d.logger.Debug("sdk request 'cdn.DescribeCertConfig'", slog.Any("request", describeCertConfigReq), slog.Any("response", describeCertConfigResp))
@@ -208,20 +210,20 @@ func (d *SSLDeployerProvider) getMatchedDomainsByCertId(ctx context.Context, clo
 		return nil, fmt.Errorf("failed to execute sdk request 'cdn.DescribeCertConfig': %w", err)
 	}
 
-	if describeCertConfigResp.Result.CertNotConfig != nil {
-		for i := range describeCertConfigResp.Result.CertNotConfig {
-			domains = append(domains, describeCertConfigResp.Result.CertNotConfig[i].Domain)
+	if describeCertConfigResp.CertNotConfig != nil {
+		for i := range describeCertConfigResp.CertNotConfig {
+			domains = append(domains, ve.StringValue(describeCertConfigResp.CertNotConfig[i].Domain))
 		}
 	}
 
-	if describeCertConfigResp.Result.OtherCertConfig != nil {
-		for i := range describeCertConfigResp.Result.OtherCertConfig {
-			domains = append(domains, describeCertConfigResp.Result.OtherCertConfig[i].Domain)
+	if describeCertConfigResp.OtherCertConfig != nil {
+		for i := range describeCertConfigResp.OtherCertConfig {
+			domains = append(domains, ve.StringValue(describeCertConfigResp.OtherCertConfig[i].Domain))
 		}
 	}
 
 	if len(domains) == 0 {
-		if len(describeCertConfigResp.Result.SpecifiedCertConfig) == 0 {
+		if len(describeCertConfigResp.SpecifiedCertConfig) == 0 {
 			return nil, errors.New("domains not found")
 		}
 	}
@@ -232,9 +234,9 @@ func (d *SSLDeployerProvider) getMatchedDomainsByCertId(ctx context.Context, clo
 func (d *SSLDeployerProvider) bindCert(ctx context.Context, domain string, cloudCertId string) error {
 	// 关联证书与加速域名
 	// REF: https://www.volcengine.com/docs/6454/125712
-	batchDeployCertReq := &vecdn.BatchDeployCertRequest{
-		CertId: cloudCertId,
-		Domain: domain,
+	batchDeployCertReq := &vecdn.BatchDeployCertInput{
+		Domain: ve.String(domain),
+		CertId: ve.String(cloudCertId),
 	}
 	batchDeployCertResp, err := d.sdkClient.BatchDeployCert(batchDeployCertReq)
 	d.logger.Debug("sdk request 'cdn.BatchDeployCert'", slog.Any("request", batchDeployCertReq), slog.Any("response", batchDeployCertResp))
@@ -243,4 +245,17 @@ func (d *SSLDeployerProvider) bindCert(ctx context.Context, domain string, cloud
 	}
 
 	return nil
+}
+
+func createSDKClient(accessKeyId, accessKeySecret string) (*vecdn.CDN, error) {
+	config := ve.NewConfig().
+		WithAkSk(accessKeyId, accessKeySecret)
+
+	session, err := vesession.NewSession(config)
+	if err != nil {
+		return nil, err
+	}
+
+	client := vecdn.New(session)
+	return client, nil
 }

@@ -115,13 +115,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'acm.GetCertificate': %w", err)
 			} else {
-				oldCertPEM := aws.ToString(getCertificateResp.Certificate)
-				oldCertX509, err := xcert.ParseCertificateFromPEM(oldCertPEM)
-				if err != nil {
-					continue
-				}
-
-				if !xcert.EqualCertificates(certX509, oldCertX509) {
+				if !xcert.EqualCertificatesFromPEM(certPEM, aws.ToString(getCertificateResp.Certificate)) {
 					continue
 				}
 			}

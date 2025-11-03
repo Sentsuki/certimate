@@ -53,19 +53,16 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
 
   return z.object({
     serverUrl: z.url(t("common.errmsg.url_invalid")),
-    credentials: z
-      .string()
-      .max(20480, t("common.errmsg.string_max", { max: 20480 }))
-      .refine((v) => {
-        if (!v) return false;
+    credentials: z.string().refine((v) => {
+      if (!v) return false;
 
-        try {
-          const obj = JSON.parse(v);
-          return typeof obj === "object" && !Array.isArray(obj);
-        } catch {
-          return false;
-        }
-      }, t("access.form.acmedns_credentials.errmsg.json_invalid")),
+      try {
+        const obj = JSON.parse(v);
+        return typeof obj === "object" && !Array.isArray(obj);
+      } catch {
+        return false;
+      }
+    }, t("access.form.acmedns_credentials.errmsg.json_invalid")),
   });
 };
 

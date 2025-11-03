@@ -82,13 +82,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
 
   return z.object({
     host: z.string().refine((v) => validDomainName(v) || validIPv4Address(v) || validIPv6Address(v), t("common.errmsg.host_invalid")),
-    port: z.preprocess(
-      (v) => Number(v),
-      z
-        .number()
-        .int(t("access.form.rfc2136_port.placeholder"))
-        .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid"))
-    ),
+    port: z.coerce.number().refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
     tsigAlgorithm: z.string().nonempty(t("access.form.rfc2136_tsig_algorithm.placeholder")),
     tsigKey: z.string().nullish(),
     tsigSecret: z.string().nullish(),

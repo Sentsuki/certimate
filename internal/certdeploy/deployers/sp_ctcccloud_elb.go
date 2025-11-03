@@ -20,7 +20,7 @@ func init() {
 			AccessKeyId:     credentials.AccessKeyId,
 			SecretAccessKey: credentials.SecretAccessKey,
 			RegionId:        xmaps.GetString(options.ProviderExtendedConfig, "regionId"),
-			ResourceType:    ctcccloudelb.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:    xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			LoadbalancerId:  xmaps.GetString(options.ProviderExtendedConfig, "loadbalancerId"),
 			ListenerId:      xmaps.GetString(options.ProviderExtendedConfig, "listenerId"),
 		})

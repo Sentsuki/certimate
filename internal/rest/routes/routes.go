@@ -26,11 +26,12 @@ func Register(router *router.Router[*core.RequestEvent]) {
 	accessRepo := repository.NewAccessRepository()
 	workflowRepo := repository.NewWorkflowRepository()
 	workflowRunRepo := repository.NewWorkflowRunRepository()
+	acmeAccountRepo := repository.NewACMEAccountRepository()
 	certificateRepo := repository.NewCertificateRepository()
 	settingsRepo := repository.NewSettingsRepository()
 	statisticsRepo := repository.NewStatisticsRepository()
 
-	certificateSvc = certificate.NewCertificateService(certificateRepo, settingsRepo)
+	certificateSvc = certificate.NewCertificateService(acmeAccountRepo, certificateRepo, settingsRepo)
 	workflowSvc = workflow.NewWorkflowService(workflowRepo, workflowRunRepo, settingsRepo)
 	statisticsSvc = statistics.NewStatisticsService(statisticsRepo)
 	notifySvc = notify.NewNotifyService(accessRepo)

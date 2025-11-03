@@ -26,6 +26,16 @@ const AccessConfigFormFieldsProviderLarkBot = () => {
       >
         <Input placeholder={t("access.form.larkbot_webhook_url.placeholder")} />
       </Form.Item>
+
+      <Form.Item
+        name={[parentNamePath, "secret"]}
+        initialValue={initialValues.secret}
+        label={t("access.form.larkbot_secret.label")}
+        rules={[formRule]}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.larkbot_secret.tooltip") }}></span>}
+      >
+        <Input.Password autoComplete="new-password" placeholder={t("access.form.larkbot_secret.placeholder")} />
+      </Form.Item>
     </>
   );
 };
@@ -33,6 +43,7 @@ const AccessConfigFormFieldsProviderLarkBot = () => {
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
     webhookUrl: "",
+    secret: "",
   };
 };
 
@@ -41,6 +52,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
 
   return z.object({
     webhookUrl: z.url(t("common.errmsg.url_invalid")),
+    secret: z.string().nullish(),
   });
 };
 

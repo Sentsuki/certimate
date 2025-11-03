@@ -2,7 +2,6 @@ package azurekeyvault
 
 import (
 	"context"
-	"crypto/x509"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -119,12 +118,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificate': %w", err)
 			} else {
-				oldCertX509, err := x509.ParseCertificate(getCertificateResp.CER)
-				if err != nil {
-					continue
-				}
-
-				if !xcert.EqualCertificates(certX509, oldCertX509) {
+				if !xcert.EqualCertificatesFromPEM(certPEM, string(getCertificateResp.CER)) {
 					continue
 				}
 			}

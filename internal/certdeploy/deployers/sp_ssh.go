@@ -43,7 +43,7 @@ func init() {
 			UseSCP:                   xmaps.GetBool(options.ProviderExtendedConfig, "useSCP"),
 			PreCommand:               xmaps.GetString(options.ProviderExtendedConfig, "preCommand"),
 			PostCommand:              xmaps.GetString(options.ProviderExtendedConfig, "postCommand"),
-			OutputFormat:             ssh.OutputFormatType(xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "format", string(ssh.OUTPUT_FORMAT_PEM))),
+			OutputFormat:             xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "format", ssh.OUTPUT_FORMAT_PEM),
 			OutputKeyPath:            xmaps.GetString(options.ProviderExtendedConfig, "keyPath"),
 			OutputCertPath:           xmaps.GetString(options.ProviderExtendedConfig, "certPath"),
 			OutputServerCertPath:     xmaps.GetString(options.ProviderExtendedConfig, "certPathForServerOnly"),

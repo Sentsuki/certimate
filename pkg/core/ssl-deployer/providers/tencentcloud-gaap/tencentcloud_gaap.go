@@ -24,7 +24,7 @@ type SSLDeployerProviderConfig struct {
 	// 腾讯云接口端点。
 	Endpoint string `json:"endpoint,omitempty"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 通道 ID。
 	// 选填。
 	ProxyId string `json:"proxyId,omitempty"`

@@ -4,27 +4,35 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"crypto/x509"
 	"fmt"
 	"log/slog"
 	"strings"
 	"time"
 
-	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/pocketbase/dbx"
 
 	"github.com/certimate-go/certimate/internal/app"
+	"github.com/certimate-go/certimate/internal/certapply"
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/internal/domain/dtos"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xcryptokey "github.com/certimate-go/certimate/pkg/utils/crypto/key"
 )
 
 type CertificateService struct {
+	acmeAccountRepo acmeAccountRepository
 	certificateRepo certificateRepository
 	settingsRepo    settingsRepository
 }
 
-func NewCertificateService(certificateRepo certificateRepository, settingsRepo settingsRepository) *CertificateService {
+func NewCertificateService(
+	acmeAccountRepo acmeAccountRepository,
+	certificateRepo certificateRepository,
+	settingsRepo settingsRepository,
+) *CertificateService {
 	return &CertificateService{
+		acmeAccountRepo: acmeAccountRepo,
 		certificateRepo: certificateRepo,
 		settingsRepo:    settingsRepo,
 	}
@@ -166,6 +174,49 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 	}
 }
 
+func (s *CertificateService) RevokeCertificate(ctx context.Context, req *dtos.CertificateRevokeReq) (*dtos.CertificateRevokeResp, error) {
+	certificate, err := s.certificateRepo.GetById(ctx, req.CertificateId)
+	if err != nil {
+		return nil, err
+	}
+
+	if certificate.ACMEAcctUrl == "" || certificate.ACMECertUrl == "" {
+		return nil, fmt.Errorf("could not revoke a certificate which is not issued in Certimate")
+	}
+	// if certificate.ValidityNotAfter.Before(time.Now()) {
+	// 	return nil, fmt.Errorf("could not revoke a certificate which is expired")
+	// }
+	if certificate.IsRevoked {
+		return nil, fmt.Errorf("could not revoke a certificate which is already revoked")
+	}
+
+	acmeAccount, err := s.acmeAccountRepo.GetByAcctUrl(ctx, certificate.ACMEAcctUrl)
+	if err != nil {
+		return nil, fmt.Errorf("failed to revoke certificate: could not find acme account: %w", err)
+	}
+
+	legoClient, err := certapply.NewACMEClientWithAccount(acmeAccount)
+	if err != nil {
+		return nil, fmt.Errorf("failed to revoke certificate: could not initialize acme config: %w", err)
+	}
+
+	revokeReq := &certapply.RevokeCertificateRequest{
+		Certificate: certificate.Certificate,
+	}
+	_, err = legoClient.RevokeCertificate(ctx, revokeReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to revoke certificate: %w", err)
+	}
+
+	certificate.IsRevoked = true
+	certificate, err = s.certificateRepo.Save(ctx, certificate)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dtos.CertificateRevokeResp{}, nil
+}
+
 func (s *CertificateService) ValidateCertificate(ctx context.Context, req *dtos.CertificateValidateCertificateReq) (*dtos.CertificateValidateCertificateResp, error) {
 	certX509, err := xcert.ParseCertificateFromPEM(req.Certificate)
 	if err != nil {
@@ -181,13 +232,25 @@ func (s *CertificateService) ValidateCertificate(ctx context.Context, req *dtos.
 }
 
 func (s *CertificateService) ValidatePrivateKey(ctx context.Context, req *dtos.CertificateValidatePrivateKeyReq) (*dtos.CertificateValidatePrivateKeyResp, error) {
-	_, err := certcrypto.ParsePEMPrivateKey([]byte(req.PrivateKey))
+	privkey, err := xcert.ParsePrivateKeyFromPEM(req.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
 
+	var keyAlgorithmString string
+	keyAlgorithm, keySize, _ := xcryptokey.GetPrivateKeyAlgorithm(privkey)
+	switch keyAlgorithm {
+	case x509.RSA:
+		keyAlgorithmString = fmt.Sprintf("RSA%d", keySize)
+	case x509.ECDSA:
+		keyAlgorithmString = fmt.Sprintf("EC%d", keySize)
+	case x509.Ed25519:
+		keyAlgorithmString = "ED25519"
+	}
+
 	return &dtos.CertificateValidatePrivateKeyResp{
-		IsValid: true,
+		IsValid:      keyAlgorithmString != "",
+		KeyAlgorithm: keyAlgorithmString,
 	}, nil
 }
 

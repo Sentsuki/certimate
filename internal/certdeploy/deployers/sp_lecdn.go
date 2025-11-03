@@ -23,7 +23,7 @@ func init() {
 			Username:                 credentials.Username,
 			Password:                 credentials.Password,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
-			ResourceType:             lecdn.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:             xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			CertificateId:            xmaps.GetInt64(options.ProviderExtendedConfig, "certificateId"),
 			ClientId:                 xmaps.GetInt64(options.ProviderExtendedConfig, "clientId"),
 		})

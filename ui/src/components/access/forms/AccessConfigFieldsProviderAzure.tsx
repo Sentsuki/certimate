@@ -76,18 +76,9 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
   const { t } = i18n;
 
   return z.object({
-    tenantId: z
-      .string()
-      .min(1, t("access.form.azure_tenant_id.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
-    clientId: z
-      .string()
-      .min(1, t("access.form.azure_client_id.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
-    clientSecret: z
-      .string()
-      .min(1, t("access.form.azure_client_secret.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
+    tenantId: z.string().nonempty(t("access.form.azure_tenant_id.placeholder")),
+    clientId: z.string().nonempty(t("access.form.azure_client_id.placeholder")),
+    clientSecret: z.string().nonempty(t("access.form.azure_client_secret.placeholder")),
     cloudName: z.string().nullish(),
   });
 };

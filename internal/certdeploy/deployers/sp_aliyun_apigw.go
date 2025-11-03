@@ -21,7 +21,7 @@ func init() {
 			AccessKeySecret: credentials.AccessKeySecret,
 			ResourceGroupId: credentials.ResourceGroupId,
 			Region:          xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ServiceType:     aliyunapigw.ServiceType(xmaps.GetString(options.ProviderExtendedConfig, "serviceType")),
+			ServiceType:     xmaps.GetString(options.ProviderExtendedConfig, "serviceType"),
 			GatewayId:       xmaps.GetString(options.ProviderExtendedConfig, "gatewayId"),
 			GroupId:         xmaps.GetString(options.ProviderExtendedConfig, "groupId"),
 			Domain:          xmaps.GetString(options.ProviderExtendedConfig, "domain"),

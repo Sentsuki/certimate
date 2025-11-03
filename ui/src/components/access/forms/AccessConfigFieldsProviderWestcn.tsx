@@ -51,14 +51,8 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
   const { t } = i18n;
 
   return z.object({
-    username: z
-      .string()
-      .min(1, t("access.form.westcn_username.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
-    apiPassword: z
-      .string()
-      .min(1, t("access.form.westcn_api_password.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
+    username: z.string().nonempty(t("access.form.westcn_username.placeholder")),
+    apiPassword: z.string().nonempty(t("access.form.westcn_api_password.placeholder")),
   });
 };
 

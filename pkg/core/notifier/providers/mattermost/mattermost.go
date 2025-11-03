@@ -36,7 +36,9 @@ func NewNotifierProvider(config *NotifierProviderConfig) (*NotifierProvider, err
 		return nil, errors.New("the configuration of the notifier provider is nil")
 	}
 
-	client := resty.New()
+	client := resty.New().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("User-Agent", "certimate")
 
 	return &NotifierProvider{
 		config:     config,
@@ -59,8 +61,6 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 	// REF: https://developers.mattermost.com/api-documentation/#/operations/Login
 	loginReq := n.httpClient.R().
 		SetContext(ctx).
-		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", "certimate").
 		SetBody(map[string]any{
 			"login_id": n.config.Username,
 			"password": n.config.Password,
@@ -78,8 +78,6 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 	postReq := n.httpClient.R().
 		SetContext(ctx).
 		SetHeader("Authorization", "Bearer "+loginResp.Header().Get("Token")).
-		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", "certimate").
 		SetBody(map[string]any{
 			"channel_id": n.config.ChannelId,
 			"props": map[string]interface{}{

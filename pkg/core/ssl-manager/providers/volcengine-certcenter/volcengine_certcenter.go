@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log/slog"
 
+	vecs "github.com/volcengine/volcengine-go-sdk/service/certificateservice"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/certimate-go/certimate/pkg/core"
-	veccsdk "github.com/certimate-go/certimate/pkg/sdk3rd/volcengine/certcenter"
 )
 
 type SSLManagerProviderConfig struct {
@@ -25,7 +25,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *veccsdk.CertCenter
+	sdkClient *vecs.CERTIFICATESERVICE
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -58,8 +58,8 @@ func (m *SSLManagerProvider) SetLogger(logger *slog.Logger) {
 func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*core.SSLManageUploadResult, error) {
 	// 上传证书
 	// REF: https://www.volcengine.com/docs/6638/1365580
-	importCertificateReq := &veccsdk.ImportCertificateInput{
-		CertificateInfo: &veccsdk.ImportCertificateInputCertificateInfo{
+	importCertificateReq := &vecs.ImportCertificateInput{
+		CertificateInfo: &vecs.CertificateInfoForImportCertificateInput{
 			CertificateChain: ve.String(certPEM),
 			PrivateKey:       ve.String(privkeyPEM),
 		},
@@ -88,18 +88,20 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*veccsdk.CertCenter, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*vecs.CERTIFICATESERVICE, error) {
 	if region == "" {
 		region = "cn-beijing" // 证书中心默认区域：北京
 	}
 
-	config := ve.NewConfig().WithRegion(region).WithAkSk(accessKeyId, accessKeySecret)
+	config := ve.NewConfig().
+		WithAkSk(accessKeyId, accessKeySecret).
+		WithRegion(region)
 
 	session, err := vesession.NewSession(config)
 	if err != nil {
 		return nil, err
 	}
 
-	client := veccsdk.New(session)
+	client := vecs.New(session)
 	return client, nil
 }

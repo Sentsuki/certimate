@@ -235,30 +235,18 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
   const baseSchema = z
     .object({
       host: z.string().refine((v) => validDomainName(v) || validIPv4Address(v) || validIPv6Address(v), t("common.errmsg.host_invalid")),
-      port: z.preprocess(
-        (v) => Number(v),
-        z
-          .number()
-          .int(t("access.form.ssh_port.placeholder"))
-          .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid"))
-      ),
+      port: z.coerce
+        .number()
+        .int(t("access.form.ssh_port.placeholder"))
+        .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
       authMethod: z.literal([AUTH_METHOD_NONE, AUTH_METHOD_PASSWORD, AUTH_METHOD_KEY], t("access.form.ssh_auth_method.placeholder")),
-      username: z
-        .string()
-        .min(1, t("access.form.ssh_username.placeholder"))
-        .max(64, t("common.errmsg.string_max", { max: 64 })),
-      password: z
-        .string()
-        .max(64, t("common.errmsg.string_max", { max: 64 }))
-        .nullish(),
+      username: z.string().nonempty(t("access.form.ssh_username.placeholder")),
+      password: z.string().nullish(),
       key: z
         .string()
         .max(20480, t("common.errmsg.string_max", { max: 20480 }))
         .nullish(),
-      keyPassphrase: z
-        .string()
-        .max(20480, t("common.errmsg.string_max", { max: 20480 }))
-        .nullish(),
+      keyPassphrase: z.string().nullish(),
     })
     .superRefine((values, ctx) => {
       switch (values.authMethod) {

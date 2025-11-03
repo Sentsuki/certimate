@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { getI18n, useTranslation } from "react-i18next";
-import { type FlowNodeEntity, getNodeForm } from "@flowgram.ai/fixed-layout-editor";
+import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { IconDice6 } from "@tabler/icons-react";
 import { type AnchorProps, Button, Form, type FormInstance, Input, Radio, Space } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
@@ -29,7 +29,7 @@ const StartNodeConfigForm = ({ node, ...props }: StartNodeConfigFormProps) => {
   const { i18n, t } = useTranslation();
 
   const initialValues = useMemo(() => {
-    return getNodeForm(node)?.getValueIn("config") as WorkflowNodeConfigForStart | undefined;
+    return node.form?.getValueIn("config") as WorkflowNodeConfigForStart | undefined;
   }, [node]);
 
   const formSchema = getSchema({ i18n });
@@ -125,7 +125,7 @@ const getAnchorItems = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
     trigger: WORKFLOW_TRIGGERS.MANUAL,
-    ...defaultNodeConfigForStart(),
+    ...(defaultNodeConfigForStart() as Nullish<z.infer<ReturnType<typeof getSchema>>>),
   };
 };
 

@@ -1,4 +1,4 @@
-﻿package cert
+﻿package hostname
 
 import (
 	"crypto/x509"
@@ -14,7 +14,7 @@ import (
 //
 // 出参：
 //   - 是否匹配。
-func MatchHostname(match, candidate string) bool {
+func IsMatch(match, candidate string) bool {
 	if match == "" || candidate == "" {
 		return false
 	}

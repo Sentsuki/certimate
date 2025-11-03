@@ -22,7 +22,7 @@ type SSLDeployerProviderConfig struct {
 	// 天翼云资源池 ID。
 	RegionId string `json:"regionId"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 负载均衡实例 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_LOADBALANCER] 时必填。
 	LoadbalancerId string `json:"loadbalancerId,omitempty"`

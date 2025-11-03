@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { getI18n, useTranslation } from "react-i18next";
-import { type FlowNodeEntity, getNodeForm } from "@flowgram.ai/fixed-layout-editor";
+import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { type AnchorProps, Form, type FormInstance, Input, InputNumber } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
@@ -26,7 +26,7 @@ const BizMonitorNodeConfigForm = ({ node, ...props }: BizMonitorNodeConfigFormPr
   const { i18n, t } = useTranslation();
 
   const initialValues = useMemo(() => {
-    return getNodeForm(node)?.getValueIn("config") as WorkflowNodeConfigForBizMonitor | undefined;
+    return node.form?.getValueIn("config") as WorkflowNodeConfigForBizMonitor | undefined;
   }, [node]);
 
   const formSchema = getSchema({ i18n });
@@ -93,13 +93,10 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
     host: z.string(t("workflow_node.monitor.form.host.placeholder")).refine((v) => {
       return validDomainName(v) || validIPv4Address(v) || validIPv6Address(v);
     }, t("common.errmsg.host_invalid")),
-    port: z.preprocess(
-      (v) => Number(v),
-      z
-        .number()
-        .int(t("workflow_node.monitor.form.port.placeholder"))
-        .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid"))
-    ),
+    port: z.coerce
+      .number()
+      .int(t("workflow_node.monitor.form.port.placeholder"))
+      .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
     domain: z
       .string()
       .nullish()

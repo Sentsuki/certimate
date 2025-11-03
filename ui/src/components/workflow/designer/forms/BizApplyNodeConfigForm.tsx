@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { getI18n, useTranslation } from "react-i18next";
 import { Link } from "react-router";
-import { type FlowNodeEntity, getNodeForm } from "@flowgram.ai/fixed-layout-editor";
+import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { IconChevronRight, IconCircleMinus, IconPlus } from "@tabler/icons-react";
 import { useControllableValue, useMount } from "ahooks";
 import {
@@ -23,6 +23,7 @@ import {
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
+import { validatePrivateKey } from "@/api/certificates";
 import AccessEditDrawer from "@/components/access/AccessEditDrawer";
 import AccessSelect from "@/components/access/AccessSelect";
 import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
@@ -30,28 +31,28 @@ import ACMEDns01ProviderSelect from "@/components/provider/ACMEDns01ProviderSele
 import ACMEHttp01ProviderSelect from "@/components/provider/ACMEHttp01ProviderSelect";
 import CAProviderSelect from "@/components/provider/CAProviderSelect";
 import Show from "@/components/Show";
+import TextFileInput from "@/components/TextFileInput";
 import { type AccessModel } from "@/domain/access";
-import { ACME_DNS01_PROVIDERS, ACME_HTTP01_PROVIDERS, acmeDns01ProvidersMap, acmeHttp01ProvidersMap, caProvidersMap } from "@/domain/provider";
+import { acmeDns01ProvidersMap, acmeHttp01ProvidersMap, caProvidersMap } from "@/domain/provider";
 import { type WorkflowNodeConfigForBizApply, defaultNodeConfigForBizApply } from "@/domain/workflow";
 import { useAntdForm, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 import { useContactEmailsStore } from "@/stores/contact";
+import { getErrMsg } from "@/utils/error";
 import { validDomainName, validIPv4Address, validIPv6Address } from "@/utils/validators";
 
 import { FormNestedFieldsContextProvider, NodeFormContextProvider } from "./_context";
-import BizApplyNodeConfigFieldsProviderAliyunESA from "./BizApplyNodeConfigFieldsProviderAliyunESA";
-import BizApplyNodeConfigFieldsProviderAWSRoute53 from "./BizApplyNodeConfigFieldsProviderAWSRoute53";
-import BizApplyNodeConfigFieldsProviderHuaweiCloudDNS from "./BizApplyNodeConfigFieldsProviderHuaweiCloudDNS";
-import BizApplyNodeConfigFieldsProviderJDCloudDNS from "./BizApplyNodeConfigFieldsProviderJDCloudDNS";
-import BizApplyNodeConfigFieldsProviderLocal from "./BizApplyNodeConfigFieldsProviderLocal";
-import BizApplyNodeConfigFieldsProviderSSH from "./BizApplyNodeConfigFieldsProviderSSH";
-import BizApplyNodeConfigFieldsProviderTencentCloudEO from "./BizApplyNodeConfigFieldsProviderTencentCloudEO";
+import BizApplyNodeConfigFieldsProvider from "./BizApplyNodeConfigFieldsProvider";
 import { NodeType } from "../nodes/typings";
 
 const MULTIPLE_INPUT_SEPARATOR = ";";
 
 const CHALLENGE_TYPE_DNS01 = "dns-01";
 const CHALLENGE_TYPE_HTTP01 = "http-01";
+
+const KEY_SOURCE_AUTO = "auto" as const;
+const KEY_SOURCE_REUSE = "reuse" as const;
+const KEY_SOURCE_CUSTOM = "custom" as const;
 
 export interface BizApplyNodeConfigFormProps {
   form: FormInstance;
@@ -78,78 +79,43 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
   };
 
   const initialValues = useMemo(() => {
-    return getNodeForm(node)?.getValueIn("config") as WorkflowNodeConfigForBizApply | undefined;
+    return node.form?.getValueIn("config") as WorkflowNodeConfigForBizApply | undefined;
   }, [node]);
 
   const formSchema = getSchema({ i18n });
+  type FormSchema = z.infer<typeof formSchema>;
   const formRule = createSchemaFieldRule(formSchema);
-  const { form: formInst, formProps } = useAntdForm<z.infer<typeof formSchema>>({
+  const { form: formInst, formProps } = useAntdForm<FormSchema>({
     form: props.form,
     name: "workflowNodeBizApplyConfigForm",
     initialValues: initialValues ?? getInitialValues(),
   });
 
-  const fieldChallengeType = Form.useWatch<string>("challengeType", { form: formInst, preserve: true });
+  const fieldChallengeType = Form.useWatch<FormSchema["challengeType"]>("challengeType", { form: formInst, preserve: true });
   const fieldProvider = Form.useWatch<string>("provider", { form: formInst, preserve: true });
   const fieldProviderAccessId = Form.useWatch<string>("providerAccessId", { form: formInst, preserve: true });
+  const fieldKeySource = Form.useWatch<string>("keySource", { form: formInst, preserve: true });
   const fieldCAProvider = Form.useWatch<string>("caProvider", { form: formInst, preserve: true });
   const fieldCAProviderAccessId = Form.useWatch<string>("caProviderAccessId", { form: formInst, preserve: true });
 
-  const NestedProviderConfigFields = useMemo(() => {
-    /*
-      注意：如果追加新的子组件，请保持以 ASCII 排序。
-      NOTICE: If you add new child component, please keep ASCII order.
-      */
-    switch (fieldChallengeType) {
-      case CHALLENGE_TYPE_DNS01:
-        {
-          switch (fieldProvider) {
-            case ACME_DNS01_PROVIDERS.ALIYUN_ESA: {
-              return BizApplyNodeConfigFieldsProviderAliyunESA;
-            }
-            case ACME_DNS01_PROVIDERS.AWS:
-            case ACME_DNS01_PROVIDERS.AWS_ROUTE53: {
-              return BizApplyNodeConfigFieldsProviderAWSRoute53;
-            }
-            case ACME_DNS01_PROVIDERS.HUAWEICLOUD:
-            case ACME_DNS01_PROVIDERS.HUAWEICLOUD_DNS: {
-              return BizApplyNodeConfigFieldsProviderHuaweiCloudDNS;
-            }
-            case ACME_DNS01_PROVIDERS.JDCLOUD:
-            case ACME_DNS01_PROVIDERS.JDCLOUD_DNS: {
-              return BizApplyNodeConfigFieldsProviderJDCloudDNS;
-            }
-            case ACME_DNS01_PROVIDERS.TENCENTCLOUD_EO: {
-              return BizApplyNodeConfigFieldsProviderTencentCloudEO;
-            }
-          }
-        }
-        break;
+  const renderNestedFieldProviderComponent = BizApplyNodeConfigFieldsProvider.useComponent(fieldChallengeType, fieldProvider, {});
 
-      case CHALLENGE_TYPE_HTTP01:
-        switch (fieldProvider) {
-          case ACME_HTTP01_PROVIDERS.LOCAL: {
-            return BizApplyNodeConfigFieldsProviderLocal;
-          }
-          case ACME_HTTP01_PROVIDERS.SSH: {
-            return BizApplyNodeConfigFieldsProviderSSH;
-          }
-        }
-        break;
+  const resetFieldIfInvalid = (field: keyof FormSchema) => {
+    const fieldSchame = formSchema.pick({ [field]: true });
+    const fieldValue = formInst.getFieldValue(field);
+    if (!fieldSchame.safeParse({ [field]: fieldValue }).success) {
+      formInst.setFieldValue(field, void 0);
     }
-  }, [fieldChallengeType, fieldProvider]);
+  };
 
-  const [showProviderAccess, setShowProviderAccess] = useState(false);
-  useEffect(() => {
+  const showProviderAccess = useMemo(() => {
     // 内置的质询提供商（如本地主机）无需显示授权信息字段
     switch (fieldChallengeType) {
       case CHALLENGE_TYPE_DNS01:
         {
           if (fieldProvider) {
             const provider = acmeDns01ProvidersMap.get(fieldProvider);
-            setShowProviderAccess(!provider?.builtin);
-          } else {
-            setShowProviderAccess(false);
+            return !provider?.builtin;
           }
         }
         break;
@@ -158,30 +124,23 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
         {
           if (fieldProvider) {
             const provider = acmeHttp01ProvidersMap.get(fieldProvider);
-            setShowProviderAccess(!provider?.builtin);
-          } else {
-            setShowProviderAccess(false);
+            return !provider?.builtin;
           }
         }
         break;
-
-      default:
-        {
-          setShowProviderAccess(false);
-        }
-        break;
     }
+
+    return false;
   }, [fieldChallengeType, fieldProvider]);
 
-  const [showCAProviderAccess, setShowCAProviderAccess] = useState(false);
-  useEffect(() => {
+  const showCAProviderAccess = useMemo(() => {
     // 内置的 CA 提供商（如 Let's Encrypt）无需显示授权信息字段
     if (fieldCAProvider) {
       const provider = caProvidersMap.get(fieldCAProvider);
-      setShowCAProviderAccess(!provider?.builtin);
-    } else {
-      setShowCAProviderAccess(false);
+      return !provider?.builtin;
     }
+
+    return false;
   }, [fieldCAProvider]);
 
   useEffect(() => {
@@ -225,14 +184,6 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
   }, [fieldCAProvider, fieldCAProviderAccessId]);
 
   const handleChallengeTypeChange = (value: string) => {
-    const resetFieldIfInvalid = (field: keyof z.infer<typeof formSchema>) => {
-      const fieldSchame = formSchema.pick({ [field]: true });
-      const fieldValue = formInst.getFieldValue(field);
-      if (!fieldSchame.safeParse({ [field]: fieldValue }).success) {
-        formInst.setFieldValue(field, void 0);
-      }
-    };
-
     switch (value) {
       case CHALLENGE_TYPE_DNS01:
         {
@@ -264,6 +215,40 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
     } else {
       formInst.setFieldValue("providerAccessId", void 0);
       formInst.setFieldValue("providerConfig", void 0);
+    }
+  };
+
+  const handleKeySourceChange = (value: string) => {
+    if (value === initialValues?.keySource) {
+      formInst.resetFields(["keyContent"]);
+    } else {
+      setTimeout(() => {
+        formInst.setFieldValue("keyContent", "");
+      }, 0);
+    }
+  };
+
+  const handleKeyContentChange = async (value: string) => {
+    try {
+      const resp = await validatePrivateKey(value);
+      formInst.setFields([
+        {
+          name: "keyContent",
+          value: value,
+        },
+        {
+          name: "keyAlgorithm",
+          value: resp.data.keyAlgorithm,
+        },
+      ]);
+    } catch (e) {
+      formInst.setFields([
+        {
+          name: "keyContent",
+          value: value,
+          errors: [getErrMsg(e)],
+        },
+      ]);
     }
   };
 
@@ -418,7 +403,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
           </Form.Item>
 
           <FormNestedFieldsContextProvider value={{ parentNamePath: "providerConfig" }}>
-            {NestedProviderConfigFields && <NestedProviderConfigFields />}
+            {renderNestedFieldProviderComponent && <>{renderNestedFieldProviderComponent}</>}
           </FormNestedFieldsContextProvider>
         </div>
 
@@ -429,7 +414,28 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
             </Typography.Text>
           </Divider>
 
-          <Form.Item name="keyAlgorithm" label={t("workflow_node.apply.form.key_algorithm.label")} rules={[formRule]}>
+          <Form.Item name="keySource" label={t("workflow_node.apply.form.key_source.label")} rules={[formRule]}>
+            <Radio.Group block onChange={(e) => handleKeySourceChange(e.target.value)}>
+              <Radio.Button value={KEY_SOURCE_AUTO}>{t("workflow_node.apply.form.key_source.option.auto.label")}</Radio.Button>
+              <Radio.Button value={KEY_SOURCE_REUSE}>{t("workflow_node.apply.form.key_source.option.reuse.label")}</Radio.Button>
+              <Radio.Button value={KEY_SOURCE_CUSTOM}>{t("workflow_node.apply.form.key_source.option.custom.label")}</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item
+            name="keyAlgorithm"
+            label={t("workflow_node.apply.form.key_algorithm.label")}
+            extra={
+              fieldKeySource === KEY_SOURCE_REUSE ? (
+                <span dangerouslySetInnerHTML={{ __html: t("workflow_node.apply.form.key_algorithm.help_reuse") }}></span>
+              ) : fieldKeySource === KEY_SOURCE_CUSTOM ? (
+                <span dangerouslySetInnerHTML={{ __html: t("workflow_node.apply.form.key_algorithm.help_custom") }}></span>
+              ) : (
+                void 0
+              )
+            }
+            rules={[formRule]}
+          >
             <Select
               options={["RSA2048", "RSA3072", "RSA4096", "RSA8192", "EC256", "EC384"].map((e) => ({
                 label: e,
@@ -438,6 +444,16 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
               placeholder={t("workflow_node.apply.form.key_algorithm.placeholder")}
             />
           </Form.Item>
+
+          <Show when={fieldKeySource === KEY_SOURCE_CUSTOM}>
+            <Form.Item name="keyContent" label={t("workflow_node.apply.form.key_content.label")} rules={[formRule]}>
+              <TextFileInput
+                autoSize={{ minRows: 3, maxRows: 10 }}
+                placeholder={t("workflow_node.apply.form.key_content.placeholder")}
+                onChange={handleKeyContentChange}
+              />
+            </Form.Item>
+          </Show>
 
           <Form.Item className="relative" label={t("workflow_node.apply.form.ca_provider.label")}>
             <div className="absolute -top-[6px] right-0 -translate-y-full">
@@ -627,7 +643,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
               <Form.Item name="skipBeforeExpiryDays" noStyle rules={[formRule]}>
                 <InputNumber
                   className="w-24"
-                  min={1}
+                  min={0}
                   max={365}
                   placeholder={t("workflow_node.apply.form.skip_before_expiry_days.placeholder")}
                   addonAfter={t("workflow_node.apply.form.skip_before_expiry_days.unit")}
@@ -805,7 +821,7 @@ const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
     domains: "",
     contactEmail: "",
-    ...defaultNodeConfigForBizApply(),
+    ...(defaultNodeConfigForBizApply() as Nullish<z.infer<ReturnType<typeof getSchema>>>),
   };
 };
 
@@ -821,14 +837,16 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
           .every((e) => validDomainName(e, { allowWildcard: true }));
       }, t("common.errmsg.domain_invalid")),
       contactEmail: z.email(t("common.errmsg.email_invalid")),
-      challengeType: z.string(t("workflow_node.apply.form.challenge_type.placeholder")).nonempty(t("workflow_node.apply.form.challenge_type.placeholder")),
+      challengeType: z.enum([CHALLENGE_TYPE_DNS01, CHALLENGE_TYPE_HTTP01], t("workflow_node.apply.form.challenge_type.placeholder")),
       provider: z.string(t("workflow_node.apply.form.provider.placeholder")).nonempty(t("workflow_node.apply.form.provider.placeholder")),
       providerAccessId: z.string(t("workflow_node.apply.form.provider_access.placeholder")).nullish(),
       providerConfig: z.any().nullish(),
       caProvider: z.string().nullish(),
       caProviderAccessId: z.string().nullish(),
       caProviderConfig: z.any().nullish(),
+      keySource: z.enum([KEY_SOURCE_AUTO, KEY_SOURCE_REUSE, KEY_SOURCE_CUSTOM], t("workflow_node.apply.form.key_source.placeholder")),
       keyAlgorithm: z.string(t("workflow_node.apply.form.key_algorithm.placeholder")).nonempty(t("workflow_node.apply.form.key_algorithm.placeholder")),
+      keyContent: z.string().nullish(),
       nameservers: z
         .string()
         .nullish()
@@ -869,13 +887,10 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
       acmeProfile: z.string().nullish(),
       disableFollowCNAME: z.boolean().nullish(),
       disableARI: z.boolean().nullish(),
-      skipBeforeExpiryDays: z.preprocess(
-        (v) => Number(v),
-        z
-          .number()
-          .int(t("workflow_node.apply.form.skip_before_expiry_days.placeholder"))
-          .gte(1, t("workflow_node.apply.form.skip_before_expiry_days.placeholder"))
-      ),
+      skipBeforeExpiryDays: z.coerce
+        .number()
+        .int(t("workflow_node.apply.form.skip_before_expiry_days.placeholder"))
+        .nonnegative(t("workflow_node.apply.form.skip_before_expiry_days.placeholder")),
     })
     .superRefine((values, ctx) => {
       if (values.domains) {
@@ -885,6 +900,20 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
             message: t("workflow_node.apply.form.domains.errmsg.no_wildcard_in_http01"),
             path: ["domains"],
           });
+        }
+      }
+
+      if (values.keySource) {
+        switch (values.keySource) {
+          case KEY_SOURCE_CUSTOM:
+            if (!values.keyContent) {
+              ctx.addIssue({
+                code: "custom",
+                message: t("workflow_node.apply.form.key_content.placeholder"),
+                path: ["keyContent"],
+              });
+            }
+            break;
         }
       }
 

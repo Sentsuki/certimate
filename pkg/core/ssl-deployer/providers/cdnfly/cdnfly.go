@@ -25,7 +25,7 @@ type SSLDeployerProviderConfig struct {
 	// 是否允许不安全的连接。
 	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 网站 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_SITE] 时必填。
 	SiteId string `json:"siteId,omitempty"`

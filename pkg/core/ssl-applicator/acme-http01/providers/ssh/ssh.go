@@ -225,9 +225,6 @@ func (p *provider) createSshClient(conn net.Conn, host string, port int32, authM
 		username = "root"
 	}
 
-	const AUTH_METHOD_NONE = "none"
-	const AUTH_METHOD_PASSWORD = "password"
-	const AUTH_METHOD_KEY = "key"
 	if authMethod == "" {
 		if key != "" {
 			authMethod = AUTH_METHOD_KEY

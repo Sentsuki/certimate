@@ -429,22 +429,10 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
         .string()
         .max(256, t("common.errmsg.string_max", { max: 256 }))
         .nullish(),
-      pfxPassword: z
-        .string()
-        .max(64, t("common.errmsg.string_max", { max: 256 }))
-        .nullish(),
-      jksAlias: z
-        .string()
-        .max(64, t("common.errmsg.string_max", { max: 256 }))
-        .nullish(),
-      jksKeypass: z
-        .string()
-        .max(64, t("common.errmsg.string_max", { max: 256 }))
-        .nullish(),
-      jksStorepass: z
-        .string()
-        .max(64, t("common.errmsg.string_max", { max: 256 }))
-        .nullish(),
+      pfxPassword: z.string().nullish(),
+      jksAlias: z.string().nullish(),
+      jksKeypass: z.string().nullish(),
+      jksStorepass: z.string().nullish(),
       shellEnv: z.literal([SHELLENV_SH, SHELLENV_CMD, SHELLENV_POWERSHELL], t("workflow_node.deploy.form.local_shell_env.placeholder")),
       preCommand: z
         .string()

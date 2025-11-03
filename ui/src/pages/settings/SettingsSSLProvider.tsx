@@ -206,14 +206,8 @@ const InternalSharedFormEabFields = ({ i18nKey }: { i18nKey: string }) => {
 
   const formSchema = z.object({
     endpoint: z.url(t("common.errmsg.url_invalid")),
-    eabKid: z
-      .string(t("access.form.shared_acme_eab_kid.label"))
-      .min(1, t("access.form.shared_acme_eab_kid.placeholder"))
-      .max(256, t("common.errmsg.string_max", { max: 256 })),
-    eabHmacKey: z
-      .string(t("access.form.shared_acme_eab_hmac_key.label"))
-      .min(1, t("access.form.shared_acme_eab_hmac_key.placeholder"))
-      .max(256, t("common.errmsg.string_max", { max: 256 })),
+    eabKid: z.string(t("access.form.shared_acme_eab_kid.label")).nonempty(t("access.form.shared_acme_eab_kid.placeholder")),
+    eabHmacKey: z.string(t("access.form.shared_acme_eab_hmac_key.label")).nonempty(t("access.form.shared_acme_eab_hmac_key.placeholder")),
   });
   const formRule = createSchemaFieldRule(formSchema);
 
@@ -321,14 +315,8 @@ const InternalSettingsFormProviderACMECA = () => {
 
   const formSchema = z.object({
     endpoint: z.url(t("common.errmsg.url_invalid")),
-    eabKid: z
-      .string(t("access.form.acmeca_eab_kid.placeholder"))
-      .max(256, t("common.errmsg.string_max", { max: 256 }))
-      .nullish(),
-    eabHmacKey: z
-      .string(t("access.form.acmeca_eab_hmac_key.placeholder"))
-      .max(256, t("common.errmsg.string_max", { max: 256 }))
-      .nullish(),
+    eabKid: z.string(t("access.form.acmeca_eab_kid.placeholder")).nullish(),
+    eabHmacKey: z.string(t("access.form.acmeca_eab_hmac_key.placeholder")).nullish(),
   });
   const formRule = createSchemaFieldRule(formSchema);
 

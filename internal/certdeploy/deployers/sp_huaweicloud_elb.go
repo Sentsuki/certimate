@@ -21,7 +21,7 @@ func init() {
 			SecretAccessKey:     credentials.SecretAccessKey,
 			EnterpriseProjectId: credentials.EnterpriseProjectId,
 			Region:              xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ResourceType:        huaweicloudelb.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:        xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			CertificateId:       xmaps.GetString(options.ProviderExtendedConfig, "certificateId"),
 			LoadbalancerId:      xmaps.GetString(options.ProviderExtendedConfig, "loadbalancerId"),
 			ListenerId:          xmaps.GetString(options.ProviderExtendedConfig, "listenerId"),

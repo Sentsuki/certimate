@@ -72,7 +72,7 @@ func TestDeploy(t *testing.T) {
 			AccessKeyId:     fAccessKeyId,
 			AccessKeySecret: fAccessKeySecret,
 			Region:          fRegion,
-			ServiceType:     provider.ServiceType(fServiceType),
+			ServiceType:     fServiceType,
 			GatewayId:       fGatewayId,
 			GroupId:         fGroupId,
 			Domain:          fDomain,

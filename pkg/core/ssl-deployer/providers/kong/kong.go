@@ -23,7 +23,7 @@ type SSLDeployerProviderConfig struct {
 	// 是否允许不安全的连接。
 	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 工作空间。
 	// 选填。
 	Workspace string `json:"workspace,omitempty"`

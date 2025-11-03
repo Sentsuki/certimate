@@ -76,7 +76,7 @@ func TestDeploy(t *testing.T) {
 			OutputFormat:   provider.OUTPUT_FORMAT_PEM,
 			OutputCertPath: fOutputCertPath + ".pem",
 			OutputKeyPath:  fOutputKeyPath + ".pem",
-			ShellEnv:       provider.ShellEnvType(fShellEnv),
+			ShellEnv:       fShellEnv,
 			PreCommand:     fPreCommand,
 			PostCommand:    fPostCommand,
 		})

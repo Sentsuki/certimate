@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo } from "react";
 import { getI18n, useTranslation } from "react-i18next";
-import { type FlowNodeEntity, getNodeForm } from "@flowgram.ai/fixed-layout-editor";
+import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { IconPlus } from "@tabler/icons-react";
 import { type AnchorProps, Button, Divider, Flex, Form, type FormInstance, Input, Switch, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
@@ -13,18 +13,13 @@ import NotificationProviderSelect from "@/components/provider/NotificationProvid
 import Show from "@/components/Show";
 import Tips from "@/components/Tips";
 import { type AccessModel } from "@/domain/access";
-import { NOTIFICATION_PROVIDERS, notificationProvidersMap } from "@/domain/provider";
+import { notificationProvidersMap } from "@/domain/provider";
 import { type WorkflowNodeConfigForBizNotify, defaultNodeConfigForBizNotify } from "@/domain/workflow";
 import { useAntdForm, useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
 
 import { FormNestedFieldsContextProvider, NodeFormContextProvider } from "./_context";
-import BizNotifyNodeConfigFieldsProviderDiscordBot from "./BizNotifyNodeConfigFieldsProviderDiscordBot";
-import BizNotifyNodeConfigFieldsProviderEmail from "./BizNotifyNodeConfigFieldsProviderEmail";
-import BizNotifyNodeConfigFieldsProviderMattermost from "./BizNotifyNodeConfigFieldsProviderMattermost";
-import BizNotifyNodeConfigFieldsProviderSlackBot from "./BizNotifyNodeConfigFieldsProviderSlackBot";
-import BizNotifyNodeConfigFieldsProviderTelegramBot from "./BizNotifyNodeConfigFieldsProviderTelegramBot";
-import BizNotifyNodeConfigFieldsProviderWebhook from "./BizNotifyNodeConfigFieldsProviderWebhook";
+import BizNotifyNodeConfigFieldsProvider from "./BizNotifyNodeConfigFieldsProvider";
 import { NodeType } from "../nodes/typings";
 
 export interface BizNotifyNodeConfigFormProps {
@@ -46,7 +41,7 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
   };
 
   const initialValues = useMemo(() => {
-    return getNodeForm(node)?.getValueIn("config") as WorkflowNodeConfigForBizNotify | undefined;
+    return node.form?.getValueIn("config") as WorkflowNodeConfigForBizNotify | undefined;
   }, [node]);
 
   const formSchema = getSchema({ i18n });
@@ -60,32 +55,7 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
   const fieldProvider = Form.useWatch<string>("provider", { form: formInst, preserve: true });
   const fieldProviderAccessId = Form.useWatch<string>("providerAccessId", { form: formInst, preserve: true });
 
-  const NestedProviderConfigFields = useMemo(() => {
-    /*
-      注意：如果追加新的子组件，请保持以 ASCII 排序。
-      NOTICE: If you add new child component, please keep ASCII order.
-      */
-    switch (fieldProvider) {
-      case NOTIFICATION_PROVIDERS.DISCORDBOT: {
-        return BizNotifyNodeConfigFieldsProviderDiscordBot;
-      }
-      case NOTIFICATION_PROVIDERS.EMAIL: {
-        return BizNotifyNodeConfigFieldsProviderEmail;
-      }
-      case NOTIFICATION_PROVIDERS.MATTERMOST: {
-        return BizNotifyNodeConfigFieldsProviderMattermost;
-      }
-      case NOTIFICATION_PROVIDERS.SLACKBOT: {
-        return BizNotifyNodeConfigFieldsProviderSlackBot;
-      }
-      case NOTIFICATION_PROVIDERS.TELEGRAMBOT: {
-        return BizNotifyNodeConfigFieldsProviderTelegramBot;
-      }
-      case NOTIFICATION_PROVIDERS.WEBHOOK: {
-        return BizNotifyNodeConfigFieldsProviderWebhook;
-      }
-    }
-  }, [fieldProvider]);
+  const renderNestedFieldProviderComponent = BizNotifyNodeConfigFieldsProvider.useComponent(fieldProvider, {});
 
   useEffect(() => {
     // 如果未选择通知渠道，则清空授权信息
@@ -199,7 +169,7 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
             </Form.Item>
 
             <FormNestedFieldsContextProvider value={{ parentNamePath: "providerConfig" }}>
-              {NestedProviderConfigFields && <NestedProviderConfigFields />}
+              {renderNestedFieldProviderComponent && <>{renderNestedFieldProviderComponent}</>}
             </FormNestedFieldsContextProvider>
           </div>
 
@@ -243,7 +213,7 @@ const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
     subject: "",
     message: "",
-    ...defaultNodeConfigForBizNotify(),
+    ...(defaultNodeConfigForBizNotify() as Nullish<z.infer<ReturnType<typeof getSchema>>>),
   };
 };
 
@@ -251,14 +221,8 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
   const { t } = i18n;
 
   return z.object({
-    subject: z
-      .string()
-      .min(1, t("workflow_node.notify.form.subject.placeholder"))
-      .max(20480, t("common.errmsg.string_max", { max: 20480 })),
-    message: z
-      .string()
-      .min(1, t("workflow_node.notify.form.message.placeholder"))
-      .max(20480, t("common.errmsg.string_max", { max: 20480 })),
+    subject: z.string().nonempty(t("workflow_node.notify.form.subject.placeholder")),
+    message: z.string().nonempty(t("workflow_node.notify.form.message.placeholder")),
     provider: z.string(t("workflow_node.notify.form.provider.placeholder")).nonempty(t("workflow_node.notify.form.provider.placeholder")),
     providerAccessId: z.string(t("workflow_node.notify.form.provider_access.placeholder")).nonempty(t("workflow_node.notify.form.provider_access.placeholder")),
     providerConfig: z.any().nullish(),

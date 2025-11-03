@@ -31,7 +31,7 @@ type SSLDeployerProviderConfig struct {
 	// 华为云区域。
 	Region string `json:"region"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 证书 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_CERTIFICATE] 时必填。
 	CertificateId string `json:"certificateId,omitempty"`
@@ -98,11 +98,6 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 
 	// 根据部署资源类型决定部署方式
 	switch d.config.ResourceType {
-	case RESOURCE_TYPE_CERTIFICATE:
-		if err := d.deployToCertificate(ctx, certPEM, privkeyPEM); err != nil {
-			return nil, err
-		}
-
 	case RESOURCE_TYPE_CLOUDSERVER:
 		if err := d.deployToCloudServer(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
@@ -110,6 +105,11 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 
 	case RESOURCE_TYPE_PREMIUMHOST:
 		if err := d.deployToPremiumHost(ctx, certPEM, privkeyPEM); err != nil {
+			return nil, err
+		}
+
+	case RESOURCE_TYPE_CERTIFICATE:
+		if err := d.deployToCertificate(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
 		}
 

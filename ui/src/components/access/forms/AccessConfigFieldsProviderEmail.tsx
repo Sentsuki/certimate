@@ -112,23 +112,11 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
   const { t } = i18n;
 
   return z.object({
-    smtpHost: z
-      .string()
-      .min(1, t("access.form.email_smtp_host.placeholder"))
-      .max(256, t("common.errmsg.string_max", { max: 256 })),
-    smtpPort: z.preprocess(
-      (v) => Number(v),
-      z.number().refine((v) => validPortNumber(v), t("common.errmsg.port_invalid"))
-    ),
+    smtpHost: z.string().nonempty(t("access.form.email_smtp_host.placeholder")),
+    smtpPort: z.coerce.number().refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
     smtpTls: z.boolean().nullish(),
-    username: z
-      .string()
-      .min(1, t("access.form.email_username.placeholder"))
-      .max(256, t("common.errmsg.string_max", { max: 256 })),
-    password: z
-      .string()
-      .min(1, t("access.form.email_password.placeholder"))
-      .max(256, t("common.errmsg.string_max", { max: 256 })),
+    username: z.string().nonempty(t("access.form.email_username.placeholder")),
+    password: z.string().nonempty(t("access.form.email_password.placeholder")),
     senderAddress: z.email(t("common.errmsg.email_invalid")),
     senderName: z.string().nullish(),
     receiverAddress: z

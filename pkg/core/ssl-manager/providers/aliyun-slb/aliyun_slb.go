@@ -87,9 +87,9 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		fingerprint := sha256.Sum256(certX509.Raw)
 		fingerprintHex := hex.EncodeToString(fingerprint[:])
 		for _, serverCert := range describeServerCertificatesResp.Body.ServerCertificates.ServerCertificate {
-			isSameCert := *serverCert.IsAliCloudCertificate == 0 &&
-				strings.EqualFold(fingerprintHex, strings.ReplaceAll(*serverCert.Fingerprint, ":", "")) &&
-				strings.EqualFold(certX509.Subject.CommonName, *serverCert.CommonName)
+			isSameCert := tea.Int32Value(serverCert.IsAliCloudCertificate) == 0 &&
+				strings.EqualFold(fingerprintHex, strings.ReplaceAll(tea.StringValue(serverCert.Fingerprint), ":", "")) &&
+				strings.EqualFold(certX509.Subject.CommonName, tea.StringValue(serverCert.CommonName))
 			// 如果已存在相同证书，直接返回
 			if isSameCert {
 				m.logger.Info("ssl certificate already exists")

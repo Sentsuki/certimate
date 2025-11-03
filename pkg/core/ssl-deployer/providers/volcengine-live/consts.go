@@ -2,7 +2,7 @@ package volcenginelive
 
 const (
 	// 匹配模式：精确匹配。
-	MatchPatternExact = "exact"
+	MATCH_PATTERN_EXACT = "exact"
 	// 匹配模式：通配符匹配。
-	MatchPatternWildcard = "wildcard"
+	MATCH_PATTERN_WILDCARD = "wildcard"
 )

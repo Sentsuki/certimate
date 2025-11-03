@@ -1,7 +1,7 @@
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
 import { IconChevronDown, IconClipboard, IconThumbUp } from "@tabler/icons-react";
-import { App, Button, Dropdown, Form, Input, Tooltip } from "antd";
+import { App, Button, Dropdown, Form, Input, Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
 
@@ -36,7 +36,12 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
     <div {...props}>
       <Form layout="vertical">
         <Form.Item label={t("certificate.props.subject_alt_names")}>
-          <Input value={data.subjectAltNames} variant="filled" placeholder="" />
+          <Input
+            value={data.subjectAltNames}
+            variant="filled"
+            placeholder=""
+            addonAfter={data.isRevoked ? <Tag color="error">{t("certificate.props.revoked")}</Tag> : <></>}
+          />
         </Form.Item>
 
         <Form.Item label={t("certificate.props.issuer")}>

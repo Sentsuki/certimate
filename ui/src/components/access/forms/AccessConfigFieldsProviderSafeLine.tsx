@@ -63,10 +63,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
 
   return z.object({
     serverUrl: z.url(t("common.errmsg.url_invalid")),
-    apiToken: z
-      .string()
-      .min(1, t("access.form.safeline_api_token.placeholder"))
-      .max(64, t("common.errmsg.string_max", { max: 64 })),
+    apiToken: z.string().nonempty(t("access.form.safeline_api_token.placeholder")),
     allowInsecureConnections: z.boolean().nullish(),
   });
 };

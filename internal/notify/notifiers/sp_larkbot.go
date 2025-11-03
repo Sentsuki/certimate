@@ -18,6 +18,7 @@ func init() {
 
 		provider, err := larkbot.NewNotifierProvider(&larkbot.NotifierProviderConfig{
 			WebhookUrl: credentials.WebhookUrl,
+			Secret:     credentials.Secret,
 		})
 		return provider, err
 	}); err != nil {

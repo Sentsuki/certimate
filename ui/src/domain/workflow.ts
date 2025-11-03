@@ -101,7 +101,9 @@ export type WorkflowNodeConfigForBizApply = {
   caProvider?: string;
   caProviderAccessId?: string;
   caProviderConfig?: Record<string, unknown>;
+  keySource: string;
   keyAlgorithm: string;
+  keyContent?: string;
   validityLifetime?: string;
   acmeProfile?: string;
   nameservers?: string;
@@ -115,6 +117,7 @@ export type WorkflowNodeConfigForBizApply = {
 export const defaultNodeConfigForBizApply = (): Partial<WorkflowNodeConfigForBizApply> => {
   return {
     challengeType: "dns-01" as const,
+    keySource: "auto" as const,
     keyAlgorithm: "RSA2048" as const,
     skipBeforeExpiryDays: 30,
   };

@@ -20,7 +20,7 @@ func init() {
 			AccessKeyId:     credentials.AccessKeyId,
 			SecretAccessKey: credentials.SecretAccessKey,
 			Region:          xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ResourceType:    baiducloudblb.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:    xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			LoadbalancerId:  xmaps.GetString(options.ProviderExtendedConfig, "loadbalancerId"),
 			ListenerPort:    xmaps.GetInt32(options.ProviderExtendedConfig, "listenerPort"),
 			Domain:          xmaps.GetString(options.ProviderExtendedConfig, "domain"),

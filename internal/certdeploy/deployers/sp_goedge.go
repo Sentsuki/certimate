@@ -22,7 +22,7 @@ func init() {
 			AccessKeyId:              credentials.AccessKeyId,
 			AccessKey:                credentials.AccessKey,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
-			ResourceType:             goedge.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:             xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			CertificateId:            xmaps.GetInt64(options.ProviderExtendedConfig, "certificateId"),
 		})
 		return provider, err

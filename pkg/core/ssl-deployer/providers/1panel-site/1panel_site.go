@@ -28,7 +28,7 @@ type SSLDeployerProviderConfig struct {
 	// 选填。
 	NodeName string `json:"nodeName,omitempty"`
 	// 部署资源类型。
-	ResourceType ResourceType `json:"resourceType"`
+	ResourceType string `json:"resourceType"`
 	// 网站 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_WEBSITE] 时必填。
 	WebsiteId int64 `json:"websiteId,omitempty"`

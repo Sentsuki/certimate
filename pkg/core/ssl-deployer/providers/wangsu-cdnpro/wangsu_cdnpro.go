@@ -232,9 +232,9 @@ func encryptPrivateKey(privkeyPEM string, apiKey string, timestamp int64) (strin
 	date := time.Unix(timestamp, 0).UTC()
 	dateStr := date.Format("Mon, 02 Jan 2006 15:04:05 GMT")
 
-	mac := hmac.New(sha256.New, []byte(apiKey))
-	mac.Write([]byte(dateStr))
-	aesivkey := mac.Sum(nil)
+	h := hmac.New(sha256.New, []byte(apiKey))
+	h.Write([]byte(dateStr))
+	aesivkey := h.Sum(nil)
 	aesivkeyHex := hex.EncodeToString(aesivkey)
 
 	if len(aesivkeyHex) != 64 {

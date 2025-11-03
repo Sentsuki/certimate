@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconBrowserShare, IconCertificate, IconDots, IconExternalLink, IconReload, IconTrash } from "@tabler/icons-react";
+import { IconBrowserShare, IconCertificate, IconDots, IconExternalLink, IconReload, IconShieldCancel, IconTrash } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { App, Button, Dropdown, Input, Segmented, Skeleton, Table, type TableProps, Typography, theme } from "antd";
 import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
+import { revoke as revokeCertificate } from "@/api/certificates";
 import CertificateDetailDrawer from "@/components/certificate/CertificateDetailDrawer";
 import Empty from "@/components/Empty";
 import Show from "@/components/Show";
-import { type CertificateModel } from "@/domain/certificate";
+import { CERTIFICATE_SOURCES, type CertificateModel } from "@/domain/certificate";
 import { useAppSettings } from "@/hooks";
 import {
   get as getCertificate,
@@ -28,7 +29,7 @@ const CertificateList = () => {
 
   const { token: themeToken } = theme.useToken();
 
-  const { modal, notification } = App.useApp();
+  const { message, modal, notification } = App.useApp();
 
   const { appSettings: globalAppSettings } = useAppSettings();
 
@@ -51,7 +52,7 @@ const CertificateList = () => {
     {
       key: "name",
       title: t("certificate.props.subject_alt_names"),
-      render: (_, record) => <Typography.Text>{record.subjectAltNames}</Typography.Text>,
+      render: (_, record) => <Typography.Text delete={record.isRevoked}>{record.subjectAltNames}</Typography.Text>,
     },
     {
       key: "validity",
@@ -60,13 +61,14 @@ const CertificateList = () => {
       sortOrder: sorter.columnKey === "validity" ? sorter.order : void 0,
       render: (_, record) => {
         const total = dayjs(record.validityNotAfter).diff(dayjs(record.created), "d") + 1;
+        const isRevoked = record.isRevoked;
         const isExpired = dayjs().isAfter(dayjs(record.validityNotAfter));
         const leftHours = dayjs(record.validityNotAfter).diff(dayjs(), "h");
         const leftDays = Math.round(leftHours / 24);
 
         return (
           <div className="flex max-w-full flex-col gap-1 truncate">
-            {!isExpired ? (
+            {!isRevoked && !isExpired ? (
               leftDays >= 20 ? (
                 <Typography.Text ellipsis type="success">
                   <span className="mr-2 inline-block size-2 rounded-full bg-success leading-2">&nbsp;</span>
@@ -83,7 +85,7 @@ const CertificateList = () => {
             ) : (
               <Typography.Text ellipsis type="danger">
                 <span className="mr-2 inline-block size-2 rounded-full bg-error leading-2">&nbsp;</span>
-                {t("certificate.props.validity.expired")}
+                {isRevoked ? t("certificate.props.revoked") : t("certificate.props.validity.expired")}
               </Typography.Text>
             )}
 
@@ -155,6 +157,20 @@ const CertificateList = () => {
                 ),
                 onClick: () => {
                   handleRecordDetailClick(record);
+                },
+              },
+              {
+                key: "revoke",
+                label: t("certificate.action.revoke.menu"),
+                danger: true,
+                disabled: record.source !== CERTIFICATE_SOURCES.REQUEST || record.isRevoked,
+                icon: (
+                  <span className="anticon scale-125">
+                    <IconShieldCancel size="1em" />
+                  </span>
+                ),
+                onClick: () => {
+                  handleRecordRevokeClick(record);
                 },
               },
               {
@@ -296,6 +312,33 @@ const CertificateList = () => {
     const drawer = detailDrawer.open({ data: certificate, loading: true });
     getCertificate(certificate.id).then((data) => {
       drawer.safeUpdate({ data, loading: false });
+    });
+  };
+
+  const handleRecordRevokeClick = (certificate: CertificateModel) => {
+    modal.confirm({
+      title: <span className="text-error">{t("certificate.action.revoke.modal.title", { name: certificate.subjectAltNames })}</span>,
+      content: <span dangerouslySetInnerHTML={{ __html: t("certificate.action.revoke.modal.content") }} />,
+      icon: (
+        <span className="anticon" role="img">
+          <IconShieldCancel className="text-error" size="1em" />
+        </span>
+      ),
+      okText: t("common.button.confirm"),
+      okButtonProps: { danger: true },
+      onOk: async () => {
+        try {
+          const resp = await revokeCertificate(certificate.id);
+          if (resp) {
+            message.success(t("common.text.operation_succeeded"));
+            setTableData((prev) => prev.map((item) => (item.id === certificate.id ? { ...item, isRevoked: true } : item)));
+            refreshData();
+          }
+        } catch (err) {
+          console.error(err);
+          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        }
+      },
     });
   };
 

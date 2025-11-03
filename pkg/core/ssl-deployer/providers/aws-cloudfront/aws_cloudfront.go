@@ -51,7 +51,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 	}
 
 	var sslmgr core.SSLManager
-	if config.CertificateSource == "ACM" {
+	switch config.CertificateSource {
+	case CERTIFICATE_SOURCE_ACM:
 		sslmgr, err = sslmgrspacm.NewSSLManagerProvider(&sslmgrspacm.SSLManagerProviderConfig{
 			AccessKeyId:     config.AccessKeyId,
 			SecretAccessKey: config.SecretAccessKey,
@@ -60,7 +61,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 		if err != nil {
 			return nil, fmt.Errorf("could not create ssl manager: %w", err)
 		}
-	} else if config.CertificateSource == "IAM" {
+
+	case CERTIFICATE_SOURCE_IAM:
 		sslmgr, err = sslmgrspiam.NewSSLManagerProvider(&sslmgrspiam.SSLManagerProviderConfig{
 			AccessKeyId:     config.AccessKeyId,
 			SecretAccessKey: config.SecretAccessKey,
@@ -70,7 +72,8 @@ func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProv
 		if err != nil {
 			return nil, fmt.Errorf("could not create ssl manager: %w", err)
 		}
-	} else {
+
+	default:
 		return nil, fmt.Errorf("unsupported certificate source: '%s'", config.CertificateSource)
 	}
 
@@ -127,10 +130,12 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		updateDistributionReq.DistributionConfig.ViewerCertificate = &types.ViewerCertificate{}
 	}
 	updateDistributionReq.DistributionConfig.ViewerCertificate.CloudFrontDefaultCertificate = aws.Bool(false)
-	if d.config.CertificateSource == "ACM" {
+	switch d.config.CertificateSource {
+	case CERTIFICATE_SOURCE_ACM:
 		updateDistributionReq.DistributionConfig.ViewerCertificate.ACMCertificateArn = aws.String(upres.CertId)
 		updateDistributionReq.DistributionConfig.ViewerCertificate.IAMCertificateId = nil
-	} else if d.config.CertificateSource == "IAM" {
+
+	case CERTIFICATE_SOURCE_IAM:
 		updateDistributionReq.DistributionConfig.ViewerCertificate.ACMCertificateArn = nil
 		updateDistributionReq.DistributionConfig.ViewerCertificate.IAMCertificateId = aws.String(upres.CertId)
 		if updateDistributionReq.DistributionConfig.ViewerCertificate.MinimumProtocolVersion == "" {

@@ -20,7 +20,7 @@ func init() {
 			ServerUrl:                credentials.ServerUrl,
 			ApiToken:                 credentials.ApiToken,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
-			ResourceType:             kong.ResourceType(xmaps.GetString(options.ProviderExtendedConfig, "resourceType")),
+			ResourceType:             xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			Workspace:                xmaps.GetString(options.ProviderExtendedConfig, "workspace"),
 			CertificateId:            xmaps.GetString(options.ProviderExtendedConfig, "certificateId"),
 		})

@@ -52,7 +52,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
 
   return z.object({
     webhookUrl: z.url(t("common.errmsg.url_invalid")),
-    secret: z.string().nonempty(t("access.form.dingtalkbot_secret.placeholder")),
+    secret: z.string().nullish(),
   });
 };
 

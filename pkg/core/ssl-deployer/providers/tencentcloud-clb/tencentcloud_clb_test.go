@@ -51,44 +51,6 @@ Shell command to run this test:
 func TestDeploy(t *testing.T) {
 	flag.Parse()
 
-	t.Run("Deploy_UseSslDeploy", func(t *testing.T) {
-		t.Log(strings.Join([]string{
-			"args:",
-			fmt.Sprintf("INPUTCERTPATH: %v", fInputCertPath),
-			fmt.Sprintf("INPUTKEYPATH: %v", fInputKeyPath),
-			fmt.Sprintf("SECRETID: %v", fSecretId),
-			fmt.Sprintf("SECRETKEY: %v", fSecretKey),
-			fmt.Sprintf("REGION: %v", fRegion),
-			fmt.Sprintf("LOADBALANCERID: %v", fLoadbalancerId),
-			fmt.Sprintf("LISTENERID: %v", fListenerId),
-			fmt.Sprintf("DOMAIN: %v", fDomain),
-		}, "\n"))
-
-		deployer, err := provider.NewSSLDeployerProvider(&provider.SSLDeployerProviderConfig{
-			SecretId:       fSecretId,
-			SecretKey:      fSecretKey,
-			Region:         fRegion,
-			ResourceType:   provider.RESOURCE_TYPE_VIA_SSLDEPLOY,
-			LoadbalancerId: fLoadbalancerId,
-			ListenerId:     fListenerId,
-			Domain:         fDomain,
-		})
-		if err != nil {
-			t.Errorf("err: %+v", err)
-			return
-		}
-
-		fInputCertData, _ := os.ReadFile(fInputCertPath)
-		fInputKeyData, _ := os.ReadFile(fInputKeyPath)
-		res, err := deployer.Deploy(context.Background(), string(fInputCertData), string(fInputKeyData))
-		if err != nil {
-			t.Errorf("err: %+v", err)
-			return
-		}
-
-		t.Logf("ok: %v", res)
-	})
-
 	t.Run("Deploy_ToLoadbalancer", func(t *testing.T) {
 		t.Log(strings.Join([]string{
 			"args:",
