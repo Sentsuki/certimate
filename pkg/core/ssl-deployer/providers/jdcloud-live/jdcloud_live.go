@@ -76,6 +76,6 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 func createSDKClient(accessKeyId, accessKeySecret string) (*jdliveclient.LiveClient, error) {
 	clientCredentials := jdcore.NewCredentials(accessKeyId, accessKeySecret)
 	client := jdliveclient.NewLiveClient(clientCredentials)
-	client.SetLogger(jdcore.NewDefaultLogger(jdcore.LogWarn))
+	client.DisableLogger()
 	return client, nil
 }

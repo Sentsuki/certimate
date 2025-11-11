@@ -34,7 +34,6 @@ const BizDeployNodeConfigFieldsProviderAliyunOSS = () => {
         initialValue={initialValues.bucket}
         label={t("workflow_node.deploy.form.aliyun_oss_bucket.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.aliyun_oss_bucket.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.aliyun_oss_bucket.placeholder")} />
       </Form.Item>
@@ -44,7 +43,6 @@ const BizDeployNodeConfigFieldsProviderAliyunOSS = () => {
         initialValue={initialValues.domain}
         label={t("workflow_node.deploy.form.aliyun_oss_domain.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.aliyun_oss_domain.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.aliyun_oss_domain.placeholder")} />
       </Form.Item>

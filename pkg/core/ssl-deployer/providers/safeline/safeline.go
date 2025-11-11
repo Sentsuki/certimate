@@ -22,7 +22,7 @@ type SSLDeployerProviderConfig struct {
 	ResourceType string `json:"resourceType"`
 	// 证书 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_CERTIFICATE] 时必填。
-	CertificateId int32 `json:"certificateId,omitempty"`
+	CertificateId int64 `json:"certificateId,omitempty"`
 }
 
 type SSLDeployerProvider struct {

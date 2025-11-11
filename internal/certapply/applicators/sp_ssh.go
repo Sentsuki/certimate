@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	if err := ACMEHttp01Registries.Register(domain.ACMEHttp01ProviderTypeSSH, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
+	ACMEHttp01Registries.MustRegister(domain.ACMEHttp01ProviderTypeSSH, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
 		credentials := domain.AccessConfigForSSH{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -45,7 +45,5 @@ func init() {
 			WebRootPath: xmaps.GetString(options.ProviderExtendedConfig, "webRootPath"),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

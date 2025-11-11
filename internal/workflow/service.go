@@ -150,19 +150,23 @@ func (s *WorkflowService) Shutdown(ctx context.Context) {
 }
 
 func (s *WorkflowService) cleanupHistoryRuns(ctx context.Context) error {
-	settings, err := s.settingsRepo.GetByName(ctx, "persistence")
+	settings, err := s.settingsRepo.GetByName(ctx, domain.SettingsNamePersistence)
 	if err != nil {
+		if errors.Is(err, domain.ErrRecordNotFound) {
+			return nil
+		}
+
 		app.GetLogger().Error("failed to get persistence settings", slog.Any("error", err))
 		return err
 	}
 
 	persistenceSettings := settings.Content.AsPersistence()
-	if persistenceSettings.WorkflowRunsMaxDaysRetention != 0 {
+	if persistenceSettings.WorkflowRunsRetentionMaxDays != 0 {
 		ret, err := s.workflowRunRepo.DeleteWhere(
 			ctx,
 			dbx.NewExp(fmt.Sprintf("status!='%s'", string(domain.WorkflowRunStatusTypePending))),
 			dbx.NewExp(fmt.Sprintf("status!='%s'", string(domain.WorkflowRunStatusTypeProcessing))),
-			dbx.NewExp(fmt.Sprintf("endedAt<DATETIME('now', '-%d days')", persistenceSettings.WorkflowRunsMaxDaysRetention)),
+			dbx.NewExp(fmt.Sprintf("endedAt<DATETIME('now', '-%d days')", persistenceSettings.WorkflowRunsRetentionMaxDays)),
 		)
 		if err != nil {
 			app.GetLogger().Error("failed to delete workflow history runs", slog.Any("error", err))

@@ -10,6 +10,8 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
+
+	"github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl/internal"
 )
 
 type SSLManagerProviderConfig struct {
@@ -24,7 +26,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *tcssl.Client
+	sdkClient *internal.SslClient
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -72,7 +74,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint string) (*tcssl.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint string) (*internal.SslClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -80,7 +82,7 @@ func createSDKClient(secretId, secretKey, endpoint string) (*tcssl.Client, error
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcssl.NewClient(credential, "", cpf)
+	client, err := internal.NewSslClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

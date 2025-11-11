@@ -18,6 +18,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/huaweicloud-elb/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-elb"
 )
 
@@ -46,7 +47,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *hcelb.ElbClient
+	sdkClient  *internal.ElbClient
 	sslManager core.SSLManager
 }
 
@@ -329,7 +330,7 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 	return nil
 }
 
-func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcelb.ElbClient, error) {
+func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.ElbClient, error) {
 	projectId, err := getSdkProjectId(accessKeyId, secretAccessKey, region)
 	if err != nil {
 		return nil, err
@@ -357,7 +358,7 @@ func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcelb.ElbCli
 		return nil, err
 	}
 
-	client := hcelb.NewElbClient(hcClient)
+	client := internal.NewElbClient(hcClient)
 	return client, nil
 }
 

@@ -109,7 +109,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 }
 
 func createSDKClient(accessKeyId, secretAccessKey, region string) (*awsacm.Client, error) {
-	cfg, err := awscfg.LoadDefaultConfig(context.TODO())
+	cfg, err := awscfg.LoadDefaultConfig(context.Background())
 	if err != nil {
 		return nil, err
 	}

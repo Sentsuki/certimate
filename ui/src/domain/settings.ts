@@ -30,7 +30,8 @@ export type SSLProviderSettingsContent = {
 
 // #region Settings: Persistence
 export type PersistenceSettingsContent = {
-  workflowRunsMaxDaysRetention?: number;
-  expiredCertificatesMaxDaysRetention?: number;
+  certificatesWarningDaysBeforeExpire?: number;
+  certificatesRetentionMaxDays?: number;
+  workflowRunsRetentionMaxDays?: number;
 };
 // #endregion

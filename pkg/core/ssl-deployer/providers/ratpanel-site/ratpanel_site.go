@@ -15,7 +15,7 @@ type SSLDeployerProviderConfig struct {
 	// 耗子面板服务地址。
 	ServerUrl string `json:"serverUrl"`
 	// 耗子面板访问令牌 ID。
-	AccessTokenId int32 `json:"accessTokenId"`
+	AccessTokenId int64 `json:"accessTokenId"`
 	// 耗子面板访问令牌。
 	AccessToken string `json:"accessToken"`
 	// 是否允许不安全的连接。
@@ -77,7 +77,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(serverUrl string, accessTokenId int32, accessToken string, skipTlsVerify bool) (*rpsdk.Client, error) {
+func createSDKClient(serverUrl string, accessTokenId int64, accessToken string, skipTlsVerify bool) (*rpsdk.Client, error) {
 	client, err := rpsdk.NewClient(serverUrl, accessTokenId, accessToken)
 	if err != nil {
 		return nil, err

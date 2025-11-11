@@ -13,8 +13,8 @@ type ChallengeProviderConfig struct {
 	CustomerNumber        string `json:"customerNumber"`
 	ApiKey                string `json:"apiKey"`
 	ApiPassword           string `json:"apiPassword"`
-	DnsPropagationTimeout int32  `json:"dnsPropagationTimeout,omitempty"`
-	DnsTTL                int32  `json:"dnsTTL,omitempty"`
+	DnsPropagationTimeout int    `json:"dnsPropagationTimeout,omitempty"`
+	DnsTTL                int    `json:"dnsTTL,omitempty"`
 }
 
 func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger, error) {
@@ -30,7 +30,7 @@ func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger,
 		providerConfig.PropagationTimeout = time.Duration(config.DnsPropagationTimeout) * time.Second
 	}
 	if config.DnsTTL != 0 {
-		providerConfig.TTL = int(config.DnsTTL)
+		providerConfig.TTL = config.DnsTTL
 	}
 
 	provider, err := netcup.NewDNSProviderConfig(providerConfig)

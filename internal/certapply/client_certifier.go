@@ -23,10 +23,10 @@ import (
 )
 
 type ObtainCertificateRequest struct {
-	Domains        []string
-	PrivateKeyType certcrypto.KeyType
-	PrivateKeyPEM  string
-	ValidityTo     time.Time
+	Domains          []string
+	PrivateKeyType   certcrypto.KeyType
+	PrivateKeyPEM    string
+	ValidityNotAfter time.Time
 
 	// 提供商相关
 	ChallengeType          string
@@ -39,15 +39,16 @@ type ObtainCertificateRequest struct {
 	Nameservers        []string
 
 	// DNS-01 质询相关
-	DnsPropagationWait    int32
-	DnsPropagationTimeout int32
-	DnsTTL                int32
+	DnsPropagationWait    int
+	DnsPropagationTimeout int
+	DnsTTL                int
 
 	// HTTP-01 质询相关
-	HttpDelayWait int32
+	HttpDelayWait int
 
 	// ACME 相关
-	ACMEProfile string
+	PreferredChain string
+	ACMEProfile    string
 
 	// ARI 相关
 	ARIReplacesAcctUrl string
@@ -166,8 +167,9 @@ func (c *ACMEClient) sendObtainCertificateRequest(request *ObtainCertificateRequ
 		Domains:        request.Domains,
 		PrivateKey:     privkey,
 		Bundle:         true,
+		PreferredChain: request.PreferredChain,
 		Profile:        request.ACMEProfile,
-		NotAfter:       request.ValidityTo,
+		NotAfter:       request.ValidityNotAfter,
 		ReplacesCertID: lo.If(request.ARIReplacesAcctUrl == c.account.ACMEAcctUrl, request.ARIReplacesCertId).Else(""),
 	}
 	resp, err := c.client.Certificate.Obtain(req)

@@ -15,7 +15,7 @@ type ChallengeProviderConfig struct {
 	Mode                  string `json:"mode"`
 	Username              string `json:"username"`
 	Password              string `json:"password"`
-	DnsPropagationTimeout int32  `json:"dnsPropagationTimeout,omitempty"`
+	DnsPropagationTimeout int    `json:"dnsPropagationTimeout,omitempty"`
 }
 
 func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger, error) {

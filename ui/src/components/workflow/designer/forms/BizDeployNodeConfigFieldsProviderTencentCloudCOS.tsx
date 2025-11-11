@@ -34,7 +34,6 @@ const BizDeployNodeConfigFieldsProviderTencentCloudCOS = () => {
         initialValue={initialValues.bucket}
         label={t("workflow_node.deploy.form.tencentcloud_cos_bucket.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_cos_bucket.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.tencentcloud_cos_bucket.placeholder")} />
       </Form.Item>
@@ -44,7 +43,6 @@ const BizDeployNodeConfigFieldsProviderTencentCloudCOS = () => {
         initialValue={initialValues.domain}
         label={t("workflow_node.deploy.form.tencentcloud_cos_domain.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_cos_domain.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.tencentcloud_cos_domain.placeholder")} />
       </Form.Item>

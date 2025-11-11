@@ -31,7 +31,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *vecdn.CDN
+	sdkClient  vecdn.CDNAPI
 	sslManager core.SSLManager
 }
 
@@ -247,7 +247,7 @@ func (d *SSLDeployerProvider) bindCert(ctx context.Context, domain string, cloud
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*vecdn.CDN, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (vecdn.CDNAPI, error) {
 	config := ve.NewConfig().
 		WithAkSk(accessKeyId, accessKeySecret)
 

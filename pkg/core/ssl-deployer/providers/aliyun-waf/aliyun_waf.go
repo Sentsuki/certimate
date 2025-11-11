@@ -8,11 +8,13 @@ import (
 	"strings"
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
-	aliwaf "github.com/alibabacloud-go/waf-openapi-20211001/v6/client"
+	aliwaf "github.com/alibabacloud-go/waf-openapi-20211001/v7/client"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-waf/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -36,7 +38,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *aliwaf.Client
+	sdkClient  *internal.WafClient
 	sslManager core.SSLManager
 }
 
@@ -119,7 +121,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 			InstanceId:                     tea.String(d.config.InstanceId),
 			RegionId:                       tea.String(d.config.Region),
 		}
-		describeDefaultHttpsResp, err := d.sdkClient.DescribeDefaultHttps(describeDefaultHttpsReq)
+		describeDefaultHttpsResp, err := d.sdkClient.DescribeDefaultHttpsWithContext(context.TODO(), describeDefaultHttpsReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'waf.DescribeDefaultHttps'", slog.Any("request", describeDefaultHttpsReq), slog.Any("response", describeDefaultHttpsResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'waf.DescribeDefaultHttps': %w", err)
@@ -143,7 +145,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 				modifyDefaultHttpsReq.EnableTLSv3 = describeDefaultHttpsResp.Body.DefaultHttps.EnableTLSv3
 			}
 		}
-		modifyDefaultHttpsResp, err := d.sdkClient.ModifyDefaultHttps(modifyDefaultHttpsReq)
+		modifyDefaultHttpsResp, err := d.sdkClient.ModifyDefaultHttpsWithContext(context.TODO(), modifyDefaultHttpsReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'waf.ModifyDefaultHttps'", slog.Any("request", modifyDefaultHttpsReq), slog.Any("response", modifyDefaultHttpsResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'waf.ModifyDefaultHttps': %w", err)
@@ -158,7 +160,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 			RegionId:   tea.String(d.config.Region),
 			Domain:     tea.String(d.config.Domain),
 		}
-		describeDomainDetailResp, err := d.sdkClient.DescribeDomainDetail(describeDomainDetailReq)
+		describeDomainDetailResp, err := d.sdkClient.DescribeDomainDetailWithContext(context.TODO(), describeDomainDetailReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'waf.DescribeDomainDetail'", slog.Any("request", describeDomainDetailReq), slog.Any("response", describeDomainDetailResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'waf.DescribeDomainDetail': %w", err)
@@ -174,7 +176,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 			Redirect:   &aliwaf.ModifyDomainRequestRedirect{Loadbalance: tea.String("iphash")},
 		}
 		modifyDomainReq = assign(modifyDomainReq, describeDomainDetailResp.Body)
-		modifyDomainResp, err := d.sdkClient.ModifyDomain(modifyDomainReq)
+		modifyDomainResp, err := d.sdkClient.ModifyDomainWithContext(context.TODO(), modifyDomainReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'waf.ModifyDomain'", slog.Any("request", modifyDomainReq), slog.Any("response", modifyDomainResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'waf.ModifyDomain': %w", err)
@@ -184,7 +186,7 @@ func (d *SSLDeployerProvider) deployToWAF3(ctx context.Context, certPEM string, 
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*aliwaf.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.WafClient, error) {
 	// 接入点一览：https://api.aliyun.com/product/waf-openapi
 	var endpoint string
 	switch region {
@@ -200,7 +202,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*aliwaf.Clien
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := aliwaf.NewClient(config)
+	client, err := internal.NewWafClient(config)
 	if err != nil {
 		return nil, err
 	}

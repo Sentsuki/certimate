@@ -76,8 +76,8 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				continue
 			}
 
-			oldCertPEM := strings.Join(describeCertDetailSecretResp.Result.SSL.Chain, "\n\n")
 			// 如果已存在相同证书，直接返回
+			oldCertPEM := strings.Join(describeCertDetailSecretResp.Result.SSL.Chain, "\n\n")
 			if xcert.EqualCertificatesFromPEM(certPEM, oldCertPEM) {
 				m.logger.Info("ssl certificate already exists")
 				return &core.SSLManageUploadResult{

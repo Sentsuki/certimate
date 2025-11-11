@@ -25,7 +25,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *vecs.CERTIFICATESERVICE
+	sdkClient vecs.CERTIFICATESERVICEAPI
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -88,7 +88,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*vecs.CERTIFICATESERVICE, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (vecs.CERTIFICATESERVICEAPI, error) {
 	if region == "" {
 		region = "cn-beijing" // 证书中心默认区域：北京
 	}

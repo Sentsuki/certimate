@@ -10,9 +10,11 @@ import (
 
 	alicas "github.com/alibabacloud-go/cas-20200407/v4/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-cas-deploy/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -35,7 +37,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *alicas.Client
+	sdkClient  *internal.CasClient
 	sslManager core.SSLManager
 }
 
@@ -100,7 +102,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			ShowSize:    tea.Int32(1),
 			CurrentPage: tea.Int32(1),
 		}
-		listContactResp, err := d.sdkClient.ListContact(listContactReq)
+		listContactResp, err := d.sdkClient.ListContactWithContext(context.TODO(), listContactReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'cas.ListContact'", slog.Any("request", listContactReq), slog.Any("response", listContactResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'cas.ListContact': %w", err)
@@ -120,7 +122,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		ResourceIds: tea.String(strings.Join(d.config.ResourceIds, ",")),
 		ContactIds:  tea.String(strings.Join(contactIds, ",")),
 	}
-	createDeploymentJobResp, err := d.sdkClient.CreateDeploymentJob(createDeploymentJobReq)
+	createDeploymentJobResp, err := d.sdkClient.CreateDeploymentJobWithContext(context.TODO(), createDeploymentJobReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'cas.CreateDeploymentJob'", slog.Any("request", createDeploymentJobReq), slog.Any("response", createDeploymentJobResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cas.CreateDeploymentJob': %w", err)
@@ -138,7 +140,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		describeDeploymentJobReq := &alicas.DescribeDeploymentJobRequest{
 			JobId: createDeploymentJobResp.Body.JobId,
 		}
-		describeDeploymentJobResp, err := d.sdkClient.DescribeDeploymentJob(describeDeploymentJobReq)
+		describeDeploymentJobResp, err := d.sdkClient.DescribeDeploymentJobWithContext(context.TODO(), describeDeploymentJobReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'cas.DescribeDeploymentJob'", slog.Any("request", describeDeploymentJobReq), slog.Any("response", describeDeploymentJobResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'cas.DescribeDeploymentJob': %w", err)
@@ -159,7 +161,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*alicas.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.CasClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/cas
 	var endpoint string
 	switch region {
@@ -175,7 +177,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*alicas.Clien
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := alicas.NewClient(config)
+	client, err := internal.NewCasClient(config)
 	if err != nil {
 		return nil, err
 	}

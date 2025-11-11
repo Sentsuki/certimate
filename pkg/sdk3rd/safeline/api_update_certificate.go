@@ -6,7 +6,7 @@ import (
 )
 
 type UpdateCertificateRequest struct {
-	Id     int32             `json:"id"`
+	Id     int64             `json:"id"`
 	Type   int32             `json:"type"`
 	Manual *CertificateManul `json:"manual"`
 }

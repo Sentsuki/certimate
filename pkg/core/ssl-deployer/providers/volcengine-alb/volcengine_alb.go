@@ -38,7 +38,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *vealb.ALB
+	sdkClient  vealb.ALBAPI
 	sslManager core.SSLManager
 }
 
@@ -259,7 +259,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*vealb.ALB, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (vealb.ALBAPI, error) {
 	config := ve.NewConfig().
 		WithAkSk(accessKeyId, accessKeySecret).
 		WithRegion(region)

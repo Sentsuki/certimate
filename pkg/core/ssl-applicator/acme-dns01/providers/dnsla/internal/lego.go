@@ -9,6 +9,7 @@ import (
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/platform/config/env"
+	"github.com/samber/lo"
 
 	dnslasdk "github.com/certimate-go/certimate/pkg/sdk3rd/dnsla"
 )
@@ -201,25 +202,24 @@ func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) er
 		return err
 	}
 
+	const recordTypeTXT = 16
 	if record == nil {
 		request := &dnslasdk.CreateRecordRequest{
-			DomainId: zone.Id,
-			Type:     16,
-			Host:     subDomain,
-			Data:     value,
-			Ttl:      int32(d.config.TTL),
+			DomainId: lo.ToPtr(zone.Id),
+			Type:     lo.ToPtr(int32(recordTypeTXT)),
+			Host:     lo.ToPtr(subDomain),
+			Data:     lo.ToPtr(value),
+			Ttl:      lo.ToPtr(int32(d.config.TTL)),
 		}
 		_, err := d.client.CreateRecord(request)
 		return err
 	} else {
-		reqType := int32(16)
-		reqTtl := int32(d.config.TTL)
 		request := &dnslasdk.UpdateRecordRequest{
-			Id:   record.Id,
-			Type: &reqType,
-			Host: &subDomain,
-			Data: &value,
-			Ttl:  &reqTtl,
+			Id:   lo.ToPtr(record.Id),
+			Type: lo.ToPtr(int32(recordTypeTXT)),
+			Host: lo.ToPtr(subDomain),
+			Data: lo.ToPtr(value),
+			Ttl:  lo.ToPtr(int32(d.config.TTL)),
 		}
 		_, err := d.client.UpdateRecord(request)
 		return err

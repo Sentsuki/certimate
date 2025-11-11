@@ -11,9 +11,9 @@ import (
 	tccdn "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdn/v20180606"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
-	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-ecdn/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
@@ -35,16 +35,11 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tccdn.Client
+	sdkClient  *internal.CdnClient
 	sslManager core.SSLManager
 }
 
 var _ core.SSLDeployer = (*SSLDeployerProvider)(nil)
-
-type wSDKClients struct {
-	SSL *tcssl.Client
-	CDN *tccdn.Client
-}
 
 func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProvider, error) {
 	if config == nil {
@@ -284,7 +279,7 @@ func (d *SSLDeployerProvider) updateDomainHttpsServerCert(ctx context.Context, d
 	return nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint string) (*tccdn.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint string) (*internal.CdnClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -292,7 +287,7 @@ func createSDKClient(secretId, secretKey, endpoint string) (*tccdn.Client, error
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tccdn.NewClient(credential, "", cpf)
+	client, err := internal.NewCdnClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

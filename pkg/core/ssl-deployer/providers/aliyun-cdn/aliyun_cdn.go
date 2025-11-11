@@ -10,10 +10,12 @@ import (
 
 	alicdn "github.com/alibabacloud-go/cdn-20180510/v8/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-cdn/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -33,7 +35,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *alicdn.Client
+	sdkClient  *internal.CdnClient
 	sslManager core.SSLManager
 }
 
@@ -99,13 +101,13 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	setCdnDomainSSLCertificateReq := &alicdn.SetCdnDomainSSLCertificateRequest{
 		DomainName: tea.String(domain),
 		CertType:   tea.String("cas"),
-		CertId:     tea.Int64(int64(certId)),
+		CertId:     tea.Int64(certId),
 		CertRegion: lo.
 			If(d.config.Region == "" || strings.HasPrefix(d.config.Region, "cn-"), tea.String("cn-hangzhou")).
 			Else(tea.String("ap-southeast-1")),
 		SSLProtocol: tea.String("on"),
 	}
-	setCdnDomainSSLCertificateResp, err := d.sdkClient.SetCdnDomainSSLCertificate(setCdnDomainSSLCertificateReq)
+	setCdnDomainSSLCertificateResp, err := d.sdkClient.SetCdnDomainSSLCertificateWithContext(context.TODO(), setCdnDomainSSLCertificateReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'cdn.SetCdnDomainSSLCertificate'", slog.Any("request", setCdnDomainSSLCertificateReq), slog.Any("response", setCdnDomainSSLCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cdn.SetCdnDomainSSLCertificate': %w", err)
@@ -114,14 +116,14 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*alicdn.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (*internal.CdnClient, error) {
 	config := &aliopen.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Endpoint:        tea.String("cdn.aliyuncs.com"),
 	}
 
-	client, err := alicdn.NewClient(config)
+	client, err := internal.NewCdnClient(config)
 	if err != nil {
 		return nil, err
 	}

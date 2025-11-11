@@ -235,7 +235,7 @@ const WorkflowList = () => {
     () => {
       const { columnKey: sorterKey, order: sorterOrder } = sorter;
       let sort: string | undefined;
-      sort = sorterKey === "lastRun" ? "lastRunTime" : "";
+      sort = sorterKey === "lastRun" ? "lastRunTime" : void 0;
       sort = sort && (sorterOrder === "ascend" ? `${sort}` : sorterOrder === "descend" ? `-${sort}` : void 0);
 
       return listWorkflows({

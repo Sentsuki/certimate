@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.NotificationProviderTypeTelegramBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
+	Registries.MustRegister(domain.NotificationProviderTypeTelegramBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
 		credentials := domain.AccessConfigForTelegramBot{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -18,10 +18,8 @@ func init() {
 
 		provider, err := telegrambot.NewNotifierProvider(&telegrambot.NotifierProviderConfig{
 			BotToken: credentials.BotToken,
-			ChatId:   xmaps.GetOrDefaultInt64(options.ProviderExtendedConfig, "chatId", credentials.ChatId),
+			ChatId:   xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "chatId", credentials.ChatId),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

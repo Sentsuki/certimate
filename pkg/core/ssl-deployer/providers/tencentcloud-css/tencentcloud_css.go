@@ -13,6 +13,7 @@ import (
 	tclive "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/live/v20180801"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-css/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -30,7 +31,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tclive.Client
+	sdkClient  *internal.LiveClient
 	sslManager core.SSLManager
 }
 
@@ -107,7 +108,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint string) (*tclive.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint string) (*internal.LiveClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -115,7 +116,7 @@ func createSDKClient(secretId, secretKey, endpoint string) (*tclive.Client, erro
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tclive.NewClient(credential, "", cpf)
+	client, err := internal.NewLiveClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

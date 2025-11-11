@@ -29,8 +29,8 @@ func (r *apiResponseBase) GetMessage() string {
 var _ apiResponse = (*apiResponseBase)(nil)
 
 type SslRecord struct {
-	ID         int32  `json:"ID"`
-	UID        int32  `json:"UID"`
+	ID         int64  `json:"ID"`
+	UID        int64  `json:"UID"`
 	Domain     string `json:"Domain"`
 	Issuer     string `json:"Issuer"`
 	StartDate  int64  `json:"StartDate"`
@@ -45,5 +45,5 @@ type SslDetail struct {
 	Issuer     string `json:"Issuer"`
 	StartDate  int64  `json:"StartDate"`
 	ExpireDate int64  `json:"ExpDate"`
-	RemainDays int32  `json:"RemainDays"`
+	RemainDays int64  `json:"RemainDays"`
 }

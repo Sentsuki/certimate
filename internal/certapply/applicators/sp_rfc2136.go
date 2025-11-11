@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	if err := ACMEDns01Registries.Register(domain.ACMEDns01ProviderTypeRFC2136, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
+	ACMEDns01Registries.MustRegister(domain.ACMEDns01ProviderTypeRFC2136, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
 		credentials := domain.AccessConfigForRFC2136{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -27,7 +27,5 @@ func init() {
 			DnsTTL:                options.DnsTTL,
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

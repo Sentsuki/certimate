@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.DeploymentProviderTypeKubernetesSecret, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeKubernetesSecret, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		credentials := domain.AccessConfigForKubernetes{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -72,7 +72,5 @@ func init() {
 			SecretLabels:        secretLabels,
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
+	"github.com/pocketbase/pocketbase/tools/security"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
@@ -86,7 +86,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	// 创建证书
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=24&api=5685&data=88&isNormal=1&vid=82
 	createCertificateReq := &ctyunelb.CreateCertificateRequest{
-		ClientToken: lo.ToPtr(generateClientToken()),
+		ClientToken: lo.ToPtr(security.RandomString(32)),
 		RegionID:    lo.ToPtr(m.config.RegionId),
 		Name:        lo.ToPtr(certName),
 		Description: lo.ToPtr("upload from certimate"),
@@ -108,8 +108,4 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 
 func createSDKClient(accessKeyId, secretAccessKey string) (*ctyunelb.Client, error) {
 	return ctyunelb.NewClient(accessKeyId, secretAccessKey)
-}
-
-func generateClientToken() string {
-	return uuid.New().String()
 }

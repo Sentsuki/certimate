@@ -17,6 +17,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-slb/internal"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -34,7 +35,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *alislb.Client
+	sdkClient *internal.SlbClient
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -87,17 +88,22 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		fingerprint := sha256.Sum256(certX509.Raw)
 		fingerprintHex := hex.EncodeToString(fingerprint[:])
 		for _, serverCert := range describeServerCertificatesResp.Body.ServerCertificates.ServerCertificate {
-			isSameCert := tea.Int32Value(serverCert.IsAliCloudCertificate) == 0 &&
-				strings.EqualFold(fingerprintHex, strings.ReplaceAll(tea.StringValue(serverCert.Fingerprint), ":", "")) &&
-				strings.EqualFold(certX509.Subject.CommonName, tea.StringValue(serverCert.CommonName))
-			// 如果已存在相同证书，直接返回
-			if isSameCert {
-				m.logger.Info("ssl certificate already exists")
-				return &core.SSLManageUploadResult{
-					CertId:   *serverCert.ServerCertificateId,
-					CertName: *serverCert.ServerCertificateName,
-				}, nil
+			if tea.Int32Value(serverCert.IsAliCloudCertificate) != 0 {
+				continue
 			}
+			if !strings.EqualFold(certX509.Subject.CommonName, tea.StringValue(serverCert.CommonName)) {
+				continue
+			}
+			if !strings.EqualFold(fingerprintHex, strings.ReplaceAll(tea.StringValue(serverCert.Fingerprint), ":", "")) {
+				continue
+			}
+
+			// 如果已存在相同证书，直接返回
+			m.logger.Info("ssl certificate already exists")
+			return &core.SSLManageUploadResult{
+				CertId:   *serverCert.ServerCertificateId,
+				CertName: *serverCert.ServerCertificateName,
+			}, nil
 		}
 	}
 
@@ -131,7 +137,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*alislb.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.SlbClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/Slb
 	var endpoint string
 	switch region {
@@ -151,7 +157,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*alislb.Clien
 		AccessKeySecret: tea.String(accessKeySecret),
 	}
 
-	client, err := alislb.NewClient(config)
+	client, err := internal.NewSlbClient(config)
 	if err != nil {
 		return nil, err
 	}

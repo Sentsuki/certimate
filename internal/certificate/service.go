@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -237,35 +238,39 @@ func (s *CertificateService) ValidatePrivateKey(ctx context.Context, req *dtos.C
 		return nil, err
 	}
 
-	var keyAlgorithmString string
-	keyAlgorithm, keySize, _ := xcryptokey.GetPrivateKeyAlgorithm(privkey)
-	switch keyAlgorithm {
+	var keyAlgorithm string
+	privkeyAlg, privkeySize, _ := xcryptokey.GetPrivateKeyAlgorithm(privkey)
+	switch privkeyAlg {
 	case x509.RSA:
-		keyAlgorithmString = fmt.Sprintf("RSA%d", keySize)
+		keyAlgorithm = fmt.Sprintf("RSA%d", privkeySize)
 	case x509.ECDSA:
-		keyAlgorithmString = fmt.Sprintf("EC%d", keySize)
+		keyAlgorithm = fmt.Sprintf("EC%d", privkeySize)
 	case x509.Ed25519:
-		keyAlgorithmString = "ED25519"
+		keyAlgorithm = "ED25519"
 	}
 
 	return &dtos.CertificateValidatePrivateKeyResp{
-		IsValid:      keyAlgorithmString != "",
-		KeyAlgorithm: keyAlgorithmString,
+		IsValid:      true,
+		KeyAlgorithm: keyAlgorithm,
 	}, nil
 }
 
 func (s *CertificateService) cleanupExpiredCertificates(ctx context.Context) error {
-	settings, err := s.settingsRepo.GetByName(ctx, "persistence")
+	settings, err := s.settingsRepo.GetByName(ctx, domain.SettingsNamePersistence)
 	if err != nil {
+		if errors.Is(err, domain.ErrRecordNotFound) {
+			return nil
+		}
+
 		app.GetLogger().Error("failed to get persistence settings", slog.Any("error", err))
 		return err
 	}
 
 	persistenceSettings := settings.Content.AsPersistence()
-	if persistenceSettings.ExpiredCertificatesMaxDaysRetention != 0 {
+	if persistenceSettings.CertificatesRetentionMaxDays != 0 {
 		ret, err := s.certificateRepo.DeleteWhere(
 			context.Background(),
-			dbx.NewExp(fmt.Sprintf("validityNotAfter<DATETIME('now', '-%d days')", persistenceSettings.ExpiredCertificatesMaxDaysRetention)),
+			dbx.NewExp(fmt.Sprintf("validityNotAfter<DATETIME('now', '-%d days')", persistenceSettings.CertificatesRetentionMaxDays)),
 		)
 		if err != nil {
 			app.GetLogger().Error("failed to delete expired certificates", slog.Any("error", err))

@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.DeploymentProviderTypeAzureKeyVault, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeAzureKeyVault, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		credentials := domain.AccessConfigForAzure{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -25,7 +25,5 @@ func init() {
 			CertificateName: xmaps.GetString(options.ProviderExtendedConfig, "certificateName"),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

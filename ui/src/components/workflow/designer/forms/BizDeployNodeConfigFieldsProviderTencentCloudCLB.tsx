@@ -94,7 +94,6 @@ const BizDeployNodeConfigFieldsProviderTencentCloudCLB = () => {
           initialValue={initialValues.domain}
           label={t("workflow_node.deploy.form.tencentcloud_clb_ruledomain.label")}
           rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_clb_ruledomain.tooltip") }}></span>}
         >
           <Input placeholder={t("workflow_node.deploy.form.tencentcloud_clb_ruledomain.placeholder")} />
         </Form.Item>

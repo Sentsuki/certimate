@@ -12,8 +12,8 @@ type ChallengeProviderConfig struct {
 	SecretId              string `json:"secretId"`
 	SecretKey             string `json:"secretKey"`
 	ZoneId                string `json:"zoneId"`
-	DnsPropagationTimeout int32  `json:"dnsPropagationTimeout,omitempty"`
-	DnsTTL                int32  `json:"dnsTTL,omitempty"`
+	DnsPropagationTimeout int    `json:"dnsPropagationTimeout,omitempty"`
+	DnsTTL                int    `json:"dnsTTL,omitempty"`
 }
 
 func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger, error) {

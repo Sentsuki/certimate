@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.DeploymentProviderTypeNetlifySite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeNetlifySite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		credentials := domain.AccessConfigForNetlify{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -21,7 +21,5 @@ func init() {
 			SiteId:   xmaps.GetString(options.ProviderExtendedConfig, "siteId"),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

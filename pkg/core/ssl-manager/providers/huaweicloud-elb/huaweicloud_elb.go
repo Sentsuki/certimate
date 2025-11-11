@@ -18,6 +18,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-elb/internal"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -35,7 +36,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *hcelb.ElbClient
+	sdkClient *internal.ElbClient
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -143,7 +144,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcelb.ElbClient, error) {
+func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.ElbClient, error) {
 	if region == "" {
 		region = "cn-north-4" // ELB 服务默认区域：华北四北京
 	}
@@ -169,7 +170,7 @@ func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcelb.ElbCli
 		return nil, err
 	}
 
-	client := hcelb.NewElbClient(hcClient)
+	client := internal.NewElbClient(hcClient)
 	return client, nil
 }
 

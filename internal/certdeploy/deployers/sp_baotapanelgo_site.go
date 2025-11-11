@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.DeploymentProviderTypeBaotaPanelGoSite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeBaotaPanelGoSite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		credentials := domain.AccessConfigForBaotaPanelGo{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -23,7 +23,5 @@ func init() {
 			SiteName:                 xmaps.GetString(options.ProviderExtendedConfig, "siteName"),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

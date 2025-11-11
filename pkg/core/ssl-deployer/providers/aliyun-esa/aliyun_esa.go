@@ -10,10 +10,12 @@ import (
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	aliesa "github.com/alibabacloud-go/esa-20240910/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-esa/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -33,7 +35,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *aliesa.Client
+	sdkClient  *internal.EsaClient
 	sslManager core.SSLManager
 }
 
@@ -101,7 +103,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		CasId:  tea.Int64(certId),
 		Region: tea.String(d.config.Region),
 	}
-	setCertificateResp, err := d.sdkClient.SetCertificate(setCertificateReq)
+	setCertificateResp, err := d.sdkClient.SetCertificateWithContext(context.TODO(), setCertificateReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'esa.SetCertificate'", slog.Any("request", setCertificateReq), slog.Any("response", setCertificateResp))
 	if err != nil {
 		var sdkError *tea.SDKError
@@ -116,7 +118,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*aliesa.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.EsaClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/ESA
 	var endpoint string
 	switch region {
@@ -132,7 +134,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*aliesa.Clien
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := aliesa.NewClient(config)
+	client, err := internal.NewEsaClient(config)
 	if err != nil {
 		return nil, err
 	}

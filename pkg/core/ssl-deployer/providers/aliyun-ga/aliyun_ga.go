@@ -13,6 +13,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-ga/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -38,7 +39,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *aliga.Client
+	sdkClient  *internal.GaClient
 	sslManager core.SSLManager
 }
 
@@ -303,7 +304,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*aliga.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (*internal.GaClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/Ga
 	config := &aliopen.Config{
 		AccessKeyId:     tea.String(accessKeyId),
@@ -311,7 +312,7 @@ func createSDKClient(accessKeyId, accessKeySecret string) (*aliga.Client, error)
 		Endpoint:        tea.String("ga.cn-hangzhou.aliyuncs.com"),
 	}
 
-	client, err := aliga.NewClient(config)
+	client, err := internal.NewGaClient(config)
 	if err != nil {
 		return nil, err
 	}

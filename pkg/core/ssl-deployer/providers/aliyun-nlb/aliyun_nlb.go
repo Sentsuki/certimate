@@ -9,10 +9,12 @@ import (
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	alinlb "github.com/alibabacloud-go/nlb-20220430/v4/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-nlb/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -38,7 +40,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *alinlb.Client
+	sdkClient  *internal.NlbClient
 	sslManager core.SSLManager
 }
 
@@ -122,7 +124,7 @@ func (d *SSLDeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCer
 	getLoadBalancerAttributeReq := &alinlb.GetLoadBalancerAttributeRequest{
 		LoadBalancerId: tea.String(d.config.LoadbalancerId),
 	}
-	getLoadBalancerAttributeResp, err := d.sdkClient.GetLoadBalancerAttribute(getLoadBalancerAttributeReq)
+	getLoadBalancerAttributeResp, err := d.sdkClient.GetLoadBalancerAttributeWithContext(context.TODO(), getLoadBalancerAttributeReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'nlb.GetLoadBalancerAttribute'", slog.Any("request", getLoadBalancerAttributeReq), slog.Any("response", getLoadBalancerAttributeResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'nlb.GetLoadBalancerAttribute': %w", err)
@@ -146,7 +148,7 @@ func (d *SSLDeployerProvider) deployToLoadbalancer(ctx context.Context, cloudCer
 			LoadBalancerIds:  []*string{tea.String(d.config.LoadbalancerId)},
 			ListenerProtocol: tea.String("TCPSSL"),
 		}
-		listListenersResp, err := d.sdkClient.ListListeners(listListenersReq)
+		listListenersResp, err := d.sdkClient.ListListenersWithContext(context.TODO(), listListenersReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'nlb.ListListeners'", slog.Any("request", listListenersReq), slog.Any("response", listListenersResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'nlb.ListListeners': %w", err)
@@ -210,7 +212,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	getListenerAttributeReq := &alinlb.GetListenerAttributeRequest{
 		ListenerId: tea.String(cloudListenerId),
 	}
-	getListenerAttributeResp, err := d.sdkClient.GetListenerAttribute(getListenerAttributeReq)
+	getListenerAttributeResp, err := d.sdkClient.GetListenerAttributeWithContext(context.TODO(), getListenerAttributeReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'nlb.GetListenerAttribute'", slog.Any("request", getListenerAttributeReq), slog.Any("response", getListenerAttributeResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'nlb.GetListenerAttribute': %w", err)
@@ -222,7 +224,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 		ListenerId:     tea.String(cloudListenerId),
 		CertificateIds: []*string{tea.String(cloudCertId)},
 	}
-	updateListenerAttributeResp, err := d.sdkClient.UpdateListenerAttribute(updateListenerAttributeReq)
+	updateListenerAttributeResp, err := d.sdkClient.UpdateListenerAttributeWithContext(context.TODO(), updateListenerAttributeReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'nlb.UpdateListenerAttribute'", slog.Any("request", updateListenerAttributeReq), slog.Any("response", updateListenerAttributeResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'nlb.UpdateListenerAttribute': %w", err)
@@ -231,7 +233,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*alinlb.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.NlbClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/Nlb
 	var endpoint string
 	switch region {
@@ -247,7 +249,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*alinlb.Clien
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := alinlb.NewClient(config)
+	client, err := internal.NewNlbClient(config)
 	if err != nil {
 		return nil, err
 	}

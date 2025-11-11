@@ -14,9 +14,10 @@ const (
 	AccessProviderTypeACMEDNS             = AccessProviderType("acmedns")
 	AccessProviderTypeACMEHttpReq         = AccessProviderType("acmehttpreq")
 	AccessProviderTypeActalisSSL          = AccessProviderType("actalisssl")
-	AccessProviderTypeAkamai              = AccessProviderType("akamai") // Akamai（预留）
+	AccessProviderTypeAkamai              = AccessProviderType("akamai")
 	AccessProviderTypeAliyun              = AccessProviderType("aliyun")
 	AccessProviderTypeAPISIX              = AccessProviderType("apisix")
+	AccessProviderTypeArvanCloud          = AccessProviderType("arvancloud")
 	AccessProviderTypeAWS                 = AccessProviderType("aws")
 	AccessProviderTypeAzure               = AccessProviderType("azure")
 	AccessProviderTypeBaiduCloud          = AccessProviderType("baiducloud")
@@ -40,8 +41,10 @@ const (
 	AccessProviderTypeDingTalkBot         = AccessProviderType("dingtalkbot")
 	AccessProviderTypeDiscordBot          = AccessProviderType("discordbot")
 	AccessProviderTypeDNSLA               = AccessProviderType("dnsla")
+	AccessProviderTypeDNSMadeEasy         = AccessProviderType("dnsmadeeasy")
 	AccessProviderTypeDogeCloud           = AccessProviderType("dogecloud")
 	AccessProviderTypeDuckDNS             = AccessProviderType("duckdns")
+	AccessProviderTypeDynu                = AccessProviderType("dynu")
 	AccessProviderTypeDynv6               = AccessProviderType("dynv6")
 	AccessProviderTypeEmail               = AccessProviderType("email")
 	AccessProviderTypeFastly              = AccessProviderType("fastly") // Fastly（预留）
@@ -57,10 +60,11 @@ const (
 	AccessProviderTypeHostingde           = AccessProviderType("hostingde")
 	AccessProviderTypeHostinger           = AccessProviderType("hostinger")
 	AccessProviderTypeHuaweiCloud         = AccessProviderType("huaweicloud")
+	AccessProviderTypeInfomaniak          = AccessProviderType("infomaniak")
 	AccessProviderTypeIONOS               = AccessProviderType("ionos")
 	AccessProviderTypeJDCloud             = AccessProviderType("jdcloud")
 	AccessProviderTypeKong                = AccessProviderType("kong")
-	AccessProviderTypeKsyun               = AccessProviderType("ksyun") // 金山云（预留）
+	AccessProviderTypeKsyun               = AccessProviderType("ksyun")
 	AccessProviderTypeKubernetes          = AccessProviderType("k8s")
 	AccessProviderTypeLarkBot             = AccessProviderType("larkbot")
 	AccessProviderTypeLeCDN               = AccessProviderType("lecdn")
@@ -75,6 +79,7 @@ const (
 	AccessProviderTypeNetcup              = AccessProviderType("netcup")
 	AccessProviderTypeNetlify             = AccessProviderType("netlify")
 	AccessProviderTypeNS1                 = AccessProviderType("ns1")
+	AccessProviderTypeOVHcloud            = AccessProviderType("ovhcloud")
 	AccessProviderTypePorkbun             = AccessProviderType("porkbun")
 	AccessProviderTypePowerDNS            = AccessProviderType("powerdns")
 	AccessProviderTypeProxmoxVE           = AccessProviderType("proxmoxve")
@@ -138,9 +143,12 @@ NOTICE: If you add new constant, please keep ASCII order.
 const (
 	ACMEDns01ProviderTypeACMEDNS           = ACMEDns01ProviderType(AccessProviderTypeACMEDNS)
 	ACMEDns01ProviderTypeACMEHttpReq       = ACMEDns01ProviderType(AccessProviderTypeACMEHttpReq)
+	ACMEDns01ProviderTypeAkamai            = ACMEDns01ProviderType(AccessProviderTypeAkamai) // 兼容旧值，等同于 [ACMEDns01ProviderTypeAkamaiEdgeDNS]
+	ACMEDns01ProviderTypeAkamaiEdgeDNS     = ACMEDns01ProviderType(AccessProviderTypeAkamai + "-edgedns")
 	ACMEDns01ProviderTypeAliyun            = ACMEDns01ProviderType(AccessProviderTypeAliyun) // 兼容旧值，等同于 [ACMEDns01ProviderTypeAliyunDNS]
 	ACMEDns01ProviderTypeAliyunDNS         = ACMEDns01ProviderType(AccessProviderTypeAliyun + "-dns")
 	ACMEDns01ProviderTypeAliyunESA         = ACMEDns01ProviderType(AccessProviderTypeAliyun + "-esa")
+	ACMEDns01ProviderTypeArvanCloud        = ACMEDns01ProviderType(AccessProviderTypeArvanCloud)
 	ACMEDns01ProviderTypeAWS               = ACMEDns01ProviderType(AccessProviderTypeAWS) // 兼容旧值，等同于 [ACMEDns01ProviderTypeAWSRoute53]
 	ACMEDns01ProviderTypeAWSRoute53        = ACMEDns01ProviderType(AccessProviderTypeAWS + "-route53")
 	ACMEDns01ProviderTypeAzure             = ACMEDns01ProviderType(AccessProviderTypeAzure) // 兼容旧值，等同于 [ACMEDns01ProviderTypeAzure]
@@ -159,7 +167,9 @@ const (
 	ACMEDns01ProviderTypeDeSEC             = ACMEDns01ProviderType(AccessProviderTypeDeSEC)
 	ACMEDns01ProviderTypeDigitalOcean      = ACMEDns01ProviderType(AccessProviderTypeDigitalOcean)
 	ACMEDns01ProviderTypeDNSLA             = ACMEDns01ProviderType(AccessProviderTypeDNSLA)
+	ACMEDns01ProviderTypeDNSMadeEasy       = ACMEDns01ProviderType(AccessProviderTypeDNSMadeEasy)
 	ACMEDns01ProviderTypeDuckDNS           = ACMEDns01ProviderType(AccessProviderTypeDuckDNS)
+	ACMEDns01ProviderTypeDynu              = ACMEDns01ProviderType(AccessProviderTypeDynu)
 	ACMEDns01ProviderTypeDynv6             = ACMEDns01ProviderType(AccessProviderTypeDynv6)
 	ACMEDns01ProviderTypeGandinet          = ACMEDns01ProviderType(AccessProviderTypeGandinet)
 	ACMEDns01ProviderTypeGcore             = ACMEDns01ProviderType(AccessProviderTypeGcore)
@@ -170,6 +180,7 @@ const (
 	ACMEDns01ProviderTypeHostinger         = ACMEDns01ProviderType(AccessProviderTypeHostinger)
 	ACMEDns01ProviderTypeHuaweiCloud       = ACMEDns01ProviderType(AccessProviderTypeHuaweiCloud) // 兼容旧值，等同于 [ACMEDns01ProviderTypeHuaweiCloudDNS]
 	ACMEDns01ProviderTypeHuaweiCloudDNS    = ACMEDns01ProviderType(AccessProviderTypeHuaweiCloud + "-dns")
+	ACMEDns01ProviderTypeInfomaniak        = ACMEDns01ProviderType(AccessProviderTypeInfomaniak)
 	ACMEDns01ProviderTypeIONOS             = ACMEDns01ProviderType(AccessProviderTypeIONOS)
 	ACMEDns01ProviderTypeJDCloud           = ACMEDns01ProviderType(AccessProviderTypeJDCloud) // 兼容旧值，等同于 [ACMEDns01ProviderTypeJDCloudDNS]
 	ACMEDns01ProviderTypeJDCloudDNS        = ACMEDns01ProviderType(AccessProviderTypeJDCloud + "-dns")
@@ -180,6 +191,7 @@ const (
 	ACMEDns01ProviderTypeNetcup            = ACMEDns01ProviderType(AccessProviderTypeNetcup)
 	ACMEDns01ProviderTypeNetlify           = ACMEDns01ProviderType(AccessProviderTypeNetlify)
 	ACMEDns01ProviderTypeNS1               = ACMEDns01ProviderType(AccessProviderTypeNS1)
+	ACMEDns01ProviderTypeOVHcloud          = ACMEDns01ProviderType(AccessProviderTypeOVHcloud)
 	ACMEDns01ProviderTypePorkbun           = ACMEDns01ProviderType(AccessProviderTypePorkbun)
 	ACMEDns01ProviderTypePowerDNS          = ACMEDns01ProviderType(AccessProviderTypePowerDNS)
 	ACMEDns01ProviderTypeRainYun           = ACMEDns01ProviderType(AccessProviderTypeRainYun)
@@ -230,7 +242,7 @@ const (
 	DeploymentProviderTypeAliyunCDN             = DeploymentProviderType(AccessProviderTypeAliyun + "-cdn")
 	DeploymentProviderTypeAliyunCLB             = DeploymentProviderType(AccessProviderTypeAliyun + "-clb")
 	DeploymentProviderTypeAliyunDCDN            = DeploymentProviderType(AccessProviderTypeAliyun + "-dcdn")
-	DeploymentProviderTypeAliyunDDoS            = DeploymentProviderType(AccessProviderTypeAliyun + "-ddos")
+	DeploymentProviderTypeAliyunDDoSPro         = DeploymentProviderType(AccessProviderTypeAliyun + "-ddospro")
 	DeploymentProviderTypeAliyunESA             = DeploymentProviderType(AccessProviderTypeAliyun + "-esa")
 	DeploymentProviderTypeAliyunFC              = DeploymentProviderType(AccessProviderTypeAliyun + "-fc")
 	DeploymentProviderTypeAliyunGA              = DeploymentProviderType(AccessProviderTypeAliyun + "-ga")
@@ -280,6 +292,7 @@ const (
 	DeploymentProviderTypeJDCloudVOD            = DeploymentProviderType(AccessProviderTypeJDCloud + "-vod")
 	DeploymentProviderTypeKong                  = DeploymentProviderType(AccessProviderTypeKong)
 	DeploymentProviderTypeKubernetesSecret      = DeploymentProviderType(AccessProviderTypeKubernetes + "-secret")
+	DeploymentProviderTypeKsyunCDN              = DeploymentProviderType(AccessProviderTypeKsyun + "-cdn")
 	DeploymentProviderTypeLeCDN                 = DeploymentProviderType(AccessProviderTypeLeCDN)
 	DeploymentProviderTypeLocal                 = DeploymentProviderType(AccessProviderTypeLocal)
 	DeploymentProviderTypeNetlifySite           = DeploymentProviderType(AccessProviderTypeNetlify + "-site")

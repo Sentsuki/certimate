@@ -11,8 +11,8 @@ import (
 type ChallengeProviderConfig struct {
 	AccessKeyId           string `json:"accessKeyId"`
 	SecretAccessKey       string `json:"secretAccessKey"`
-	DnsPropagationTimeout int32  `json:"dnsPropagationTimeout,omitempty"`
-	DnsTTL                int32  `json:"dnsTTL,omitempty"`
+	DnsPropagationTimeout int    `json:"dnsPropagationTimeout,omitempty"`
+	DnsTTL                int    `json:"dnsTTL,omitempty"`
 }
 
 func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger, error) {

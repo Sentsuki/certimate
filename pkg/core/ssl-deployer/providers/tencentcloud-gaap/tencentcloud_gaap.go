@@ -13,6 +13,7 @@ import (
 	tcgaap "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/gaap/v20180529"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-gaap/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -36,7 +37,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tcgaap.Client
+	sdkClient  *internal.GaapClient
 	sslManager core.SSLManager
 }
 
@@ -147,7 +148,7 @@ func (d *SSLDeployerProvider) modifyHttpsListenerCertificate(ctx context.Context
 	return nil
 }
 
-func createSDKClients(secretId, secretKey, endpoint string) (*tcgaap.Client, error) {
+func createSDKClients(secretId, secretKey, endpoint string) (*internal.GaapClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -155,7 +156,7 @@ func createSDKClients(secretId, secretKey, endpoint string) (*tcgaap.Client, err
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcgaap.NewClient(credential, "", cpf)
+	client, err := internal.NewGaapClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

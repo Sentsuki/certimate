@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	bceappblb "github.com/baidubce/bce-sdk-go/services/appblb"
-	"github.com/google/uuid"
+	"github.com/pocketbase/pocketbase/tools/security"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
@@ -264,7 +264,7 @@ func (d *SSLDeployerProvider) updateHttpsListenerCertificate(ctx context.Context
 		// 更新 HTTPS 监听器
 		// REF: https://cloud.baidu.com/doc/BLB/s/ujwvxnyux#updateapphttpslistener%E6%9B%B4%E6%96%B0https%E7%9B%91%E5%90%AC%E5%99%A8
 		updateAppHTTPSListenerReq := &bceappblb.UpdateAppHTTPSListenerArgs{
-			ClientToken:  generateClientToken(),
+			ClientToken:  security.RandomString(32),
 			ListenerPort: uint16(cloudHttpsListenerPort),
 			Scheduler:    describeAppHTTPSListenersResp.ListenerList[0].Scheduler,
 			CertIds:      []string{cloudCertId},
@@ -280,7 +280,7 @@ func (d *SSLDeployerProvider) updateHttpsListenerCertificate(ctx context.Context
 		// 更新 HTTPS 监听器
 		// REF: https://cloud.baidu.com/doc/BLB/s/yjwvxnvl6#updatehttpslistener%E6%9B%B4%E6%96%B0https%E7%9B%91%E5%90%AC%E5%99%A8
 		updateAppHTTPSListenerReq := &bceappblb.UpdateAppHTTPSListenerArgs{
-			ClientToken:  generateClientToken(),
+			ClientToken:  security.RandomString(32),
 			ListenerPort: uint16(cloudHttpsListenerPort),
 			Scheduler:    describeAppHTTPSListenersResp.ListenerList[0].Scheduler,
 			CertIds:      describeAppHTTPSListenersResp.ListenerList[0].CertIds,
@@ -312,7 +312,7 @@ func (d *SSLDeployerProvider) updateSslListenerCertificate(ctx context.Context, 
 	// 更新 SSL 监听器
 	// REF: https://cloud.baidu.com/doc/BLB/s/ujwvxnyux#updateappssllistener%E6%9B%B4%E6%96%B0ssl%E7%9B%91%E5%90%AC%E5%99%A8
 	updateAppSSLListenerReq := &bceappblb.UpdateAppSSLListenerArgs{
-		ClientToken:  generateClientToken(),
+		ClientToken:  security.RandomString(32),
 		ListenerPort: uint16(cloudHttpsListenerPort),
 		CertIds:      []string{cloudCertId},
 	}
@@ -337,8 +337,4 @@ func createSDKClient(accessKeyId, secretAccessKey, region string) (*bceappblb.Cl
 	}
 
 	return client, nil
-}
-
-func generateClientToken() string {
-	return strings.ReplaceAll(uuid.New().String(), "-", "")
 }

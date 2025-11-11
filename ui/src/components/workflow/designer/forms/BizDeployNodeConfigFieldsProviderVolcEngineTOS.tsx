@@ -34,7 +34,6 @@ const BizDeployNodeConfigFieldsProviderVolcEngineTOS = () => {
         initialValue={initialValues.bucket}
         label={t("workflow_node.deploy.form.volcengine_tos_bucket.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.volcengine_tos_bucket.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.volcengine_tos_bucket.placeholder")} />
       </Form.Item>
@@ -44,7 +43,6 @@ const BizDeployNodeConfigFieldsProviderVolcEngineTOS = () => {
         initialValue={initialValues.domain}
         label={t("workflow_node.deploy.form.volcengine_tos_domain.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.volcengine_tos_domain.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.volcengine_tos_domain.placeholder")} />
       </Form.Item>

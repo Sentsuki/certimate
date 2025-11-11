@@ -14,6 +14,7 @@ import (
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-clb/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -42,7 +43,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tcclb.Client
+	sdkClient  *internal.ClbClient
 	sslManager core.SSLManager
 }
 
@@ -307,7 +308,7 @@ func (d *SSLDeployerProvider) modifyListenerCertificate(ctx context.Context, clo
 	return nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint, region string) (*tcclb.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint, region string) (*internal.ClbClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -315,7 +316,7 @@ func createSDKClient(secretId, secretKey, endpoint, region string) (*tcclb.Clien
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcclb.NewClient(credential, region, cpf)
+	client, err := internal.NewClbClient(credential, region, cpf)
 	if err != nil {
 		return nil, err
 	}

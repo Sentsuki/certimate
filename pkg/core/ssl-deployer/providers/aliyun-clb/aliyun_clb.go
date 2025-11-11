@@ -11,6 +11,7 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-clb/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-slb"
 )
 
@@ -39,7 +40,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *alislb.Client
+	sdkClient  *internal.SlbClient
 	sslManager core.SSLManager
 }
 
@@ -285,7 +286,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*alislb.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.SlbClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/Slb
 	var endpoint string
 	switch region {
@@ -305,7 +306,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*alislb.Clien
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := alislb.NewClient(config)
+	client, err := internal.NewSlbClient(config)
 	if err != nil {
 		return nil, err
 	}

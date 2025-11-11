@@ -11,10 +11,12 @@ import (
 	aliapig "github.com/alibabacloud-go/apig-20240327/v5/client"
 	alicloudapi "github.com/alibabacloud-go/cloudapi-20160714/v5/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-apigw/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -47,8 +49,8 @@ type SSLDeployerProvider struct {
 }
 
 type wSDKClients struct {
-	CloudNativeAPIGateway *aliapig.Client
-	TraditionalAPIGateway *alicloudapi.Client
+	CloudNativeAPIGateway *internal.ApigClient
+	TraditionalAPIGateway *internal.CloudapiClient
 }
 
 var _ core.SSLDeployer = (*SSLDeployerProvider)(nil)
@@ -127,7 +129,7 @@ func (d *SSLDeployerProvider) deployToTraditional(ctx context.Context, certPEM s
 		CertificateBody:       tea.String(certPEM),
 		CertificatePrivateKey: tea.String(privkeyPEM),
 	}
-	setDomainCertificateResp, err := d.sdkClients.TraditionalAPIGateway.SetDomainCertificate(setDomainCertificateReq)
+	setDomainCertificateResp, err := d.sdkClients.TraditionalAPIGateway.SetDomainCertificateWithContext(context.TODO(), setDomainCertificateReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'apigateway.SetDomainCertificate'", slog.Any("request", setDomainCertificateReq), slog.Any("response", setDomainCertificateResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'apigateway.SetDomainCertificate': %w", err)
@@ -163,7 +165,7 @@ func (d *SSLDeployerProvider) deployToCloudNative(ctx context.Context, certPEM s
 			PageNumber:      tea.Int32(listDomainsPageNumber),
 			PageSize:        tea.Int32(listDomainsPageSize),
 		}
-		listDomainsResp, err := d.sdkClients.CloudNativeAPIGateway.ListDomains(listDomainsReq)
+		listDomainsResp, err := d.sdkClients.CloudNativeAPIGateway.ListDomainsWithContext(context.TODO(), listDomainsReq, make(map[string]*string), &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'apig.ListDomains'", slog.Any("request", listDomainsReq), slog.Any("response", listDomainsResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'apig.ListDomains': %w", err)
@@ -195,8 +197,8 @@ func (d *SSLDeployerProvider) deployToCloudNative(ctx context.Context, certPEM s
 	// 查询域名
 	// REF: https://help.aliyun.com/zh/api-gateway/cloud-native-api-gateway/developer-reference/api-apig-2024-03-27-getdomain
 	getDomainReq := &aliapig.GetDomainRequest{}
-	getDomainResp, err := d.sdkClients.CloudNativeAPIGateway.GetDomain(tea.String(domainId), getDomainReq)
-	d.logger.Debug("sdk request 'apig.GetDomain'", slog.Any("domainId", domainId), slog.Any("request", getDomainReq), slog.Any("response", getDomainResp))
+	getDomainResp, err := d.sdkClients.CloudNativeAPIGateway.GetDomainWithContext(context.TODO(), tea.String(domainId), getDomainReq, make(map[string]*string), &dara.RuntimeOptions{})
+	d.logger.Debug("sdk request 'apig.GetDomain'", slog.String("domainId", domainId), slog.Any("request", getDomainReq), slog.Any("response", getDomainResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'apig.GetDomain': %w", err)
 	}
@@ -221,8 +223,8 @@ func (d *SSLDeployerProvider) deployToCloudNative(ctx context.Context, certPEM s
 		TlsCipherSuitesConfig: getDomainResp.Body.Data.TlsCipherSuitesConfig,
 		CertIdentifier:        tea.String(upres.ExtendedData["CertIdentifier"].(string)),
 	}
-	updateDomainResp, err := d.sdkClients.CloudNativeAPIGateway.UpdateDomain(tea.String(domainId), updateDomainReq)
-	d.logger.Debug("sdk request 'apig.UpdateDomain'", slog.Any("domainId", domainId), slog.Any("request", updateDomainReq), slog.Any("response", updateDomainResp))
+	updateDomainResp, err := d.sdkClients.CloudNativeAPIGateway.UpdateDomainWithContext(context.TODO(), tea.String(domainId), updateDomainReq, make(map[string]*string), &dara.RuntimeOptions{})
+	d.logger.Debug("sdk request 'apig.UpdateDomain'", slog.String("domainId", domainId), slog.Any("request", updateDomainReq), slog.Any("response", updateDomainResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'apig.UpdateDomain': %w", err)
 	}
@@ -245,7 +247,7 @@ func createSDKClients(accessKeyId, accessKeySecret, region string) (*wSDKClients
 		AccessKeySecret: tea.String(accessKeySecret),
 		Endpoint:        tea.String(cloudNativeAPIGEndpoint),
 	}
-	cloudNativeAPIGClient, err := aliapig.NewClient(cloudNativeAPIGConfig)
+	cloudNativeAPIGClient, err := internal.NewApigClient(cloudNativeAPIGConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +266,7 @@ func createSDKClients(accessKeyId, accessKeySecret, region string) (*wSDKClients
 		AccessKeySecret: tea.String(accessKeySecret),
 		Endpoint:        tea.String(traditionalAPIGEndpoint),
 	}
-	traditionalAPIGClient, err := alicloudapi.NewClient(traditionalAPIGConfig)
+	traditionalAPIGClient, err := internal.NewCloudapiClient(traditionalAPIGConfig)
 	if err != nil {
 		return nil, err
 	}

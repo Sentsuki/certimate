@@ -15,7 +15,7 @@ type NotifierProviderConfig struct {
 	// Telegram Bot API Token。
 	BotToken string `json:"botToken"`
 	// Telegram Chat ID。
-	ChatId int64 `json:"chatId"`
+	ChatId string `json:"chatId"`
 }
 
 type NotifierProvider struct {

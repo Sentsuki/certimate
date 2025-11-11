@@ -9,12 +9,10 @@ import (
 )
 
 func init() {
-	if err := ACMEHttp01Registries.Register(domain.ACMEHttp01ProviderTypeLocal, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
+	ACMEHttp01Registries.MustRegister(domain.ACMEHttp01ProviderTypeLocal, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
 		provider, err := local.NewChallengeProvider(&local.ChallengeProviderConfig{
 			WebRootPath: xmaps.GetString(options.ProviderExtendedConfig, "webRootPath"),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

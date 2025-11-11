@@ -21,7 +21,7 @@ type Client struct {
 	client *resty.Client
 }
 
-func NewClient(serverUrl string, accessTokenId int32, accessToken string) (*Client, error) {
+func NewClient(serverUrl string, accessTokenId int64, accessToken string) (*Client, error) {
 	if serverUrl == "" {
 		return nil, fmt.Errorf("sdkerr: unset serverUrl")
 	}

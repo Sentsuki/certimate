@@ -34,7 +34,6 @@ const BizDeployNodeConfigFieldsProviderUCloudUS3 = () => {
         initialValue={initialValues.bucket}
         label={t("workflow_node.deploy.form.ucloud_us3_bucket.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.ucloud_us3_bucket.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.ucloud_us3_bucket.placeholder")} />
       </Form.Item>
@@ -44,7 +43,6 @@ const BizDeployNodeConfigFieldsProviderUCloudUS3 = () => {
         initialValue={initialValues.domain}
         label={t("workflow_node.deploy.form.ucloud_us3_domain.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.ucloud_us3_domain.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.ucloud_us3_domain.placeholder")} />
       </Form.Item>

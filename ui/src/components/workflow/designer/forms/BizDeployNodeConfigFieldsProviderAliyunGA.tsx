@@ -71,7 +71,6 @@ const BizDeployNodeConfigFieldsProviderAliyunGA = () => {
           label={t("workflow_node.deploy.form.aliyun_ga_snidomain.label")}
           extra={t("workflow_node.deploy.form.aliyun_ga_snidomain.help")}
           rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.aliyun_ga_snidomain.tooltip") }}></span>}
         >
           <Input allowClear placeholder={t("workflow_node.deploy.form.aliyun_ga_snidomain.placeholder")} />
         </Form.Item>

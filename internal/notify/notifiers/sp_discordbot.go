@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.NotificationProviderTypeDiscordBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
+	Registries.MustRegister(domain.NotificationProviderTypeDiscordBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
 		credentials := domain.AccessConfigForDiscordBot{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -21,7 +21,5 @@ func init() {
 			ChannelId: xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "channelId", credentials.ChannelId),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

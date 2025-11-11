@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.DeploymentProviderTypeSafeLine, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeSafeLine, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		credentials := domain.AccessConfigForSafeLine{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -21,10 +21,8 @@ func init() {
 			ApiToken:                 credentials.ApiToken,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
 			ResourceType:             xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
-			CertificateId:            xmaps.GetInt32(options.ProviderExtendedConfig, "certificateId"),
+			CertificateId:            xmaps.GetInt64(options.ProviderExtendedConfig, "certificateId"),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

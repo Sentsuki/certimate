@@ -13,6 +13,7 @@ import (
 	tcscf "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/scf/v20180416"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-scf/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -32,7 +33,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tcscf.Client
+	sdkClient  *internal.ScfClient
 	sslManager core.SSLManager
 }
 
@@ -117,7 +118,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint, region string) (*tcscf.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint, region string) (*internal.ScfClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -125,7 +126,7 @@ func createSDKClient(secretId, secretKey, endpoint, region string) (*tcscf.Clien
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcscf.NewClient(credential, region, cpf)
+	client, err := internal.NewScfClient(credential, region, cpf)
 	if err != nil {
 		return nil, err
 	}

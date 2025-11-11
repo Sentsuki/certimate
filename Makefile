@@ -22,7 +22,7 @@ $(OS_ARCH):
 	GOOS=$(word 1,$(subst /, ,$@)) \
 	GOARCH=$(word 2,$(subst /, ,$@)) \
 	CGO_ENABLED=0 \
-	go build -o $(BUILD_DIR)/$(BINARY_NAME)_$(word 1,$(subst /, ,$@))_$(word 2,$(subst /, ,$@)) -ldflags="-X main.version=$(VERSION) -s -w" .
+	go build -trimpath -ldflags="-X main.version=$(VERSION) -s -w" -o $(BUILD_DIR)/$(BINARY_NAME)_$(word 1,$(subst /, ,$@))_$(word 2,$(subst /, ,$@)) .
 
 # 清理构建文件
 clean:

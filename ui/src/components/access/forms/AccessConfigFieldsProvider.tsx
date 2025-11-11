@@ -7,8 +7,10 @@ import AccessConfigFieldsProviderACMECA from "./AccessConfigFieldsProviderACMECA
 import AccessConfigFieldsProviderACMEDNS from "./AccessConfigFieldsProviderACMEDNS";
 import AccessConfigFieldsProviderACMEHttpReq from "./AccessConfigFieldsProviderACMEHttpReq";
 import AccessConfigFieldsProviderActalisSSL from "./AccessConfigFieldsProviderActalisSSL";
+import AccessConfigFieldsProviderAkamai from "./AccessConfigFieldsProviderAkamai";
 import AccessConfigFieldsProviderAliyun from "./AccessConfigFieldsProviderAliyun";
 import AccessConfigFieldsProviderAPISIX from "./AccessConfigFieldsProviderAPISIX";
+import AccessConfigFieldsProviderArvanCloud from "./AccessConfigFieldsProviderArvanCloud";
 import AccessConfigFieldsProviderAWS from "./AccessConfigFieldsProviderAWS";
 import AccessConfigFieldsProviderAzure from "./AccessConfigFieldsProviderAzure";
 import AccessConfigFieldsProviderBaiduCloud from "./AccessConfigFieldsProviderBaiduCloud";
@@ -31,8 +33,10 @@ import AccessConfigFieldsProviderDigitalOcean from "./AccessConfigFieldsProvider
 import AccessConfigFieldsProviderDingTalkBot from "./AccessConfigFieldsProviderDingTalkBot";
 import AccessConfigFieldsProviderDiscordBot from "./AccessConfigFieldsProviderDiscordBot";
 import AccessConfigFieldsProviderDNSLA from "./AccessConfigFieldsProviderDNSLA";
+import AccessConfigFieldsProviderDNSMadeEasy from "./AccessConfigFieldsProviderDNSMadeEasy";
 import AccessConfigFieldsProviderDogeCloud from "./AccessConfigFieldsProviderDogeCloud";
 import AccessConfigFieldsProviderDuckDNS from "./AccessConfigFieldsProviderDuckDNS";
+import AccessConfigFieldsProviderDynu from "./AccessConfigFieldsProviderDynu";
 import AccessConfigFieldsProviderDynv6 from "./AccessConfigFieldsProviderDynv6";
 import AccessConfigFieldsProviderEmail from "./AccessConfigFieldsProviderEmail";
 import AccessConfigFieldsProviderFlexCDN from "./AccessConfigFieldsProviderFlexCDN";
@@ -47,9 +51,11 @@ import AccessConfigFieldsProviderHetzner from "./AccessConfigFieldsProviderHetzn
 import AccessConfigFieldsProviderHostingde from "./AccessConfigFieldsProviderHostingde";
 import AccessConfigFieldsProviderHostinger from "./AccessConfigFieldsProviderHostinger";
 import AccessConfigFieldsProviderHuaweiCloud from "./AccessConfigFieldsProviderHuaweiCloud";
+import AccessConfigFieldsProviderInfomaniak from "./AccessConfigFieldsProviderInfomaniak";
 import AccessConfigFieldsProviderIONOS from "./AccessConfigFieldsProviderIONOS";
 import AccessConfigFieldsProviderJDCloud from "./AccessConfigFieldsProviderJDCloud";
 import AccessConfigFieldsProviderKong from "./AccessConfigFieldsProviderKong";
+import AccessConfigFieldsProviderKsyun from "./AccessConfigFieldsProviderKsyun";
 import AccessConfigFieldsProviderKubernetes from "./AccessConfigFieldsProviderKubernetes";
 import AccessConfigFieldsProviderLarkBot from "./AccessConfigFieldsProviderLarkBot";
 import AccessConfigFieldsProviderLeCDN from "./AccessConfigFieldsProviderLeCDN";
@@ -61,6 +67,7 @@ import AccessConfigFieldsProviderNameSilo from "./AccessConfigFieldsProviderName
 import AccessConfigFieldsProviderNetcup from "./AccessConfigFieldsProviderNetcup";
 import AccessConfigFieldsProviderNetlify from "./AccessConfigFieldsProviderNetlify";
 import AccessConfigFieldsProviderNS1 from "./AccessConfigFieldsProviderNS1";
+import AccessConfigFieldsProviderOVHcloud from "./AccessConfigFieldsProviderOVHcloud";
 import AccessConfigFieldsProviderPorkbun from "./AccessConfigFieldsProviderPorkbun";
 import AccessConfigFieldsProviderPowerDNS from "./AccessConfigFieldsProviderPowerDNS";
 import AccessConfigFieldsProviderProxmoxVE from "./AccessConfigFieldsProviderProxmoxVE";
@@ -99,8 +106,10 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.ACMEDNS]: AccessConfigFieldsProviderACMEDNS,
   [ACCESS_PROVIDERS.ACMEHTTPREQ]: AccessConfigFieldsProviderACMEHttpReq,
   [ACCESS_PROVIDERS.ACTALISSSL]: AccessConfigFieldsProviderActalisSSL,
+  [ACCESS_PROVIDERS.AKAMAI]: AccessConfigFieldsProviderAkamai,
   [ACCESS_PROVIDERS.ALIYUN]: AccessConfigFieldsProviderAliyun,
   [ACCESS_PROVIDERS.APISIX]: AccessConfigFieldsProviderAPISIX,
+  [ACCESS_PROVIDERS.ARVANCLOUD]: AccessConfigFieldsProviderArvanCloud,
   [ACCESS_PROVIDERS.AWS]: AccessConfigFieldsProviderAWS,
   [ACCESS_PROVIDERS.AZURE]: AccessConfigFieldsProviderAzure,
   [ACCESS_PROVIDERS.BAIDUCLOUD]: AccessConfigFieldsProviderBaiduCloud,
@@ -123,8 +132,10 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.DINGTALKBOT]: AccessConfigFieldsProviderDingTalkBot,
   [ACCESS_PROVIDERS.DISCORDBOT]: AccessConfigFieldsProviderDiscordBot,
   [ACCESS_PROVIDERS.DNSLA]: AccessConfigFieldsProviderDNSLA,
+  [ACCESS_PROVIDERS.DNSMADEEASY]: AccessConfigFieldsProviderDNSMadeEasy,
   [ACCESS_PROVIDERS.DOGECLOUD]: AccessConfigFieldsProviderDogeCloud,
   [ACCESS_PROVIDERS.DUCKDNS]: AccessConfigFieldsProviderDuckDNS,
+  [ACCESS_PROVIDERS.DYNU]: AccessConfigFieldsProviderDynu,
   [ACCESS_PROVIDERS.DYNV6]: AccessConfigFieldsProviderDynv6,
   [ACCESS_PROVIDERS.EMAIL]: AccessConfigFieldsProviderEmail,
   [ACCESS_PROVIDERS.FLEXCDN]: AccessConfigFieldsProviderFlexCDN,
@@ -143,8 +154,10 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.JDCLOUD]: AccessConfigFieldsProviderJDCloud,
   [ACCESS_PROVIDERS.KONG]: AccessConfigFieldsProviderKong,
   [ACCESS_PROVIDERS.KUBERNETES]: AccessConfigFieldsProviderKubernetes,
+  [ACCESS_PROVIDERS.KSYUN]: AccessConfigFieldsProviderKsyun,
   [ACCESS_PROVIDERS.LARKBOT]: AccessConfigFieldsProviderLarkBot,
   [ACCESS_PROVIDERS.LECDN]: AccessConfigFieldsProviderLeCDN,
+  [ACCESS_PROVIDERS.INFOMANIAK]: AccessConfigFieldsProviderInfomaniak,
   [ACCESS_PROVIDERS.LINODE]: AccessConfigFieldsProviderLinode,
   [ACCESS_PROVIDERS.MATTERMOST]: AccessConfigFieldsProviderMattermost,
   [ACCESS_PROVIDERS.NAMECHEAP]: AccessConfigFieldsProviderNamecheap,
@@ -153,6 +166,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.NETCUP]: AccessConfigFieldsProviderNetcup,
   [ACCESS_PROVIDERS.NETLIFY]: AccessConfigFieldsProviderNetlify,
   [ACCESS_PROVIDERS.NS1]: AccessConfigFieldsProviderNS1,
+  [ACCESS_PROVIDERS.OVHCLOUD]: AccessConfigFieldsProviderOVHcloud,
   [ACCESS_PROVIDERS.PORKBUN]: AccessConfigFieldsProviderPorkbun,
   [ACCESS_PROVIDERS.POWERDNS]: AccessConfigFieldsProviderPowerDNS,
   [ACCESS_PROVIDERS.PROXMOXVE]: AccessConfigFieldsProviderProxmoxVE,

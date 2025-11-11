@@ -43,7 +43,6 @@ const BizDeployNodeConfigFieldsProviderWangsuCDNPro = () => {
         initialValue={initialValues.domain}
         label={t("workflow_node.deploy.form.wangsu_cdnpro_domain.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.wangsu_cdnpro_domain.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.wangsu_cdnpro_domain.placeholder")} />
       </Form.Item>

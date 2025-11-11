@@ -12,6 +12,7 @@ import (
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-cos/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -38,7 +39,7 @@ type SSLDeployerProvider struct {
 var _ core.SSLDeployer = (*SSLDeployerProvider)(nil)
 
 type wSDKClients struct {
-	SSL *tcssl.Client
+	SSL *internal.SslClient
 }
 
 func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProvider, error) {
@@ -211,7 +212,7 @@ func (d *SSLDeployerProvider) checkIsBind(ctx context.Context, cloudCertId strin
 
 func createSDKClients(secretId, secretKey, region string) (*wSDKClients, error) {
 	credential := common.NewCredential(secretId, secretKey)
-	client, err := tcssl.NewClient(credential, region, profile.NewClientProfile())
+	client, err := internal.NewSslClient(credential, region, profile.NewClientProfile())
 	if err != nil {
 		return nil, err
 	}

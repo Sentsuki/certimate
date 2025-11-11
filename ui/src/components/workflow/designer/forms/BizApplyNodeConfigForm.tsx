@@ -519,6 +519,16 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
           </Form.Item>
 
           <Form.Item
+            name="preferredChain"
+            label={t("workflow_node.apply.form.preferred_chain.label")}
+            extra={t("workflow_node.apply.form.preferred_chain.help")}
+            rules={[formRule]}
+            tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.apply.form.preferred_chain.tooltip") }}></span>}
+          >
+            <Input allowClear placeholder={t("workflow_node.apply.form.preferred_chain.placeholder")} />
+          </Form.Item>
+
+          <Form.Item
             name="acmeProfile"
             label={t("workflow_node.apply.form.acme_profile.label")}
             extra={t("workflow_node.apply.form.acme_profile.help")}
@@ -643,7 +653,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
               <Form.Item name="skipBeforeExpiryDays" noStyle rules={[formRule]}>
                 <InputNumber
                   className="w-24"
-                  min={0}
+                  min={1}
                   max={365}
                   placeholder={t("workflow_node.apply.form.skip_before_expiry_days.placeholder")}
                   addonAfter={t("workflow_node.apply.form.skip_before_expiry_days.unit")}
@@ -884,13 +894,14 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
           if (!v) return true;
           return /^\d+[d|h]$/.test(v) && parseInt(v) > 0;
         }, t("workflow_node.apply.form.validity_lifetime.placeholder")),
+      preferredChain: z.string().nullish(),
       acmeProfile: z.string().nullish(),
       disableFollowCNAME: z.boolean().nullish(),
       disableARI: z.boolean().nullish(),
       skipBeforeExpiryDays: z.coerce
         .number()
         .int(t("workflow_node.apply.form.skip_before_expiry_days.placeholder"))
-        .nonnegative(t("workflow_node.apply.form.skip_before_expiry_days.placeholder")),
+        .positive(t("workflow_node.apply.form.skip_before_expiry_days.placeholder")),
     })
     .superRefine((values, ctx) => {
       if (values.domains) {

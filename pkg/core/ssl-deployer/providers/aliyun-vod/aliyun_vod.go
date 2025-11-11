@@ -9,11 +9,13 @@ import (
 	"strings"
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	alivod "github.com/alibabacloud-go/vod-20170321/v4/client"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-vod/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -33,7 +35,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *alivod.Client
+	sdkClient  *internal.VodClient
 	sslManager core.SSLManager
 }
 
@@ -96,14 +98,14 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	setVodDomainSSLCertificateReq := &alivod.SetVodDomainSSLCertificateRequest{
 		DomainName: tea.String(d.config.Domain),
 		CertType:   tea.String("cas"),
-		CertId:     tea.Int64(int64(certId)),
+		CertId:     tea.Int64(certId),
 		CertName:   tea.String(upres.CertName),
 		CertRegion: lo.
 			If(d.config.Region == "" || strings.HasPrefix(d.config.Region, "cn-"), tea.String("cn-hangzhou")).
 			Else(tea.String("ap-southeast-1")),
 		SSLProtocol: tea.String("on"),
 	}
-	setVodDomainSSLCertificateResp, err := d.sdkClient.SetVodDomainSSLCertificate(setVodDomainSSLCertificateReq)
+	setVodDomainSSLCertificateResp, err := d.sdkClient.SetVodDomainSSLCertificateWithContext(context.TODO(), setVodDomainSSLCertificateReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'live.SetVodDomainSSLCertificate'", slog.Any("request", setVodDomainSSLCertificateReq), slog.Any("response", setVodDomainSSLCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'live.SetVodDomainSSLCertificate': %w", err)
@@ -112,7 +114,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*alivod.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.VodClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/vod
 	var endpoint string
 	switch region {
@@ -128,7 +130,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*alivod.Clien
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := alivod.NewClient(config)
+	client, err := internal.NewVodClient(config)
 	if err != nil {
 		return nil, err
 	}

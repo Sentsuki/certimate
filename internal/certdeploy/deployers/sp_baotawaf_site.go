@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.DeploymentProviderTypeBaotaWAFSite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeBaotaWAFSite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		credentials := domain.AccessConfigForBaotaWAF{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -24,7 +24,5 @@ func init() {
 			SitePort:                 xmaps.GetOrDefaultInt32(options.ProviderExtendedConfig, "sitePort", 443),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

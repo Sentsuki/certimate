@@ -48,6 +48,13 @@ type AccessConfigForActalisSSL struct {
 	AccessConfigForACMEExternalAccountBinding
 }
 
+type AccessConfigForAkamai struct {
+	Host         string `json:"host"`
+	ClientToken  string `json:"clientToken"`
+	ClientSecret string `json:"clientSecret"`
+	AccessToken  string `json:"accessToken"`
+}
+
 type AccessConfigForAliyun struct {
 	AccessKeyId     string `json:"accessKeyId"`
 	AccessKeySecret string `json:"accessKeySecret"`
@@ -58,6 +65,10 @@ type AccessConfigForAPISIX struct {
 	ServerUrl                string `json:"serverUrl"`
 	ApiKey                   string `json:"apiKey"`
 	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
+}
+
+type AccessConfigForArvanCloud struct {
+	ApiKey string `json:"apiKey"`
 }
 
 type AccessConfigForAWS struct {
@@ -172,6 +183,11 @@ type AccessConfigForDNSLA struct {
 	ApiSecret string `json:"apiSecret"`
 }
 
+type AccessConfigForDNSMadeEasy struct {
+	ApiKey    string `json:"apiKey"`
+	ApiSecret string `json:"apiSecret"`
+}
+
 type AccessConfigForDogeCloud struct {
 	AccessKey string `json:"accessKey"`
 	SecretKey string `json:"secretKey"`
@@ -179,6 +195,10 @@ type AccessConfigForDogeCloud struct {
 
 type AccessConfigForDuckDNS struct {
 	Token string `json:"token"`
+}
+
+type AccessConfigForDynu struct {
+	ApiKey string `json:"apiKey"`
 }
 
 type AccessConfigForDynv6 struct {
@@ -261,6 +281,10 @@ type AccessConfigForHuaweiCloud struct {
 	EnterpriseProjectId string `json:"enterpriseProjectId,omitempty"`
 }
 
+type AccessConfigForInfomaniak struct {
+	AccessToken string `json:"accessToken"`
+}
+
 type AccessConfigForIONOS struct {
 	ApiKeyPublicPrefix string `json:"apiKeyPublicPrefix"`
 	ApiKeySecret       string `json:"apiKeySecret"`
@@ -279,6 +303,11 @@ type AccessConfigForKong struct {
 
 type AccessConfigForKubernetes struct {
 	KubeConfig string `json:"kubeConfig,omitempty"`
+}
+
+type AccessConfigForKsyun struct {
+	AccessKeyId     string `json:"accessKeyId"`
+	SecretAccessKey string `json:"secretAccessKey"`
 }
 
 type AccessConfigForLarkBot struct {
@@ -334,6 +363,16 @@ type AccessConfigForNS1 struct {
 	ApiKey string `json:"apiKey"`
 }
 
+type AccessConfigForOVHcloud struct {
+	Endpoint          string `json:"endpoint"`
+	AuthMethod        string `json:"authMethod"`
+	ApplicationKey    string `json:"applicationKey,omitempty"`
+	ApplicationSecret string `json:"applicationSecret,omitempty"`
+	ConsumerKey       string `json:"consumerKey,omitempty"`
+	ClientId          string `json:"clientId,omitempty"`
+	ClientSecret      string `json:"clientSecret,omitempty"`
+}
+
 type AccessConfigForPorkbun struct {
 	ApiKey       string `json:"apiKey"`
 	SecretApiKey string `json:"secretApiKey"`
@@ -363,7 +402,7 @@ type AccessConfigForRainYun struct {
 
 type AccessConfigForRatPanel struct {
 	ServerUrl                string `json:"serverUrl"`
-	AccessTokenId            int32  `json:"accessTokenId"`
+	AccessTokenId            int64  `json:"accessTokenId"`
 	AccessToken              string `json:"accessToken"`
 	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
 }
@@ -395,16 +434,16 @@ type AccessConfigForSpaceship struct {
 type AccessConfigForSSH struct {
 	Host          string `json:"host"`
 	Port          int32  `json:"port"`
-	AuthMethod    string `json:"authMethod,omitempty"`
-	Username      string `json:"username,omitempty"`
+	AuthMethod    string `json:"authMethod"`
+	Username      string `json:"username"`
 	Password      string `json:"password,omitempty"`
 	Key           string `json:"key,omitempty"`
 	KeyPassphrase string `json:"keyPassphrase,omitempty"`
 	JumpServers   []struct {
 		Host          string `json:"host"`
 		Port          int32  `json:"port"`
-		AuthMethod    string `json:"authMethod,omitempty"`
-		Username      string `json:"username,omitempty"`
+		AuthMethod    string `json:"authMethod"`
+		Username      string `json:"username"`
 		Password      string `json:"password,omitempty"`
 		Key           string `json:"key,omitempty"`
 		KeyPassphrase string `json:"keyPassphrase,omitempty"`
@@ -423,7 +462,7 @@ type AccessConfigForTechnitiumDNS struct {
 
 type AccessConfigForTelegramBot struct {
 	BotToken string `json:"botToken"`
-	ChatId   int64  `json:"chatId,omitempty"`
+	ChatId   string `json:"chatId,omitempty"`
 }
 
 type AccessConfigForTencentCloud struct {

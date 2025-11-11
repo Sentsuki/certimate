@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/google/uuid"
+	"github.com/pocketbase/pocketbase/tools/security"
 )
 
 type Client struct {
@@ -43,7 +43,7 @@ func NewClient(endpoint, accessKeyId, secretAccessKey string) (*Client, error) {
 			// 生成时间戳及流水号
 			now := time.Now()
 			eopDate := now.Format("20060102T150405Z")
-			eopReqId := uuid.New().String()
+			eopReqId := security.RandomString(32)
 
 			// 获取查询参数
 			queryStr := ""

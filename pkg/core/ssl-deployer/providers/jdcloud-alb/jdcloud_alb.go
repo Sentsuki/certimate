@@ -258,6 +258,6 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 func createSDKClient(accessKeyId, accessKeySecret string) (*jdlbclient.LbClient, error) {
 	clientCredentials := jdcore.NewCredentials(accessKeyId, accessKeySecret)
 	client := jdlbclient.NewLbClient(clientCredentials)
-	client.SetLogger(jdcore.NewDefaultLogger(jdcore.LogWarn))
+	client.DisableLogger()
 	return client, nil
 }

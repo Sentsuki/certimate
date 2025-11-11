@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.DeploymentProviderTypeLocal, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeLocal, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
 		provider, err := local.NewSSLDeployerProvider(&local.SSLDeployerProviderConfig{
 			ShellEnv:                 xmaps.GetString(options.ProviderExtendedConfig, "shellEnv"),
 			PreCommand:               xmaps.GetString(options.ProviderExtendedConfig, "preCommand"),
@@ -24,7 +24,5 @@ func init() {
 			JksStorepass:             xmaps.GetString(options.ProviderExtendedConfig, "jksStorepass"),
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

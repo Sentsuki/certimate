@@ -95,7 +95,7 @@ func (d *SSLDeployerProvider) deployToSite(ctx context.Context, certPEM string, 
 	// 获取单个网站详情
 	// REF: https://doc.cdnfly.cn/wangzhanguanli-v1-sites.html#%E8%8E%B7%E5%8F%96%E5%8D%95%E4%B8%AA%E7%BD%91%E7%AB%99%E8%AF%A6%E6%83%85
 	getSiteResp, err := d.sdkClient.GetSite(d.config.SiteId)
-	d.logger.Debug("sdk request 'cdnfly.GetSite'", slog.Any("siteId", d.config.SiteId), slog.Any("response", getSiteResp))
+	d.logger.Debug("sdk request 'cdnfly.GetSite'", slog.String("siteId", d.config.SiteId), slog.Any("response", getSiteResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'cdnfly.GetSite': %w", err)
 	}

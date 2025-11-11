@@ -166,7 +166,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 }
 
 func createSDKClient(accessKeyId, secretAccessKey, region string) (*awsiam.Client, error) {
-	cfg, err := awscfg.LoadDefaultConfig(context.TODO())
+	cfg, err := awscfg.LoadDefaultConfig(context.Background())
 	if err != nil {
 		return nil, err
 	}

@@ -3,14 +3,14 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	bcedns "github.com/baidubce/bce-sdk-go/services/dns"
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/platform/config/env"
-	"github.com/google/uuid"
+	"github.com/pocketbase/pocketbase/tools/security"
+	"github.com/samber/lo"
 )
 
 const (
@@ -33,7 +33,7 @@ type Config struct {
 
 	PropagationTimeout time.Duration
 	PollingInterval    time.Duration
-	TTL                int32
+	TTL                int
 	HTTPTimeout        time.Duration
 }
 
@@ -44,7 +44,7 @@ type DNSProvider struct {
 
 func NewDefaultConfig() *Config {
 	return &Config{
-		TTL:                int32(env.GetOrDefaultInt(EnvTTL, 300)),
+		TTL:                env.GetOrDefaultInt(EnvTTL, 300),
 		PropagationTimeout: env.GetOrDefaultSecond(EnvPropagationTimeout, 2*time.Minute),
 		PollingInterval:    env.GetOrDefaultSecond(EnvPollingInterval, dns01.DefaultPollingInterval),
 		HTTPTimeout:        env.GetOrDefaultSecond(EnvHTTPTimeout, 30*time.Second),
@@ -169,18 +169,18 @@ func (d *DNSProvider) addOrUpdateDNSRecord(zoneName, subDomain, value string) er
 			Type:  "TXT",
 			Rr:    subDomain,
 			Value: value,
-			Ttl:   &d.config.TTL,
+			Ttl:   lo.ToPtr(int32(d.config.TTL)),
 		}
-		err := d.client.CreateRecord(zoneName, request, d.generateClientToken())
+		err := d.client.CreateRecord(zoneName, request, security.RandomString(32))
 		return err
 	} else {
 		request := &bcedns.UpdateRecordRequest{
 			Type:  "TXT",
 			Rr:    subDomain,
 			Value: value,
-			Ttl:   &d.config.TTL,
+			Ttl:   lo.ToPtr(int32(d.config.TTL)),
 		}
-		err := d.client.UpdateRecord(zoneName, record.Id, request, d.generateClientToken())
+		err := d.client.UpdateRecord(zoneName, record.Id, request, security.RandomString(32))
 		return err
 	}
 }
@@ -194,11 +194,7 @@ func (d *DNSProvider) removeDNSRecord(zoneName, subDomain string) error {
 	if record == nil {
 		return nil
 	} else {
-		err = d.client.DeleteRecord(zoneName, record.Id, d.generateClientToken())
+		err = d.client.DeleteRecord(zoneName, record.Id, security.RandomString(32))
 		return err
 	}
-}
-
-func (d *DNSProvider) generateClientToken() string {
-	return strings.ReplaceAll(uuid.New().String(), "-", "")
 }

@@ -29,7 +29,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *vecdn.CDN
+	sdkClient vecdn.CDNAPI
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -92,17 +92,21 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		if listCertInfoResp.CertInfo != nil {
 			for _, certInfo := range listCertInfoResp.CertInfo {
 				fingerprintSha1 := sha1.Sum(certX509.Raw)
-				fingerprintSha256 := sha256.Sum256(certX509.Raw)
-				isSameCert := strings.EqualFold(hex.EncodeToString(fingerprintSha1[:]), ve.StringValue(certInfo.CertFingerprint.Sha1)) &&
-					strings.EqualFold(hex.EncodeToString(fingerprintSha256[:]), ve.StringValue(certInfo.CertFingerprint.Sha256))
-				// 如果已存在相同证书，直接返回
-				if isSameCert {
-					m.logger.Info("ssl certificate already exists")
-					return &core.SSLManageUploadResult{
-						CertId:   ve.StringValue(certInfo.CertId),
-						CertName: ve.StringValue(certInfo.Desc),
-					}, nil
+				if !strings.EqualFold(hex.EncodeToString(fingerprintSha1[:]), ve.StringValue(certInfo.CertFingerprint.Sha1)) {
+					continue
 				}
+
+				fingerprintSha256 := sha256.Sum256(certX509.Raw)
+				if !strings.EqualFold(hex.EncodeToString(fingerprintSha256[:]), ve.StringValue(certInfo.CertFingerprint.Sha256)) {
+					continue
+				}
+
+				// 如果已存在相同证书，直接返回
+				m.logger.Info("ssl certificate already exists")
+				return &core.SSLManageUploadResult{
+					CertId:   ve.StringValue(certInfo.CertId),
+					CertName: ve.StringValue(certInfo.Desc),
+				}, nil
 			}
 		}
 
@@ -138,7 +142,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*vecdn.CDN, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (vecdn.CDNAPI, error) {
 	config := ve.NewConfig().
 		WithAkSk(accessKeyId, accessKeySecret)
 

@@ -13,6 +13,7 @@ import (
 	tcteo "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/teo/v20220901"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-eo/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
@@ -36,7 +37,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tcteo.Client
+	sdkClient  *internal.TeoClient
 	sslManager core.SSLManager
 }
 
@@ -191,7 +192,7 @@ func (d *SSLDeployerProvider) getDomainsInZone(ctx context.Context, zoneId strin
 	return domainsInZone, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint string) (*tcteo.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint string) (*internal.TeoClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -199,7 +200,7 @@ func createSDKClient(secretId, secretKey, endpoint string) (*tcteo.Client, error
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcteo.NewClient(credential, "", cpf)
+	client, err := internal.NewTeoClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

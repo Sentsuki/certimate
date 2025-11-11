@@ -36,12 +36,12 @@ type Config struct {
 
 	PropagationTimeout time.Duration
 	PollingInterval    time.Duration
-	TTL                int32
+	TTL                int
 	HTTPTimeout        time.Duration
 }
 
 type DNSProvider struct {
-	client *aliesa.Client
+	client *EsaClient
 	config *Config
 
 	siteIDs    map[string]int64
@@ -50,7 +50,7 @@ type DNSProvider struct {
 
 func NewDefaultConfig() *Config {
 	return &Config{
-		TTL:                int32(env.GetOrDefaultInt(EnvTTL, 300)),
+		TTL:                env.GetOrDefaultInt(EnvTTL, 300),
 		PropagationTimeout: env.GetOrDefaultSecond(EnvPropagationTimeout, 2*time.Minute),
 		PollingInterval:    env.GetOrDefaultSecond(EnvPollingInterval, dns01.DefaultPollingInterval),
 		HTTPTimeout:        env.GetOrDefaultSecond(EnvHTTPTimeout, 30*time.Second),
@@ -76,7 +76,7 @@ func NewDNSProviderConfig(config *Config) (*DNSProvider, error) {
 		return nil, errors.New("alicloud-esa: the configuration of the DNS provider is nil")
 	}
 
-	client, err := aliesa.NewClient(&aliopen.Config{
+	client, err := NewEsaClient(&aliopen.Config{
 		AccessKeyId:     tea.String(config.SecretID),
 		AccessKeySecret: tea.String(config.SecretKey),
 		Endpoint:        tea.String(fmt.Sprintf("esa.%s.aliyuncs.com", config.RegionID)),
@@ -239,7 +239,7 @@ func (d *DNSProvider) addOrUpdateDNSRecord(siteId int64, effectiveFQDN, value st
 		Data: &aliesa.CreateRecordRequestData{
 			Value: tea.String(value),
 		},
-		Ttl: tea.Int32(d.config.TTL),
+		Ttl: tea.Int32(int32(d.config.TTL)),
 	}
 	_, err = d.client.CreateRecord(request)
 	return err

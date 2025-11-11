@@ -17,14 +17,14 @@ const (
 
 var (
 	fApiToken string
-	fChatId   int64
+	fChatId   string
 )
 
 func init() {
 	argsPrefix := "CERTIMATE_NOTIFIER_TELEGRAMBOT_"
 
 	flag.StringVar(&fApiToken, argsPrefix+"APITOKEN", "", "")
-	flag.Int64Var(&fChatId, argsPrefix+"CHATID", 0, "")
+	flag.StringVar(&fChatId, argsPrefix+"CHATID", "", "")
 }
 
 /*
@@ -32,7 +32,7 @@ Shell command to run this test:
 
 	go test -v ./telegrambot_test.go -args \
 	--CERTIMATE_NOTIFIER_TELEGRAMBOT_APITOKEN="your-api-token" \
-	--CERTIMATE_NOTIFIER_TELEGRAMBOT_CHATID=123456
+	--CERTIMATE_NOTIFIER_TELEGRAMBOT_CHATID="your-chat-id"
 */
 func TestNotify(t *testing.T) {
 	flag.Parse()

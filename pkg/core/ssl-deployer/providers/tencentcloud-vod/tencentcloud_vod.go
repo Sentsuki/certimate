@@ -13,6 +13,7 @@ import (
 	tcvod "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/vod/v20180717"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-vod/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -32,7 +33,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tcvod.Client
+	sdkClient  *internal.VodClient
 	sslManager core.SSLManager
 }
 
@@ -108,7 +109,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint string) (*tcvod.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint string) (*internal.VodClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -116,7 +117,7 @@ func createSDKClient(secretId, secretKey, endpoint string) (*tcvod.Client, error
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcvod.NewClient(credential, "", cpf)
+	client, err := internal.NewVodClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

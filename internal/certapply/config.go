@@ -53,7 +53,7 @@ func NewACMEConfig(options *ACMEConfigOptions) (*ACMEConfig, error) {
 
 	if options.CAProvider == "" {
 		settingsRepo := repository.NewSettingsRepository()
-		settings, _ := settingsRepo.GetByName(context.Background(), "sslProvider")
+		settings, _ := settingsRepo.GetByName(context.Background(), domain.SettingsNameSSLProvider)
 		if settings != nil {
 			sslProviderSettings := settings.Content.AsSSLProvider()
 			caProvider = string(sslProviderSettings.Provider)

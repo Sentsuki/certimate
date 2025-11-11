@@ -10,8 +10,11 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	alifc3 "github.com/alibabacloud-go/fc-20230330/v4/client"
 	alifc2 "github.com/alibabacloud-go/fc-open-20210406/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
+
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-fc/internal"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -39,8 +42,8 @@ type SSLDeployerProvider struct {
 var _ core.SSLDeployer = (*SSLDeployerProvider)(nil)
 
 type wSDKClients struct {
-	FC2 *alifc2.Client
-	FC3 *alifc3.Client
+	FC2 *internal.FcopenClient
+	FC3 *internal.FcClient
 }
 
 func NewSSLDeployerProvider(config *SSLDeployerProviderConfig) (*SSLDeployerProvider, error) {
@@ -94,7 +97,7 @@ func (d *SSLDeployerProvider) deployToFC3(ctx context.Context, certPEM string, p
 
 	// 获取自定义域名
 	// REF: https://help.aliyun.com/zh/functioncompute/fc-3-0/developer-reference/api-fc-2023-03-30-getcustomdomain
-	getCustomDomainResp, err := d.sdkClients.FC3.GetCustomDomain(tea.String(d.config.Domain))
+	getCustomDomainResp, err := d.sdkClients.FC3.GetCustomDomainWithContext(context.TODO(), tea.String(d.config.Domain), make(map[string]*string), &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'fc.GetCustomDomain'", slog.Any("response", getCustomDomainResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'fc.GetCustomDomain': %w", err)
@@ -116,7 +119,7 @@ func (d *SSLDeployerProvider) deployToFC3(ctx context.Context, certPEM string, p
 	if tea.StringValue(updateCustomDomainReq.Body.Protocol) == "HTTP" {
 		updateCustomDomainReq.Body.Protocol = tea.String("HTTP,HTTPS")
 	}
-	updateCustomDomainResp, err := d.sdkClients.FC3.UpdateCustomDomain(tea.String(d.config.Domain), updateCustomDomainReq)
+	updateCustomDomainResp, err := d.sdkClients.FC3.UpdateCustomDomainWithContext(context.TODO(), tea.String(d.config.Domain), updateCustomDomainReq, make(map[string]*string), &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'fc.UpdateCustomDomain'", slog.Any("request", updateCustomDomainReq), slog.Any("response", updateCustomDomainResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'fc.UpdateCustomDomain': %w", err)
@@ -178,7 +181,7 @@ func createSDKClients(accessKeyId, accessKeySecret, region string) (*wSDKClients
 		AccessKeySecret: tea.String(accessKeySecret),
 		Endpoint:        tea.String(fc2Endpoint),
 	}
-	fc2Client, err := alifc2.NewClient(fc2Config)
+	fc2Client, err := internal.NewFcopenClient(fc2Config)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +202,7 @@ func createSDKClients(accessKeyId, accessKeySecret, region string) (*wSDKClients
 		AccessKeySecret: tea.String(accessKeySecret),
 		Endpoint:        tea.String(fc3Endpoint),
 	}
-	fc3Client, err := alifc3.NewClient(fc3Config)
+	fc3Client, err := internal.NewFcClient(fc3Config)
 	if err != nil {
 		return nil, err
 	}

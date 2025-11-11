@@ -16,7 +16,7 @@ type SSLDeployerProviderConfig struct {
 	// 雨云 API 密钥。
 	ApiKey string `json:"apiKey"`
 	// RCDN 实例 ID。
-	InstanceId int32 `json:"instanceId"`
+	InstanceId int64 `json:"instanceId"`
 	// 加速域名（支持泛域名）。
 	Domain string `json:"domain"`
 }
@@ -80,13 +80,13 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 
 	// RCDN SSL 绑定域名
 	// REF: https://apifox.com/apidoc/shared/a4595cc8-44c5-4678-a2a3-eed7738dab03/api-184214120
-	certId, _ := strconv.ParseInt(upres.CertId, 10, 32)
+	certId, _ := strconv.ParseInt(upres.CertId, 10, 64)
 	rcdnInstanceSslBindReq := &rainyunsdk.RcdnInstanceSslBindRequest{
-		CertId:  int32(certId),
+		CertId:  certId,
 		Domains: []string{d.config.Domain},
 	}
 	rcdnInstanceSslBindResp, err := d.sdkClient.RcdnInstanceSslBind(d.config.InstanceId, rcdnInstanceSslBindReq)
-	d.logger.Debug("sdk request 'rcdn.InstanceSslBind'", slog.Any("instanceId", d.config.InstanceId), slog.Any("request", rcdnInstanceSslBindReq), slog.Any("response", rcdnInstanceSslBindResp))
+	d.logger.Debug("sdk request 'rcdn.InstanceSslBind'", slog.Int64("instanceId", d.config.InstanceId), slog.Any("request", rcdnInstanceSslBindReq), slog.Any("response", rcdnInstanceSslBindResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'rcdn.InstanceSslBind': %w", err)
 	}

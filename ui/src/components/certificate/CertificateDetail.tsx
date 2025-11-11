@@ -36,12 +36,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
     <div {...props}>
       <Form layout="vertical">
         <Form.Item label={t("certificate.props.subject_alt_names")}>
-          <Input
-            value={data.subjectAltNames}
-            variant="filled"
-            placeholder=""
-            addonAfter={data.isRevoked ? <Tag color="error">{t("certificate.props.revoked")}</Tag> : <></>}
-          />
+          <Input value={data.subjectAltNames} variant="filled" placeholder="" />
         </Form.Item>
 
         <Form.Item label={t("certificate.props.issuer")}>
@@ -53,6 +48,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
             value={`${dayjs(data.validityNotBefore).format("YYYY-MM-DD HH:mm:ss")} ~ ${dayjs(data.validityNotAfter).format("YYYY-MM-DD HH:mm:ss")}`}
             variant="filled"
             placeholder=""
+            addonAfter={data.isRevoked ? <Tag color="error">{t("certificate.props.revoked")}</Tag> : <></>}
           />
         </Form.Item>
 

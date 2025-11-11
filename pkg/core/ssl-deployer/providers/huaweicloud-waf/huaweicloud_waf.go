@@ -18,6 +18,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/huaweicloud-waf/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-waf"
 )
 
@@ -43,7 +44,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *hcwaf.WafClient
+	sdkClient  *internal.WafClient
 	sslManager core.SSLManager
 }
 
@@ -307,7 +308,7 @@ func (d *SSLDeployerProvider) deployToPremiumHost(ctx context.Context, certPEM s
 	return nil
 }
 
-func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcwaf.WafClient, error) {
+func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.WafClient, error) {
 	projectId, err := getSdkProjectId(accessKeyId, secretAccessKey, region)
 	if err != nil {
 		return nil, err
@@ -335,7 +336,7 @@ func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcwaf.WafCli
 		return nil, err
 	}
 
-	client := hcwaf.NewWafClient(hcClient)
+	client := internal.NewWafClient(hcClient)
 	return client, nil
 }
 

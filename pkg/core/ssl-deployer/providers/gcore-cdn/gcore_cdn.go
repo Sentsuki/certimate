@@ -97,7 +97,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		// 获取证书
 		// REF: https://api.gcore.com/docs/cdn#tag/SSL-certificates/paths/~1cdn~1sslData~1%7Bssl_id%7D/get
 		getCertificateDetailResp, err := d.sdkClients.SSLCerts.Get(context.TODO(), d.config.CertificateId)
-		d.logger.Debug("sdk request 'sslcerts.Get'", slog.Any("sslId", d.config.CertificateId), slog.Any("response", getCertificateDetailResp))
+		d.logger.Debug("sdk request 'sslcerts.Get'", slog.Int64("sslId", d.config.CertificateId), slog.Any("response", getCertificateDetailResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'sslcerts.Get': %w", err)
 		}
@@ -111,7 +111,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			ValidateRootCA: false,
 		}
 		changeCertificateResp, err := d.sdkClients.SSLCerts.Update(context.TODO(), getCertificateDetailResp.ID, changeCertificateReq)
-		d.logger.Debug("sdk request 'sslcerts.Update'", slog.Any("sslId", getCertificateDetailResp.ID), slog.Any("request", changeCertificateReq), slog.Any("response", changeCertificateResp))
+		d.logger.Debug("sdk request 'sslcerts.Update'", slog.Int64("sslId", getCertificateDetailResp.ID), slog.Any("request", changeCertificateReq), slog.Any("response", changeCertificateResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'sslcerts.Update': %w", err)
 		}

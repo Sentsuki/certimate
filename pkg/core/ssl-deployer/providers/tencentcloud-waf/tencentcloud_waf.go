@@ -13,6 +13,7 @@ import (
 	tcwaf "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/waf/v20180125"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-waf/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -36,7 +37,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tcwaf.Client
+	sdkClient  *internal.WafClient
 	sslManager core.SSLManager
 }
 
@@ -129,7 +130,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint, region string) (*tcwaf.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint, region string) (*internal.WafClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -137,7 +138,7 @@ func createSDKClient(secretId, secretKey, endpoint, region string) (*tcwaf.Clien
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcwaf.NewClient(credential, region, cpf)
+	client, err := internal.NewWafClient(credential, region, cpf)
 	if err != nil {
 		return nil, err
 	}

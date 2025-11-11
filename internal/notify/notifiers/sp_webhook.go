@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.NotificationProviderTypeWebhook, func(options *ProviderFactoryOptions) (core.Notifier, error) {
+	Registries.MustRegister(domain.NotificationProviderTypeWebhook, func(options *ProviderFactoryOptions) (core.Notifier, error) {
 		credentials := domain.AccessConfigForWebhook{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -43,11 +43,9 @@ func init() {
 			WebhookData:              xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "webhookData", credentials.DataString),
 			Method:                   credentials.Method,
 			Headers:                  mergedHeaders,
-			Timeout:                  xmaps.GetInt32(options.ProviderExtendedConfig, "timeout"),
+			Timeout:                  xmaps.GetInt(options.ProviderExtendedConfig, "timeout"),
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

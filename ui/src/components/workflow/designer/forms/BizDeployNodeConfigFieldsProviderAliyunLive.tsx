@@ -34,7 +34,6 @@ const BizDeployNodeConfigFieldsProviderAliyunLive = () => {
         initialValue={initialValues.domain}
         label={t("workflow_node.deploy.form.aliyun_live_domain.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.aliyun_live_domain.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.aliyun_live_domain.placeholder")} />
       </Form.Item>

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	if err := ACMEDns01Registries.Register(domain.ACMEDns01ProviderTypePowerDNS, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
+	ACMEDns01Registries.MustRegister(domain.ACMEDns01ProviderTypePowerDNS, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
 		credentials := domain.AccessConfigForPowerDNS{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -25,7 +25,5 @@ func init() {
 			DnsTTL:                   options.DnsTTL,
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

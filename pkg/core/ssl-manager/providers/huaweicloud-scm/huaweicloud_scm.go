@@ -15,6 +15,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-scm/internal"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -32,7 +33,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *hcscm.ScmClient
+	sdkClient *internal.ScmClient
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -166,7 +167,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcscm.ScmClient, error) {
+func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.ScmClient, error) {
 	if region == "" {
 		region = "cn-north-4" // SCM 服务默认区域：华北四北京
 	}
@@ -192,6 +193,6 @@ func createSDKClient(accessKeyId, secretAccessKey, region string) (*hcscm.ScmCli
 		return nil, err
 	}
 
-	client := hcscm.NewScmClient(hcClient)
+	client := internal.NewScmClient(hcClient)
 	return client, nil
 }

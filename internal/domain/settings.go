@@ -12,6 +12,11 @@ type Settings struct {
 	Content SettingsContent `json:"content" db:"content"`
 }
 
+const (
+	SettingsNameSSLProvider = "sslProvider"
+	SettingsNamePersistence = "persistence"
+)
+
 type SettingsContent map[string]any
 
 type SettingsContentForSSLProvider struct {
@@ -20,8 +25,9 @@ type SettingsContentForSSLProvider struct {
 }
 
 type SettingsContentForPersistence struct {
-	WorkflowRunsMaxDaysRetention        int `json:"workflowRunsMaxDaysRetention"`
-	ExpiredCertificatesMaxDaysRetention int `json:"expiredCertificatesMaxDaysRetention"`
+	CertificatesWarningDaysBeforeExpire int `json:"certificatesWarningDaysBeforeExpire"`
+	CertificatesRetentionMaxDays        int `json:"certificatesRetentionMaxDays"`
+	WorkflowRunsRetentionMaxDays        int `json:"workflowRunsRetentionMaxDays"`
 }
 
 func (c SettingsContent) AsSSLProvider() *SettingsContentForSSLProvider {
@@ -38,5 +44,18 @@ func (c SettingsContent) AsSSLProvider() *SettingsContentForSSLProvider {
 func (c SettingsContent) AsPersistence() *SettingsContentForPersistence {
 	content := &SettingsContentForPersistence{}
 	xmaps.Populate(c, content)
+
+	if content.CertificatesWarningDaysBeforeExpire <= 0 {
+		content.CertificatesWarningDaysBeforeExpire = 21
+	}
+
+	if content.CertificatesRetentionMaxDays < 0 {
+		content.CertificatesRetentionMaxDays = 0
+	}
+
+	if content.WorkflowRunsRetentionMaxDays < 0 {
+		content.WorkflowRunsRetentionMaxDays = 0
+	}
+
 	return content
 }

@@ -68,7 +68,8 @@ jobs:
           mkdir -p dist/linux
           for ARCH in amd64 arm64; do
             go env -w GOARCH=$ARCH
-            go build -ldflags="-s -w -X github.com/certimate-go/certimate.Version=$VERSION" -o dist/linux/certimate_${VERSION}_linux_$ARCH
+            go env -u GOARM # Ensure GOARM is not set
+            go build -trimpath -ldflags="-s -w -X github.com/certimate-go/certimate.Version=${GITHUB_REF#refs/tags/}" -o dist/linux/certimate_${GITHUB_REF#refs/tags/}_linux_$ARCH
           done
 
       - name: Upload Linux binaries
@@ -77,8 +78,6 @@ jobs:
           name: linux-binaries
           path: dist/linux/
           retention-days: 1
-
-
 
   create-release:
     needs: [build-linux]

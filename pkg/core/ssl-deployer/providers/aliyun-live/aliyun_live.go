@@ -10,8 +10,11 @@ import (
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	alilive "github.com/alibabacloud-go/live-20161101/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
+
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-live/internal"
 )
 
 type SSLDeployerProviderConfig struct {
@@ -30,7 +33,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config    *SSLDeployerProviderConfig
 	logger    *slog.Logger
-	sdkClient *alilive.Client
+	sdkClient *internal.LiveClient
 }
 
 var _ core.SSLDeployer = (*SSLDeployerProvider)(nil)
@@ -78,7 +81,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 		SSLPub:      tea.String(certPEM),
 		SSLPri:      tea.String(privkeyPEM),
 	}
-	setLiveDomainSSLCertificateResp, err := d.sdkClient.SetLiveDomainCertificate(setLiveDomainSSLCertificateReq)
+	setLiveDomainSSLCertificateResp, err := d.sdkClient.SetLiveDomainCertificateWithContext(context.TODO(), setLiveDomainSSLCertificateReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'live.SetLiveDomainCertificate'", slog.Any("request", setLiveDomainSSLCertificateReq), slog.Any("response", setLiveDomainSSLCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'live.SetLiveDomainCertificate': %w", err)
@@ -87,7 +90,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*alilive.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.LiveClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/live
 	var endpoint string
 	switch region {
@@ -110,7 +113,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*alilive.Clie
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := alilive.NewClient(config)
+	client, err := internal.NewLiveClient(config)
 	if err != nil {
 		return nil, err
 	}

@@ -13,6 +13,7 @@ import (
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-ssl-update/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/tencentcloud-ssl"
 )
 
@@ -36,7 +37,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *tcssl.Client
+	sdkClient  *internal.SslClient
 	sslManager core.SSLManager
 }
 
@@ -278,7 +279,7 @@ func (d *SSLDeployerProvider) executeUploadUpdateCertificateInstance(ctx context
 	return nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint string) (*tcssl.Client, error) {
+func createSDKClient(secretId, secretKey, endpoint string) (*internal.SslClient, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -286,7 +287,7 @@ func createSDKClient(secretId, secretKey, endpoint string) (*tcssl.Client, error
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := tcssl.NewClient(credential, "", cpf)
+	client, err := internal.NewSslClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

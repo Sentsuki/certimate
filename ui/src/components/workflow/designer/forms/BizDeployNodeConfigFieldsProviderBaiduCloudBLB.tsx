@@ -81,7 +81,6 @@ const BizDeployNodeConfigFieldsProviderBaiduCloudBLB = () => {
           label={t("workflow_node.deploy.form.baiducloud_blb_snidomain.label")}
           extra={t("workflow_node.deploy.form.baiducloud_blb_snidomain.help")}
           rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.baiducloud_blb_snidomain.tooltip") }}></span>}
         >
           <Input allowClear placeholder={t("workflow_node.deploy.form.baiducloud_blb_snidomain.placeholder")} />
         </Form.Item>

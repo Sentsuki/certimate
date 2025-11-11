@@ -28,7 +28,6 @@ const BizDeployNodeConfigFieldsProviderWangsuCDN = () => {
         label={t("workflow_node.deploy.form.wangsu_cdn_domains.label")}
         extra={t("workflow_node.deploy.form.wangsu_cdn_domains.help")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.wangsu_cdn_domains.tooltip") }}></span>}
       >
         <MultipleSplitValueInput
           modalTitle={t("workflow_node.deploy.form.wangsu_cdn_domains.multiple_input_modal.title")}

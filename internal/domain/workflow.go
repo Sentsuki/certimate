@@ -114,7 +114,7 @@ type WorkflowNodeConfig map[string]any
 
 func (c WorkflowNodeConfig) AsDelay() WorkflowNodeConfigForDelay {
 	return WorkflowNodeConfigForDelay{
-		Wait: xmaps.GetInt32(c, "wait"),
+		Wait: xmaps.GetInt(c, "wait"),
 	}
 }
 
@@ -153,15 +153,16 @@ func (c WorkflowNodeConfig) AsBizApply() WorkflowNodeConfigForBizApply {
 		CAProviderAccessId:    xmaps.GetString(c, "caProviderAccessId"),
 		CAProviderConfig:      xmaps.GetKVMapAny(c, "caProviderConfig"),
 		ValidityLifetime:      xmaps.GetString(c, "validityLifetime"),
+		PreferredChain:        xmaps.GetString(c, "preferredChain"),
 		ACMEProfile:           xmaps.GetString(c, "acmeProfile"),
 		Nameservers:           nameservers,
-		DnsPropagationWait:    xmaps.GetInt32(c, "dnsPropagationWait"),
-		DnsPropagationTimeout: xmaps.GetInt32(c, "dnsPropagationTimeout"),
-		DnsTTL:                xmaps.GetInt32(c, "dnsTTL"),
-		HttpDelayWait:         xmaps.GetInt32(c, "httpDelayWait"),
+		DnsPropagationWait:    xmaps.GetInt(c, "dnsPropagationWait"),
+		DnsPropagationTimeout: xmaps.GetInt(c, "dnsPropagationTimeout"),
+		DnsTTL:                xmaps.GetInt(c, "dnsTTL"),
+		HttpDelayWait:         xmaps.GetInt(c, "httpDelayWait"),
 		DisableFollowCNAME:    xmaps.GetBool(c, "disableFollowCNAME"),
 		DisableARI:            xmaps.GetBool(c, "disableARI"),
-		SkipBeforeExpiryDays:  xmaps.GetInt32(c, "skipBeforeExpiryDays"),
+		SkipBeforeExpiryDays:  xmaps.GetInt(c, "skipBeforeExpiryDays"),
 	}
 }
 
@@ -205,7 +206,7 @@ func (c WorkflowNodeConfig) AsBizNotify() WorkflowNodeConfigForBizNotify {
 }
 
 type WorkflowNodeConfigForDelay struct {
-	Wait int32 `json:"wait"` // 等待时间
+	Wait int `json:"wait"` // 等待时间
 }
 
 type WorkflowNodeConfigForBranchBlock struct {
@@ -226,15 +227,16 @@ type WorkflowNodeConfigForBizApply struct {
 	KeyAlgorithm          string         `json:"keyAlgorithm,omitempty"`          // 私钥算法
 	KeyContent            string         `json:"keyContent,omitempty"`            // 私钥内容
 	ValidityLifetime      string         `json:"validityLifetime,omitempty"`      // 有效期，形如 "30d"、"6h"
+	PreferredChain        string         `json:"preferredChain,omitempty"`        // 首选证书链
 	ACMEProfile           string         `json:"acmeProfile,omitempty"`           // ACME Profiles Extension
 	Nameservers           []string       `json:"nameservers,omitempty"`           // DNS 服务器列表，以半角分号分隔
-	DnsPropagationWait    int32          `json:"dnsPropagationWait,omitempty"`    // DNS 传播等待时间，等同于 lego 的 `--dns-propagation-wait` 参数
-	DnsPropagationTimeout int32          `json:"dnsPropagationTimeout,omitempty"` // DNS 传播检查超时时间（零值时使用提供商的默认值）
-	DnsTTL                int32          `json:"dnsTTL,omitempty"`                // DNS 解析记录 TTL（零值时使用提供商的默认值）
-	HttpDelayWait         int32          `json:"httpDelayWait,omitempty"`         // HTTP 等待时间
+	DnsPropagationWait    int            `json:"dnsPropagationWait,omitempty"`    // DNS 传播等待时间，等同于 lego 的 `--dns-propagation-wait` 参数
+	DnsPropagationTimeout int            `json:"dnsPropagationTimeout,omitempty"` // DNS 传播检查超时时间（零值时使用提供商的默认值）
+	DnsTTL                int            `json:"dnsTTL,omitempty"`                // DNS 解析记录 TTL（零值时使用提供商的默认值）
+	HttpDelayWait         int            `json:"httpDelayWait,omitempty"`         // HTTP 等待时间
 	DisableFollowCNAME    bool           `json:"disableFollowCNAME,omitempty"`    // 是否关闭 CNAME 跟随
 	DisableARI            bool           `json:"disableARI,omitempty"`            // 是否关闭 ARI
-	SkipBeforeExpiryDays  int32          `json:"skipBeforeExpiryDays,omitempty"`  // 证书到期前多少天前跳过续期
+	SkipBeforeExpiryDays  int            `json:"skipBeforeExpiryDays,omitempty"`  // 证书到期前多少天前跳过续期
 }
 
 type WorkflowNodeConfigForBizUpload struct {

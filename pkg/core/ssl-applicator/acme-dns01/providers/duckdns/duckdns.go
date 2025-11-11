@@ -11,7 +11,7 @@ import (
 
 type ChallengeProviderConfig struct {
 	Token                 string `json:"token"`
-	DnsPropagationTimeout int32  `json:"dnsPropagationTimeout,omitempty"`
+	DnsPropagationTimeout int    `json:"dnsPropagationTimeout,omitempty"`
 }
 
 func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger, error) {

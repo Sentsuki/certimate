@@ -34,7 +34,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *veclb.CLB
+	sdkClient  veclb.CLBAPI
 	sslManager core.SSLManager
 }
 
@@ -211,7 +211,7 @@ func (d *SSLDeployerProvider) updateListenerCertificate(ctx context.Context, clo
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*veclb.CLB, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (veclb.CLBAPI, error) {
 	config := ve.NewConfig().
 		WithAkSk(accessKeyId, accessKeySecret).
 		WithRegion(region)

@@ -52,6 +52,17 @@ export default defineConfig(({ mode }) => {
     define: {
       __APP_VERSION__: JSON.stringify(appVersion),
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("/src/i18n/")) {
+              return "locales";
+            }
+          },
+        },
+      },
+    },
     plugins: [
       reactPlugin({}),
       legacyPlugin({

@@ -6,7 +6,7 @@ import (
 )
 
 type UpdateRecordRequest struct {
-	Id         string  `json:"id"`
+	Id         *string `json:"id"`
 	GroupId    *string `json:"groupId,omitempty"`
 	LineId     *string `json:"lineId,omitempty"`
 	Type       *int32  `json:"type,omitempty"`

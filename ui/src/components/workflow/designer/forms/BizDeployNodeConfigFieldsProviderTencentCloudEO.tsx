@@ -66,7 +66,6 @@ const BizDeployNodeConfigFieldsProviderTencentCloudEO = () => {
         label={t("workflow_node.deploy.form.tencentcloud_eo_domains.label")}
         extra={t("workflow_node.deploy.form.tencentcloud_eo_domains.help")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_eo_domains.tooltip") }}></span>}
       >
         <MultipleSplitValueInput
           modalTitle={t("workflow_node.deploy.form.tencentcloud_eo_domains.multiple_input_modal.title")}

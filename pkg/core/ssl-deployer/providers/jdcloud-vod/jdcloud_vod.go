@@ -125,6 +125,6 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 func createSDKClient(accessKeyId, accessKeySecret string) (*jdvodclient.VodClient, error) {
 	clientCredentials := jdcore.NewCredentials(accessKeyId, accessKeySecret)
 	client := jdvodclient.NewVodClient(clientCredentials)
-	client.SetLogger(jdcore.NewDefaultLogger(jdcore.LogWarn))
+	client.DisableLogger()
 	return client, nil
 }

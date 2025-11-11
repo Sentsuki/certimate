@@ -19,16 +19,17 @@ const SettingsSSLProvider = () => {
 
   const { message, notification } = App.useApp();
 
+  const [settings, setSettings] = useState<SettingsModel<SSLProviderSettingsContent>>();
+  const [loading, setLoading] = useState(true);
+
   const [formInst] = Form.useForm<{ provider?: string }>();
   const [formPending, setFormPending] = useState(false);
 
-  const [settings, setSettings] = useState<SettingsModel<SSLProviderSettingsContent>>();
-  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
-      const settings = await getSettings<SSLProviderSettingsContent>(SETTINGS_NAMES.SSL_PROVIDER);
+      const settings = await getSettings(SETTINGS_NAMES.SSL_PROVIDER);
       setSettings(settings);
       setProviderValue(settings.content?.provider || CA_PROVIDERS.LETSENCRYPT);
 
@@ -99,6 +100,7 @@ const SettingsSSLProvider = () => {
   return (
     <InternalSettingsContext.Provider
       value={{
+        loading: loading,
         pending: formPending,
         settings: settings!,
         updateSettings: updateContextSettings,
@@ -150,6 +152,7 @@ const SettingsSSLProvider = () => {
 
 const InternalSettingsContext = createContext(
   {} as {
+    loading: boolean;
     pending: boolean;
     settings: SettingsModel<SSLProviderSettingsContent>;
     updateSettings: (settings: MaybeModelRecordWithId<SettingsModel<SSLProviderSettingsContent>>) => Promise<void>;

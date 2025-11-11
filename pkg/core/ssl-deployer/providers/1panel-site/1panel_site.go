@@ -191,7 +191,7 @@ func (d *SSLDeployerProvider) deployToCertificate(ctx context.Context, certPEM s
 		{
 			// 获取证书详情
 			getWebsiteSSLResp, err := sdkClient.GetWebsiteSSL(d.config.CertificateId)
-			d.logger.Debug("sdk request '1panel.GetWebsiteSSL'", slog.Any("sslId", d.config.CertificateId), slog.Any("response", getWebsiteSSLResp))
+			d.logger.Debug("sdk request '1panel.GetWebsiteSSL'", slog.Int64("sslId", d.config.CertificateId), slog.Any("response", getWebsiteSSLResp))
 			if err != nil {
 				return fmt.Errorf("failed to execute sdk request '1panel.GetWebsiteSSL': %w", err)
 			}

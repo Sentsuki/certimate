@@ -10,6 +10,7 @@ import (
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/platform/config/env"
+	"github.com/samber/lo"
 	"gitlab.ecloud.com/ecloud/ecloudsdkclouddns"
 	"gitlab.ecloud.com/ecloud/ecloudsdkclouddns/model"
 	"gitlab.ecloud.com/ecloud/ecloudsdkcore/config"
@@ -36,7 +37,7 @@ type Config struct {
 
 	PropagationTimeout time.Duration
 	PollingInterval    time.Duration
-	TTL                int32
+	TTL                int
 	ReadTimeOut        int
 	ConnectTimeout     int
 }
@@ -50,7 +51,7 @@ func NewDefaultConfig() *Config {
 	return &Config{
 		ReadTimeOut:        env.GetOrDefaultInt(EnvReadTimeOut, 30),
 		ConnectTimeout:     env.GetOrDefaultInt(EnvConnectTimeout, 30),
-		TTL:                int32(env.GetOrDefaultInt(EnvTTL, 600)),
+		TTL:                env.GetOrDefaultInt(EnvTTL, 600),
 		PropagationTimeout: env.GetOrDefaultSecond(EnvPropagationTimeout, 2*time.Minute),
 		PollingInterval:    env.GetOrDefaultSecond(EnvPollingInterval, dns01.DefaultPollingInterval),
 	}
@@ -118,7 +119,7 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 				Description: "certimate acme",
 				Type:        model.CreateRecordOpenapiBodyTypeEnumTxt,
 				Value:       info.Value,
-				Ttl:         &d.config.TTL,
+				Ttl:         lo.ToPtr(int32(d.config.TTL)),
 			},
 		})
 		if err != nil {
@@ -140,7 +141,7 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 				LineId:      "0",
 				Type:        model.ModifyRecordOpenapiBodyTypeEnumTxt,
 				Value:       info.Value,
-				Ttl:         &d.config.TTL,
+				Ttl:         lo.ToPtr(int32(d.config.TTL)),
 			},
 		})
 		if err != nil {

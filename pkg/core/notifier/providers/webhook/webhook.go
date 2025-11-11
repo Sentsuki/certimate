@@ -29,7 +29,7 @@ type NotifierProviderConfig struct {
 	Headers map[string]string `json:"headers,omitempty"`
 	// 请求超时（单位：秒）。
 	// 零值时默认值 30。
-	Timeout int32 `json:"timeout,omitempty"`
+	Timeout int `json:"timeout,omitempty"`
 	// 是否允许不安全的连接。
 	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
 }

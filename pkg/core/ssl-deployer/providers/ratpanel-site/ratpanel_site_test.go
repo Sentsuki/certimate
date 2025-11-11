@@ -58,7 +58,7 @@ func TestDeploy(t *testing.T) {
 
 		deployer, err := provider.NewSSLDeployerProvider(&provider.SSLDeployerProviderConfig{
 			ServerUrl:                fServerUrl,
-			AccessTokenId:            int32(fAccessTokenId),
+			AccessTokenId:            fAccessTokenId,
 			AccessToken:              fAccessToken,
 			AllowInsecureConnections: true,
 			SiteName:                 fSiteName,

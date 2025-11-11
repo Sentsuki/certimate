@@ -13,6 +13,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/huaweicloud-cdn/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/huaweicloud-scm"
 )
 
@@ -32,7 +33,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *hccdn.CdnClient
+	sdkClient  *internal.CdnClient
 	sslManager core.SSLManager
 }
 
@@ -129,7 +130,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, secretAccessKey, region string) (*hccdn.CdnClient, error) {
+func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.CdnClient, error) {
 	if region == "" {
 		region = "cn-north-1" // CDN 服务默认区域：华北一北京
 	}
@@ -155,7 +156,7 @@ func createSDKClient(accessKeyId, secretAccessKey, region string) (*hccdn.CdnCli
 		return nil, err
 	}
 
-	client := hccdn.NewCdnClient(hcClient)
+	client := internal.NewCdnClient(hcClient)
 	return client, nil
 }
 

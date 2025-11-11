@@ -29,7 +29,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *vedcdn.DCDN
+	sdkClient  vedcdn.DCDNAPI
 	sslManager core.SSLManager
 }
 
@@ -104,7 +104,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*vedcdn.DCDN, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (vedcdn.DCDNAPI, error) {
 	if region == "" {
 		region = "cn-beijing" // DCDN 服务默认区域：北京
 	}

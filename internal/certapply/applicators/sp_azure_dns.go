@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	if err := ACMEDns01Registries.Register(domain.ACMEDns01ProviderTypeAzureDNS, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
+	ACMEDns01Registries.MustRegister(domain.ACMEDns01ProviderTypeAzureDNS, func(options *ProviderFactoryOptions) (challenge.Provider, error) {
 		credentials := domain.AccessConfigForAzure{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -26,11 +26,7 @@ func init() {
 			DnsTTL:                options.DnsTTL,
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 
-	if err := ACMEDns01Registries.RegisterAlias(domain.ACMEDns01ProviderTypeAzure, domain.ACMEDns01ProviderTypeAzureDNS); err != nil {
-		panic(err)
-	}
+	ACMEDns01Registries.MustRegisterAlias(domain.ACMEDns01ProviderTypeAzure, domain.ACMEDns01ProviderTypeAzureDNS)
 }

@@ -34,7 +34,6 @@ const BizDeployNodeConfigFieldsProviderHuaweiCloudOBS = () => {
         initialValue={initialValues.bucket}
         label={t("workflow_node.deploy.form.huaweicloud_obs_bucket.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.huaweicloud_obs_bucket.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.huaweicloud_obs_bucket.placeholder")} />
       </Form.Item>
@@ -44,7 +43,6 @@ const BizDeployNodeConfigFieldsProviderHuaweiCloudOBS = () => {
         initialValue={initialValues.domain}
         label={t("workflow_node.deploy.form.huaweicloud_obs_domain.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.huaweicloud_obs_domain.tooltip") }}></span>}
       >
         <Input placeholder={t("workflow_node.deploy.form.huaweicloud_obs_domain.placeholder")} />
       </Form.Item>

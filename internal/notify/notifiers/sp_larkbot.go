@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.NotificationProviderTypeLarkBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
+	Registries.MustRegister(domain.NotificationProviderTypeLarkBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
 		credentials := domain.AccessConfigForLarkBot{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -21,7 +21,5 @@ func init() {
 			Secret:     credentials.Secret,
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

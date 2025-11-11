@@ -36,7 +36,7 @@ type Config struct {
 
 	PropagationTimeout time.Duration
 	PollingInterval    time.Duration
-	TTL                int32
+	TTL                int
 	HTTPTimeout        time.Duration
 }
 
@@ -47,7 +47,7 @@ type DNSProvider struct {
 
 func NewDefaultConfig() *Config {
 	return &Config{
-		TTL:                int32(env.GetOrDefaultInt(EnvTTL, 600)),
+		TTL:                env.GetOrDefaultInt(EnvTTL, 600),
 		PropagationTimeout: env.GetOrDefaultSecond(EnvPropagationTimeout, 2*time.Minute),
 		PollingInterval:    env.GetOrDefaultSecond(EnvPollingInterval, dns01.DefaultPollingInterval),
 		HTTPTimeout:        env.GetOrDefaultSecond(EnvHTTPTimeout, 30*time.Second),

@@ -59,7 +59,6 @@ const BizDeployNodeConfigFieldsProviderTencentCloudCDN = () => {
           initialValue={initialValues.domain}
           label={t("workflow_node.deploy.form.tencentcloud_cdn_domain.label")}
           rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.tencentcloud_cdn_domain.tooltip") }}></span>}
         >
           <Input placeholder={t("workflow_node.deploy.form.tencentcloud_cdn_domain.placeholder")} />
         </Form.Item>

@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	if err := Registries.Register(domain.NotificationProviderTypeWeComBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
+	Registries.MustRegister(domain.NotificationProviderTypeWeComBot, func(options *ProviderFactoryOptions) (core.Notifier, error) {
 		credentials := domain.AccessConfigForWeComBot{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -20,7 +20,5 @@ func init() {
 			WebhookUrl: credentials.WebhookUrl,
 		})
 		return provider, err
-	}); err != nil {
-		panic(err)
-	}
+	})
 }

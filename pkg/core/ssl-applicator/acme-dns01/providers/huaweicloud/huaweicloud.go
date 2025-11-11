@@ -13,8 +13,8 @@ type ChallengeProviderConfig struct {
 	AccessKeyId           string `json:"accessKeyId"`
 	SecretAccessKey       string `json:"secretAccessKey"`
 	Region                string `json:"region"`
-	DnsPropagationTimeout int32  `json:"dnsPropagationTimeout,omitempty"`
-	DnsTTL                int32  `json:"dnsTTL,omitempty"`
+	DnsPropagationTimeout int    `json:"dnsPropagationTimeout,omitempty"`
+	DnsTTL                int    `json:"dnsTTL,omitempty"`
 }
 
 func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger, error) {
@@ -36,7 +36,7 @@ func NewChallengeProvider(config *ChallengeProviderConfig) (core.ACMEChallenger,
 		providerConfig.PropagationTimeout = time.Duration(config.DnsPropagationTimeout) * time.Second
 	}
 	if config.DnsTTL != 0 {
-		providerConfig.TTL = config.DnsTTL
+		providerConfig.TTL = int32(config.DnsTTL)
 	}
 
 	provider, err := hwc.NewDNSProviderConfig(providerConfig)

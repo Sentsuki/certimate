@@ -21,7 +21,7 @@ func init() {
 				return err
 			}
 
-			if err := collection.Fields.AddMarshaledJSONAt(10, []byte(`{
+			if err := collection.Fields.AddMarshaledJSONAt(11, []byte(`{
 				"hidden": false,
 				"id": "number2453290051",
 				"max": null,

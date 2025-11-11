@@ -10,10 +10,12 @@ import (
 
 	alicas "github.com/alibabacloud-go/cas-20200407/v4/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas/internal"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -31,7 +33,7 @@ type SSLManagerProviderConfig struct {
 type SSLManagerProvider struct {
 	config    *SSLManagerProviderConfig
 	logger    *slog.Logger
-	sdkClient *alicas.Client
+	sdkClient *internal.CasClient
 }
 
 var _ core.SSLManager = (*SSLManagerProvider)(nil)
@@ -86,7 +88,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 			ShowSize:        tea.Int64(listUserCertificateOrderLimit),
 			OrderType:       tea.String("CERT"),
 		}
-		listUserCertificateOrderResp, err := m.sdkClient.ListUserCertificateOrder(listUserCertificateOrderReq)
+		listUserCertificateOrderResp, err := m.sdkClient.ListUserCertificateOrderWithContext(context.TODO(), listUserCertificateOrderReq, &dara.RuntimeOptions{})
 		m.logger.Debug("sdk request 'cas.ListUserCertificateOrder'", slog.Any("request", listUserCertificateOrderReq), slog.Any("response", listUserCertificateOrderResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'cas.ListUserCertificateOrder': %w", err)
@@ -111,7 +113,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 				getUserCertificateDetailReq := &alicas.GetUserCertificateDetailRequest{
 					CertId: certOrder.CertificateId,
 				}
-				getUserCertificateDetailResp, err := m.sdkClient.GetUserCertificateDetail(getUserCertificateDetailReq)
+				getUserCertificateDetailResp, err := m.sdkClient.GetUserCertificateDetailWithContext(context.TODO(), getUserCertificateDetailReq, &dara.RuntimeOptions{})
 				m.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
 				if err != nil {
 					return nil, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err)
@@ -152,7 +154,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		Cert:            tea.String(certPEM),
 		Key:             tea.String(privkeyPEM),
 	}
-	uploadUserCertificateResp, err := m.sdkClient.UploadUserCertificate(uploadUserCertificateReq)
+	uploadUserCertificateResp, err := m.sdkClient.UploadUserCertificateWithContext(context.TODO(), uploadUserCertificateReq, &dara.RuntimeOptions{})
 	m.logger.Debug("sdk request 'cas.UploadUserCertificate'", slog.Any("request", uploadUserCertificateReq), slog.Any("response", uploadUserCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cas.UploadUserCertificate': %w", err)
@@ -164,7 +166,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 		CertId:     uploadUserCertificateResp.Body.CertId,
 		CertFilter: tea.Bool(true),
 	}
-	getUserCertificateDetailResp, err := m.sdkClient.GetUserCertificateDetail(getUserCertificateDetailReq)
+	getUserCertificateDetailResp, err := m.sdkClient.GetUserCertificateDetailWithContext(context.TODO(), getUserCertificateDetailReq, &dara.RuntimeOptions{})
 	m.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err)
@@ -180,7 +182,7 @@ func (m *SSLManagerProvider) Upload(ctx context.Context, certPEM string, privkey
 	}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*alicas.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.CasClient, error) {
 	// 接入点一览 https://api.aliyun.com/product/cas
 	var endpoint string
 	switch region {
@@ -196,7 +198,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*alicas.Clien
 		AccessKeySecret: tea.String(accessKeySecret),
 	}
 
-	client, err := alicas.NewClient(config)
+	client, err := internal.NewCasClient(config)
 	if err != nil {
 		return nil, err
 	}

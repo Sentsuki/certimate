@@ -22,7 +22,7 @@ export const useContactEmailsStore = create<ContactEmailsStore>((set, get) => {
         }
       }
 
-      fetcher ??= getSettings<EmailsSettingsContent>(SETTINGS_NAMES.EMAILS);
+      fetcher ??= getSettings(SETTINGS_NAMES.EMAILS);
 
       try {
         set({ loading: true });
@@ -35,7 +35,7 @@ export const useContactEmailsStore = create<ContactEmailsStore>((set, get) => {
     },
 
     setEmails: async (emails) => {
-      settings ??= await getSettings<EmailsSettingsContent>(SETTINGS_NAMES.EMAILS);
+      settings ??= await getSettings(SETTINGS_NAMES.EMAILS);
       settings = await saveSettings<EmailsSettingsContent>({
         ...settings,
         content: {

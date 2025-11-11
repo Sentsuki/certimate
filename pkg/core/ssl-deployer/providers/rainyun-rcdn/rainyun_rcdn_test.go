@@ -54,7 +54,7 @@ func TestDeploy(t *testing.T) {
 
 		deployer, err := provider.NewSSLDeployerProvider(&provider.SSLDeployerProviderConfig{
 			ApiKey:     fApiKey,
-			InstanceId: int32(fInstanceId),
+			InstanceId: fInstanceId,
 			Domain:     fDomain,
 		})
 		if err != nil {

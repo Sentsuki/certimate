@@ -9,11 +9,13 @@ import (
 	"strings"
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
-	alidcdn "github.com/alibabacloud-go/dcdn-20180115/v3/client"
+	alidcdn "github.com/alibabacloud-go/dcdn-20180115/v4/client"
+	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-dcdn/internal"
 	sslmgrsp "github.com/certimate-go/certimate/pkg/core/ssl-manager/providers/aliyun-cas"
 )
 
@@ -33,7 +35,7 @@ type SSLDeployerProviderConfig struct {
 type SSLDeployerProvider struct {
 	config     *SSLDeployerProviderConfig
 	logger     *slog.Logger
-	sdkClient  *alidcdn.Client
+	sdkClient  *internal.DcdnClient
 	sslManager core.SSLManager
 }
 
@@ -105,7 +107,7 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 			Else(tea.String("ap-southeast-1")),
 		SSLProtocol: tea.String("on"),
 	}
-	setDcdnDomainSSLCertificateResp, err := d.sdkClient.SetDcdnDomainSSLCertificate(setDcdnDomainSSLCertificateReq)
+	setDcdnDomainSSLCertificateResp, err := d.sdkClient.SetDcdnDomainSSLCertificateWithContext(context.TODO(), setDcdnDomainSSLCertificateReq, &dara.RuntimeOptions{})
 	d.logger.Debug("sdk request 'dcdn.SetDcdnDomainSSLCertificate'", slog.Any("request", setDcdnDomainSSLCertificateReq), slog.Any("response", setDcdnDomainSSLCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'dcdn.SetDcdnDomainSSLCertificate': %w", err)
@@ -114,14 +116,14 @@ func (d *SSLDeployerProvider) Deploy(ctx context.Context, certPEM string, privke
 	return &core.SSLDeployResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*alidcdn.Client, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (*internal.DcdnClient, error) {
 	config := &aliopen.Config{
 		AccessKeyId:     tea.String(accessKeyId),
 		AccessKeySecret: tea.String(accessKeySecret),
 		Endpoint:        tea.String("dcdn.aliyuncs.com"),
 	}
 
-	client, err := alidcdn.NewClient(config)
+	client, err := internal.NewDcdnClient(config)
 	if err != nil {
 		return nil, err
 	}

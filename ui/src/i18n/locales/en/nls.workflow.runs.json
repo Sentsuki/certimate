@@ -9,7 +9,7 @@
   "workflow_run.action.batch_delete.modal.title": "Delete workflow runs",
   "workflow_run.action.batch_delete.modal.content": "Are you sure want to delete these {{count}} selected workflow runs? <br>This action cannot be undone.",
 
-  "workflow_run.deletion.alert": "The workflow run contains the execution results of each node. Deleting it may trigger re-application or re-deployment of certificates due to the inability to find the previous execution result. Please do not delete unless necessary. It is recommended to keep it for at least 180 days. ",
+  "workflow_run.deletion.alert": "The workflow run contains the execution results of each node. Deleting it may trigger re-application or re-deployment of certificates due to the inability to find the previous execution result. Please do not delete unless necessary. Recommend keeping it for at least 180 days. ",
   "workflow_run.cancellation.alert": "If the process is unexpectedly terminated or the server times out, you can manually cancel long-hanging runs to prevent blocking subsequent executions.",
 
   "workflow_run.nodata.description": "It looks like you don't have any runs. Get started by running this workflow.",
