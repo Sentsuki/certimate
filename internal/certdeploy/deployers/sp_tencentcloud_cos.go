@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	tencentcloudcos "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/tencentcloud-cos"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	tencentcloudcos "github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-cos"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeTencentCloudCOS, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeTencentCloudCOS, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForTencentCloud{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := tencentcloudcos.NewSSLDeployerProvider(&tencentcloudcos.SSLDeployerProviderConfig{
+		provider, err := tencentcloudcos.NewDeployer(&tencentcloudcos.DeployerConfig{
 			SecretId:  credentials.SecretId,
 			SecretKey: credentials.SecretKey,
 			Region:    xmaps.GetString(options.ProviderExtendedConfig, "region"),

@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	baiducloudappblb "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/baiducloud-appblb"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	baiducloudappblb "github.com/certimate-go/certimate/pkg/core/deployer/providers/baiducloud-appblb"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeBaiduCloudAppBLB, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeBaiduCloudAppBLB, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForBaiduCloud{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := baiducloudappblb.NewSSLDeployerProvider(&baiducloudappblb.SSLDeployerProviderConfig{
+		provider, err := baiducloudappblb.NewDeployer(&baiducloudappblb.DeployerConfig{
 			AccessKeyId:     credentials.AccessKeyId,
 			SecretAccessKey: credentials.SecretAccessKey,
 			Region:          xmaps.GetString(options.ProviderExtendedConfig, "region"),

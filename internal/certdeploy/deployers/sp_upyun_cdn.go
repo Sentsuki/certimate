@@ -4,22 +4,23 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	upyuncdn "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/upyun-cdn"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	upyuncdn "github.com/certimate-go/certimate/pkg/core/deployer/providers/upyun-cdn"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeUpyunCDN, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeUpyunCDN, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForUpyun{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := upyuncdn.NewSSLDeployerProvider(&upyuncdn.SSLDeployerProviderConfig{
-			Username: credentials.Username,
-			Password: credentials.Password,
-			Domain:   xmaps.GetString(options.ProviderExtendedConfig, "domain"),
+		provider, err := upyuncdn.NewDeployer(&upyuncdn.DeployerConfig{
+			Username:           credentials.Username,
+			Password:           credentials.Password,
+			DomainMatchPattern: xmaps.GetString(options.ProviderExtendedConfig, "domainMatchPattern"),
+			Domain:             xmaps.GetString(options.ProviderExtendedConfig, "domain"),
 		})
 		return provider, err
 	})

@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
 )
 
-type ProviderFactoryFunc func(options *ProviderFactoryOptions) (core.SSLDeployer, error)
+type ProviderFactoryFunc func(options *ProviderFactoryOptions) (deployer.Provider, error)
 
 type ProviderFactoryOptions struct {
 	ProviderAccessConfig   map[string]any

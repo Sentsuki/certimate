@@ -5,13 +5,13 @@ import (
 	"strings"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	k8ssecret "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/k8s-secret"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	k8ssecret "github.com/certimate-go/certimate/pkg/core/deployer/providers/k8s-secret"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeKubernetesSecret, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeKubernetesSecret, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForKubernetes{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -61,7 +61,7 @@ func init() {
 			secretLabels = temp
 		}
 
-		provider, err := k8ssecret.NewSSLDeployerProvider(&k8ssecret.SSLDeployerProviderConfig{
+		provider, err := k8ssecret.NewDeployer(&k8ssecret.DeployerConfig{
 			KubeConfig:          credentials.KubeConfig,
 			Namespace:           xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "namespace", "default"),
 			SecretName:          xmaps.GetString(options.ProviderExtendedConfig, "secretName"),

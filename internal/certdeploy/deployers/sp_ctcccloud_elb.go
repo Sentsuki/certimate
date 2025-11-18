@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	ctcccloudelb "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/ctcccloud-elb"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	ctcccloudelb "github.com/certimate-go/certimate/pkg/core/deployer/providers/ctcccloud-elb"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeCTCCCloudELB, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeCTCCCloudELB, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForCTCCCloud{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := ctcccloudelb.NewSSLDeployerProvider(&ctcccloudelb.SSLDeployerProviderConfig{
+		provider, err := ctcccloudelb.NewDeployer(&ctcccloudelb.DeployerConfig{
 			AccessKeyId:     credentials.AccessKeyId,
 			SecretAccessKey: credentials.SecretAccessKey,
 			RegionId:        xmaps.GetString(options.ProviderExtendedConfig, "regionId"),

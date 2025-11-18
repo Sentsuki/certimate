@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	opsite "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/1panel-site"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	opsite "github.com/certimate-go/certimate/pkg/core/deployer/providers/1panel-site"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderType1PanelSite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderType1PanelSite, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigFor1Panel{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := opsite.NewSSLDeployerProvider(&opsite.SSLDeployerProviderConfig{
+		provider, err := opsite.NewDeployer(&opsite.DeployerConfig{
 			ServerUrl:                credentials.ServerUrl,
 			ApiVersion:               credentials.ApiVersion,
 			ApiKey:                   credentials.ApiKey,

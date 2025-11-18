@@ -8,25 +8,25 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
-	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/notifier"
 )
 
-type NotifierProviderConfig struct {
+type NotifierConfig struct {
 	// Telegram Bot API Token。
 	BotToken string `json:"botToken"`
 	// Telegram Chat ID。
 	ChatId string `json:"chatId"`
 }
 
-type NotifierProvider struct {
-	config     *NotifierProviderConfig
+type Notifier struct {
+	config     *NotifierConfig
 	logger     *slog.Logger
 	httpClient *resty.Client
 }
 
-var _ core.Notifier = (*NotifierProvider)(nil)
+var _ notifier.Provider = (*Notifier)(nil)
 
-func NewNotifierProvider(config *NotifierProviderConfig) (*NotifierProvider, error) {
+func NewNotifier(config *NotifierConfig) (*Notifier, error) {
 	if config == nil {
 		return nil, errors.New("the configuration of the notifier provider is nil")
 	}
@@ -35,14 +35,14 @@ func NewNotifierProvider(config *NotifierProviderConfig) (*NotifierProvider, err
 		SetHeader("Content-Type", "application/json").
 		SetHeader("User-Agent", "certimate")
 
-	return &NotifierProvider{
+	return &Notifier{
 		config:     config,
 		logger:     slog.Default(),
 		httpClient: client,
 	}, nil
 }
 
-func (n *NotifierProvider) SetLogger(logger *slog.Logger) {
+func (n *Notifier) SetLogger(logger *slog.Logger) {
 	if logger == nil {
 		n.logger = slog.New(slog.DiscardHandler)
 	} else {
@@ -50,7 +50,7 @@ func (n *NotifierProvider) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (n *NotifierProvider) Notify(ctx context.Context, subject string, message string) (*core.NotifyResult, error) {
+func (n *Notifier) Notify(ctx context.Context, subject string, message string) (*notifier.NotifyResult, error) {
 	// REF: https://core.telegram.org/bots/api#sendmessage
 	req := n.httpClient.R().
 		SetContext(ctx).
@@ -65,5 +65,5 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 		return nil, fmt.Errorf("telegram api error: unexpected status code: %d, resp: %s", resp.StatusCode(), resp.String())
 	}
 
-	return &core.NotifyResult{}, nil
+	return &notifier.NotifyResult{}, nil
 }

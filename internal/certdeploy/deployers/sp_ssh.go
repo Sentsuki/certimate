@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	"github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/ssh"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core/deployer/providers/ssh"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeSSH, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeSSH, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForSSH{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -29,7 +29,7 @@ func init() {
 			}
 		}
 
-		provider, err := ssh.NewSSLDeployerProvider(&ssh.SSLDeployerProviderConfig{
+		provider, err := ssh.NewDeployer(&ssh.DeployerConfig{
 			ServerConfig: ssh.ServerConfig{
 				SshHost:          credentials.Host,
 				SshPort:          credentials.Port,

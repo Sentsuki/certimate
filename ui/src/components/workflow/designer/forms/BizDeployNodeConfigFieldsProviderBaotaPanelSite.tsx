@@ -39,14 +39,13 @@ const BizDeployNodeConfigFieldsProviderBaotaPanelSite = () => {
         label={t("workflow_node.deploy.form.baotapanel_site_type.label")}
         rules={[formRule]}
       >
-        <Select placeholder={t("workflow_node.deploy.form.baotapanel_site_type.placeholder")}>
-          <Select.Option key={SITE_TYPE_PHP} value={SITE_TYPE_PHP}>
-            {t("workflow_node.deploy.form.baotapanel_site_type.option.php.label")}
-          </Select.Option>
-          <Select.Option key={SITE_TYPE_OTHER} value={SITE_TYPE_OTHER}>
-            {t("workflow_node.deploy.form.baotapanel_site_type.option.other.label")}
-          </Select.Option>
-        </Select>
+        <Select
+          options={[SITE_TYPE_PHP, SITE_TYPE_PHP].map((s) => ({
+            value: s,
+            label: t(`workflow_node.deploy.form.baotapanel_site_type.option.${s}.label`),
+          }))}
+          placeholder={t("workflow_node.deploy.form.shared_resource_type.placeholder")}
+        />
       </Form.Item>
 
       <Show when={fieldSiteType === SITE_TYPE_PHP}>

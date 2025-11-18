@@ -3,6 +3,7 @@
 import { ACCESS_PROVIDERS, type AccessProviderType } from "@/domain/provider";
 
 import AccessConfigFieldsProvider1Panel from "./AccessConfigFieldsProvider1Panel";
+import AccessConfigFieldsProvider35cn from "./AccessConfigFieldsProvider35cn";
 import AccessConfigFieldsProviderACMECA from "./AccessConfigFieldsProviderACMECA";
 import AccessConfigFieldsProviderACMEDNS from "./AccessConfigFieldsProviderACMEDNS";
 import AccessConfigFieldsProviderACMEHttpReq from "./AccessConfigFieldsProviderACMEHttpReq";
@@ -71,6 +72,7 @@ import AccessConfigFieldsProviderOVHcloud from "./AccessConfigFieldsProviderOVHc
 import AccessConfigFieldsProviderPorkbun from "./AccessConfigFieldsProviderPorkbun";
 import AccessConfigFieldsProviderPowerDNS from "./AccessConfigFieldsProviderPowerDNS";
 import AccessConfigFieldsProviderProxmoxVE from "./AccessConfigFieldsProviderProxmoxVE";
+import AccessConfigFieldsProviderQingCloud from "./AccessConfigFieldsProviderQingCloud";
 import AccessConfigFieldsProviderQiniu from "./AccessConfigFieldsProviderQiniu";
 import AccessConfigFieldsProviderRainYun from "./AccessConfigFieldsProviderRainYun";
 import AccessConfigFieldsProviderRatPanel from "./AccessConfigFieldsProviderRatPanel";
@@ -94,6 +96,7 @@ import AccessConfigFieldsProviderWangsu from "./AccessConfigFieldsProviderWangsu
 import AccessConfigFieldsProviderWebhook from "./AccessConfigFieldsProviderWebhook";
 import AccessConfigFieldsProviderWeComBot from "./AccessConfigFieldsProviderWeComBot";
 import AccessConfigFieldsProviderWestcn from "./AccessConfigFieldsProviderWestcn";
+import AccessConfigFieldsProviderXinnet from "./AccessConfigFieldsProviderXinnet";
 import AccessConfigFieldsProviderZeroSSL from "./AccessConfigFieldsProviderZeroSSL";
 
 const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentType<any>>> = {
@@ -102,6 +105,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
     NOTICE: If you add new child component, please keep ASCII order.
     */
   [ACCESS_PROVIDERS["1PANEL"]]: AccessConfigFieldsProvider1Panel,
+  [ACCESS_PROVIDERS["35CN"]]: AccessConfigFieldsProvider35cn,
   [ACCESS_PROVIDERS.ACMECA]: AccessConfigFieldsProviderACMECA,
   [ACCESS_PROVIDERS.ACMEDNS]: AccessConfigFieldsProviderACMEDNS,
   [ACCESS_PROVIDERS.ACMEHTTPREQ]: AccessConfigFieldsProviderACMEHttpReq,
@@ -170,6 +174,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.PORKBUN]: AccessConfigFieldsProviderPorkbun,
   [ACCESS_PROVIDERS.POWERDNS]: AccessConfigFieldsProviderPowerDNS,
   [ACCESS_PROVIDERS.PROXMOXVE]: AccessConfigFieldsProviderProxmoxVE,
+  [ACCESS_PROVIDERS.QINGCLOUD]: AccessConfigFieldsProviderQingCloud,
   [ACCESS_PROVIDERS.QINIU]: AccessConfigFieldsProviderQiniu,
   [ACCESS_PROVIDERS.RAINYUN]: AccessConfigFieldsProviderRainYun,
   [ACCESS_PROVIDERS.RATPANEL]: AccessConfigFieldsProviderRatPanel,
@@ -193,6 +198,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.WEBHOOK]: AccessConfigFieldsProviderWebhook,
   [ACCESS_PROVIDERS.WECOMBOT]: AccessConfigFieldsProviderWeComBot,
   [ACCESS_PROVIDERS.WESTCN]: AccessConfigFieldsProviderWestcn,
+  [ACCESS_PROVIDERS.XINNET]: AccessConfigFieldsProviderXinnet,
   [ACCESS_PROVIDERS.ZEROSSL]: AccessConfigFieldsProviderZeroSSL,
 };
 

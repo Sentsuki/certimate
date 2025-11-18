@@ -39,17 +39,16 @@ const BizDeployNodeConfigFieldsProvider1PanelSite = () => {
       <Form.Item
         name={[parentNamePath, "resourceType"]}
         initialValue={initialValues.resourceType}
-        label={t("workflow_node.deploy.form.1panel_site_resource_type.label")}
+        label={t("workflow_node.deploy.form.shared_resource_type.label")}
         rules={[formRule]}
       >
-        <Select placeholder={t("workflow_node.deploy.form.1panel_site_resource_type.placeholder")}>
-          <Select.Option key={RESOURCE_TYPE_WEBSITE} value={RESOURCE_TYPE_WEBSITE}>
-            {t("workflow_node.deploy.form.1panel_site_resource_type.option.website.label")}
-          </Select.Option>
-          <Select.Option key={RESOURCE_TYPE_CERTIFICATE} value={RESOURCE_TYPE_CERTIFICATE}>
-            {t("workflow_node.deploy.form.1panel_site_resource_type.option.certificate.label")}
-          </Select.Option>
-        </Select>
+        <Select
+          options={[RESOURCE_TYPE_WEBSITE, RESOURCE_TYPE_CERTIFICATE].map((s) => ({
+            value: s,
+            label: t(`workflow_node.deploy.form.1panel_site_resource_type.option.${s}.label`),
+          }))}
+          placeholder={t("workflow_node.deploy.form.shared_resource_type.placeholder")}
+        />
       </Form.Item>
 
       <Show when={fieldResourceType === RESOURCE_TYPE_WEBSITE}>
@@ -91,7 +90,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
   return z
     .object({
       nodeName: z.string().nullish(),
-      resourceType: z.literal([RESOURCE_TYPE_WEBSITE, RESOURCE_TYPE_CERTIFICATE], t("workflow_node.deploy.form.1panel_site_resource_type.placeholder")),
+      resourceType: z.literal([RESOURCE_TYPE_WEBSITE, RESOURCE_TYPE_CERTIFICATE], t("workflow_node.deploy.form.shared_resource_type.placeholder")),
       websiteId: z.union([z.string(), z.number()]).nullish(),
       certificateId: z.union([z.string(), z.number()]).nullish(),
     })

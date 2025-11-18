@@ -10,11 +10,11 @@ import (
 
 	"github.com/domodwyer/mailyak/v3"
 
-	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/notifier"
 	xtls "github.com/certimate-go/certimate/pkg/utils/tls"
 )
 
-type NotifierProviderConfig struct {
+type NotifierConfig struct {
 	// SMTP 服务器地址。
 	SmtpHost string `json:"smtpHost"`
 	// SMTP 服务器端口。
@@ -34,25 +34,25 @@ type NotifierProviderConfig struct {
 	ReceiverAddress string `json:"receiverAddress"`
 }
 
-type NotifierProvider struct {
-	config *NotifierProviderConfig
+type Notifier struct {
+	config *NotifierConfig
 	logger *slog.Logger
 }
 
-var _ core.Notifier = (*NotifierProvider)(nil)
+var _ notifier.Provider = (*Notifier)(nil)
 
-func NewNotifierProvider(config *NotifierProviderConfig) (*NotifierProvider, error) {
+func NewNotifier(config *NotifierConfig) (*Notifier, error) {
 	if config == nil {
 		return nil, errors.New("the configuration of the notifier provider is nil")
 	}
 
-	return &NotifierProvider{
+	return &Notifier{
 		config: config,
 		logger: slog.Default(),
 	}, nil
 }
 
-func (n *NotifierProvider) SetLogger(logger *slog.Logger) {
+func (n *Notifier) SetLogger(logger *slog.Logger) {
 	if logger == nil {
 		n.logger = slog.New(slog.DiscardHandler)
 	} else {
@@ -60,7 +60,7 @@ func (n *NotifierProvider) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (n *NotifierProvider) Notify(ctx context.Context, subject string, message string) (*core.NotifyResult, error) {
+func (n *Notifier) Notify(ctx context.Context, subject string, message string) (*notifier.NotifyResult, error) {
 	var smtpAuth smtp.Auth
 	if n.config.Username != "" || n.config.Password != "" {
 		smtpAuth = smtp.PlainAuth("", n.config.Username, n.config.Password, n.config.SmtpHost)
@@ -98,5 +98,5 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 		return nil, err
 	}
 
-	return &core.NotifyResult{}, nil
+	return &notifier.NotifyResult{}, nil
 }

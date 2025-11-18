@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/notifier"
 )
 
-type ProviderFactoryFunc func(options *ProviderFactoryOptions) (core.Notifier, error)
+type ProviderFactoryFunc func(options *ProviderFactoryOptions) (notifier.Provider, error)
 
 type ProviderFactoryOptions struct {
 	ProviderAccessConfig   map[string]any

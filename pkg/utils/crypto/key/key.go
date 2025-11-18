@@ -39,7 +39,7 @@ func GetPrivateKeyAlgorithm(privkey crypto.PrivateKey) (_algorithm KeyAlgorithm,
 		return x509.ECDSA, size, nil
 
 	case ed25519.PrivateKey:
-		return x509.Ed25519, 256, nil
+		return x509.Ed25519, 512, nil
 	}
 
 	return x509.UnknownPublicKeyAlgorithm, 0, errors.New("unknown private key type")

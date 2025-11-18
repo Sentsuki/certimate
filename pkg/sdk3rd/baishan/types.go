@@ -30,6 +30,17 @@ func (r *apiResponseBase) GetMessage() string {
 
 var _ apiResponse = (*apiResponseBase)(nil)
 
+type DomainRecord struct {
+	Id         string `json:"id"`
+	Domain     string `json:"domain"`
+	Type       string `json:"type"`
+	Status     string `json:"status"`
+	Cname      string `json:"cname"`
+	Area       string `json:"area"`
+	CreateTime string `json:"create_time"`
+	UpdateTime string `json:"update_time"`
+}
+
 type DomainCertificate struct {
 	CertId         json.Number `json:"cert_id"`
 	Name           string      `json:"name"`

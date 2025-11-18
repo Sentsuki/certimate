@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	unicloudwebhost "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/unicloud-webhost"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	unicloudwebhost "github.com/certimate-go/certimate/pkg/core/deployer/providers/unicloud-webhost"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeUniCloudWebHost, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeUniCloudWebHost, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForUniCloud{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := unicloudwebhost.NewSSLDeployerProvider(&unicloudwebhost.SSLDeployerProviderConfig{
+		provider, err := unicloudwebhost.NewDeployer(&unicloudwebhost.DeployerConfig{
 			Username:      credentials.Username,
 			Password:      credentials.Password,
 			SpaceProvider: xmaps.GetString(options.ProviderExtendedConfig, "spaceProvider"),

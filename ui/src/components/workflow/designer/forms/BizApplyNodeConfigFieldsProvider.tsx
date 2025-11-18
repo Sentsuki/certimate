@@ -8,7 +8,6 @@ import BizApplyNodeConfigFieldsProviderHuaweiCloudDNS from "./BizApplyNodeConfig
 import BizApplyNodeConfigFieldsProviderJDCloudDNS from "./BizApplyNodeConfigFieldsProviderJDCloudDNS";
 import BizApplyNodeConfigFieldsProviderLocal from "./BizApplyNodeConfigFieldsProviderLocal";
 import BizApplyNodeConfigFieldsProviderSSH from "./BizApplyNodeConfigFieldsProviderSSH";
-import BizApplyNodeConfigFieldsProviderTencentCloudEO from "./BizApplyNodeConfigFieldsProviderTencentCloudEO";
 
 const acmeDns01ProviderComponentMap: Partial<Record<ACMEDns01ProviderType, React.ComponentType<any>>> = {
   /*
@@ -22,7 +21,6 @@ const acmeDns01ProviderComponentMap: Partial<Record<ACMEDns01ProviderType, React
   [ACME_DNS01_PROVIDERS.HUAWEICLOUD_DNS]: BizApplyNodeConfigFieldsProviderHuaweiCloudDNS,
   [ACME_DNS01_PROVIDERS.JDCLOUD]: BizApplyNodeConfigFieldsProviderJDCloudDNS,
   [ACME_DNS01_PROVIDERS.JDCLOUD_DNS]: BizApplyNodeConfigFieldsProviderJDCloudDNS,
-  [ACME_DNS01_PROVIDERS.TENCENTCLOUD_EO]: BizApplyNodeConfigFieldsProviderTencentCloudEO,
 };
 
 const acmeHttp01ProviderComponentMap: Partial<Record<ACMEHttp01ProviderType, React.ComponentType<any>>> = {

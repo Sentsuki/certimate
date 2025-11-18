@@ -14,25 +14,25 @@ import (
 
 	"github.com/go-resty/resty/v2"
 
-	"github.com/certimate-go/certimate/pkg/core"
+	"github.com/certimate-go/certimate/pkg/core/notifier"
 )
 
-type NotifierProviderConfig struct {
+type NotifierConfig struct {
 	// 飞书机器人 Webhook 地址。
 	WebhookUrl string `json:"webhookUrl"`
 	// 飞书机器人的 Secret。
 	Secret string `json:"secret"`
 }
 
-type NotifierProvider struct {
-	config     *NotifierProviderConfig
+type Notifier struct {
+	config     *NotifierConfig
 	logger     *slog.Logger
 	httpClient *resty.Client
 }
 
-var _ core.Notifier = (*NotifierProvider)(nil)
+var _ notifier.Provider = (*Notifier)(nil)
 
-func NewNotifierProvider(config *NotifierProviderConfig) (*NotifierProvider, error) {
+func NewNotifier(config *NotifierConfig) (*Notifier, error) {
 	if config == nil {
 		return nil, errors.New("the configuration of the notifier provider is nil")
 	}
@@ -41,14 +41,14 @@ func NewNotifierProvider(config *NotifierProviderConfig) (*NotifierProvider, err
 		SetHeader("Content-Type", "application/json").
 		SetHeader("User-Agent", "certimate")
 
-	return &NotifierProvider{
+	return &Notifier{
 		config:     config,
 		logger:     slog.Default(),
 		httpClient: client,
 	}, nil
 }
 
-func (n *NotifierProvider) SetLogger(logger *slog.Logger) {
+func (n *Notifier) SetLogger(logger *slog.Logger) {
 	if logger == nil {
 		n.logger = slog.New(slog.DiscardHandler)
 	} else {
@@ -56,7 +56,7 @@ func (n *NotifierProvider) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (n *NotifierProvider) Notify(ctx context.Context, subject string, message string) (*core.NotifyResult, error) {
+func (n *Notifier) Notify(ctx context.Context, subject string, message string) (*notifier.NotifyResult, error) {
 	webhookUrl, err := url.Parse(n.config.WebhookUrl)
 	if err != nil {
 		return nil, fmt.Errorf("lark api error: invalid webhook url: %w", err)
@@ -75,10 +75,17 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 		},
 	}
 	if n.config.Secret != "" {
-		timestamp := fmt.Sprintf("%d", time.Now().UnixMilli())
+		timestamp := fmt.Sprintf("%d", time.Now().Unix())
 
-		h := hmac.New(sha256.New, []byte(n.config.Secret))
-		h.Write([]byte(fmt.Sprintf("%s\n%s", timestamp, n.config.Secret)))
+		// timestamp + key 做sha256, 再进行base64 encode
+		stringToSign := fmt.Sprintf("%s\n%s", timestamp, n.config.Secret)
+
+		h := hmac.New(sha256.New, []byte(stringToSign))
+		var data []byte
+		_, err := h.Write(data)
+		if err != nil {
+			return nil, fmt.Errorf("lark api error: failed to calc sign: %w", err)
+		}
 		sign := base64.StdEncoding.EncodeToString(h.Sum(nil))
 
 		payload["timestamp"] = timestamp
@@ -105,5 +112,5 @@ func (n *NotifierProvider) Notify(ctx context.Context, subject string, message s
 		return nil, fmt.Errorf("lark api error: code='%d', msg='%s'", result.Code, result.Message)
 	}
 
-	return &core.NotifyResult{}, nil
+	return &notifier.NotifyResult{}, nil
 }

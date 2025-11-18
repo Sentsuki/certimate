@@ -108,10 +108,11 @@ const SettingsAccountUsername = ({ className, style }: { className?: string; sty
             <div className="mb-2">
               <Typography.Text type="secondary">{t("settings.account.username.tips")}</Typography.Text>
             </div>
-            <Flex align="center" gap="small">
+            <div className="mb-2">
               <Typography.Text>{getAuthStore().record?.email}</Typography.Text>
-              <Button onClick={handleEditClick}>{t("settings.account.username.button.label")}</Button>
-            </Flex>
+            </div>
+
+            <Button onClick={handleEditClick}>{t("settings.account.username.button.label")}</Button>
           </>
         )}
       </Form>

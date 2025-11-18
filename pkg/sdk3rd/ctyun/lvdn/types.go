@@ -70,6 +70,22 @@ func (r *apiResponseBase) GetErrorMessage() string {
 
 var _ apiResponse = (*apiResponseBase)(nil)
 
+type DomainRecord struct {
+	Domain      string `json:"domain"`
+	Cname       string `json:"cname"`
+	ProductCode string `json:"product_code"`
+	ProductName string `json:"product_name"`
+	AreaScope   int32  `json:"area_scope"`
+	Status      int32  `json:"status"`
+	CreatedTime int64  `json:"insert_date"`
+}
+
+type DomainDetail struct {
+	DomainRecord
+	HttpsSwitch int32  `json:"https_switch"`
+	CertName    string `json:"cert_name"`
+}
+
 type CertRecord struct {
 	Id          int64    `json:"id"`
 	Name        string   `json:"name"`

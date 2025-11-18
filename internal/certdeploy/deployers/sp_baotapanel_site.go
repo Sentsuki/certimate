@@ -7,19 +7,19 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	baotapanelsite "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/baotapanel-site"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	baotapanelsite "github.com/certimate-go/certimate/pkg/core/deployer/providers/baotapanel-site"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeBaotaPanelSite, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeBaotaPanelSite, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForBaotaPanel{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := baotapanelsite.NewSSLDeployerProvider(&baotapanelsite.SSLDeployerProviderConfig{
+		provider, err := baotapanelsite.NewDeployer(&baotapanelsite.DeployerConfig{
 			ServerUrl:                credentials.ServerUrl,
 			ApiKey:                   credentials.ApiKey,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,

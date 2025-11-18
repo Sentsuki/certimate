@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	aliyuncas "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-cas"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	aliyuncas "github.com/certimate-go/certimate/pkg/core/deployer/providers/aliyun-cas"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeAliyunCAS, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeAliyunCAS, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForAliyun{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := aliyuncas.NewSSLDeployerProvider(&aliyuncas.SSLDeployerProviderConfig{
+		provider, err := aliyuncas.NewDeployer(&aliyuncas.DeployerConfig{
 			AccessKeyId:     credentials.AccessKeyId,
 			AccessKeySecret: credentials.AccessKeySecret,
 			ResourceGroupId: credentials.ResourceGroupId,

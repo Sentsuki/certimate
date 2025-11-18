@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	volcenginealb "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/volcengine-alb"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	volcenginealb "github.com/certimate-go/certimate/pkg/core/deployer/providers/volcengine-alb"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeVolcEngineALB, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeVolcEngineALB, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForVolcEngine{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := volcenginealb.NewSSLDeployerProvider(&volcenginealb.SSLDeployerProviderConfig{
+		provider, err := volcenginealb.NewDeployer(&volcenginealb.DeployerConfig{
 			AccessKeyId:     credentials.AccessKeyId,
 			AccessKeySecret: credentials.SecretAccessKey,
 			Region:          xmaps.GetString(options.ProviderExtendedConfig, "region"),

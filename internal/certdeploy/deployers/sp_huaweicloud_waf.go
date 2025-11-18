@@ -4,19 +4,19 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	huaweicloudwaf "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/huaweicloud-waf"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	huaweicloudwaf "github.com/certimate-go/certimate/pkg/core/deployer/providers/huaweicloud-waf"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeHuaweiCloudWAF, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeHuaweiCloudWAF, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForHuaweiCloud{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := huaweicloudwaf.NewSSLDeployerProvider(&huaweicloudwaf.SSLDeployerProviderConfig{
+		provider, err := huaweicloudwaf.NewDeployer(&huaweicloudwaf.DeployerConfig{
 			AccessKeyId:         credentials.AccessKeyId,
 			SecretAccessKey:     credentials.SecretAccessKey,
 			EnterpriseProjectId: credentials.EnterpriseProjectId,

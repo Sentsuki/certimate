@@ -4,22 +4,23 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	ctcccloudcdn "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/ctcccloud-cdn"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	ctcccloudcdn "github.com/certimate-go/certimate/pkg/core/deployer/providers/ctcccloud-cdn"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeCTCCCloudCDN, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeCTCCCloudCDN, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForCTCCCloud{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := ctcccloudcdn.NewSSLDeployerProvider(&ctcccloudcdn.SSLDeployerProviderConfig{
-			AccessKeyId:     credentials.AccessKeyId,
-			SecretAccessKey: credentials.SecretAccessKey,
-			Domain:          xmaps.GetString(options.ProviderExtendedConfig, "domain"),
+		provider, err := ctcccloudcdn.NewDeployer(&ctcccloudcdn.DeployerConfig{
+			AccessKeyId:        credentials.AccessKeyId,
+			SecretAccessKey:    credentials.SecretAccessKey,
+			DomainMatchPattern: xmaps.GetString(options.ProviderExtendedConfig, "domainMatchPattern"),
+			Domain:             xmaps.GetString(options.ProviderExtendedConfig, "domain"),
 		})
 		return provider, err
 	})

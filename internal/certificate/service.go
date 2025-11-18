@@ -246,7 +246,7 @@ func (s *CertificateService) ValidatePrivateKey(ctx context.Context, req *dtos.C
 	case x509.ECDSA:
 		keyAlgorithm = fmt.Sprintf("EC%d", privkeySize)
 	case x509.Ed25519:
-		keyAlgorithm = "ED25519"
+		keyAlgorithm = "Ed25519"
 	}
 
 	return &dtos.CertificateValidatePrivateKeyResp{

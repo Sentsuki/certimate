@@ -89,6 +89,16 @@ type CertDetail struct {
 	Key   string `json:"key"`
 }
 
+type DomainRecord struct {
+	Domain      string `json:"domain"`
+	Cname       string `json:"cname"`
+	ProductCode string `json:"product_code"`
+	ProductName string `json:"product_name"`
+	Status      int32  `json:"status"`
+	AreaScope   int32  `json:"area_scope"`
+	CreatedTime int64  `json:"insert_date"`
+}
+
 type DomainOriginConfig struct {
 	Origin string `json:"origin"`
 	Role   string `json:"role"`

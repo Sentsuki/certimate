@@ -3,13 +3,14 @@ package cdn
 import (
 	"context"
 	"net/http"
-	"strconv"
+
+	qs "github.com/google/go-querystring/query"
 )
 
 type QueryCertDetailRequest struct {
-	Id        *int64  `json:"id,omitempty"`
-	Name      *string `json:"name,omitempty"`
-	UsageMode *int32  `json:"usage_mode,omitempty"`
+	Id        *int64  `json:"id,omitempty" url:"id,omitempty"`
+	Name      *string `json:"name,omitempty" url:"name,omitempty"`
+	UsageMode *int32  `json:"usage_mode,omitempty" url:"usage_mode,omitempty"`
 }
 
 type QueryCertDetailResponse struct {
@@ -29,16 +30,12 @@ func (c *Client) QueryCertDetailWithContext(ctx context.Context, req *QueryCertD
 	if err != nil {
 		return nil, err
 	} else {
-		if req.Id != nil {
-			httpreq.SetQueryParam("id", strconv.Itoa(int(*req.Id)))
-		}
-		if req.Name != nil {
-			httpreq.SetQueryParam("name", *req.Name)
-		}
-		if req.UsageMode != nil {
-			httpreq.SetQueryParam("usage_mode", strconv.Itoa(int(*req.UsageMode)))
+		values, err := qs.Values(req)
+		if err != nil {
+			return nil, err
 		}
 
+		httpreq.SetQueryParamsFromValues(values)
 		httpreq.SetContext(ctx)
 	}
 

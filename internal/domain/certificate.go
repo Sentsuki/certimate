@@ -53,7 +53,7 @@ func (c *Certificate) PopulateFromX509(certX509 *x509.Certificate) *Certificate 
 	case x509.ECDSA:
 		c.KeyAlgorithm = CertificateKeyAlgorithmType(fmt.Sprintf("EC%d", keySize))
 	case x509.Ed25519:
-		c.KeyAlgorithm = CertificateKeyAlgorithmType("ED25519")
+		c.KeyAlgorithm = CertificateKeyAlgorithmType("Ed25519")
 	default:
 		c.KeyAlgorithm = CertificateKeyAlgorithmType("")
 	}

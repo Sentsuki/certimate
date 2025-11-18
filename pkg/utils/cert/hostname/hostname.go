@@ -19,14 +19,13 @@ func IsMatch(match, candidate string) bool {
 		return false
 	}
 
-	if !strings.Contains(match, "*") {
-		return strings.EqualFold(match, candidate)
-	}
-
 	mockCert := &x509.Certificate{}
 	if ip := net.ParseIP(match); ip != nil {
 		mockCert.IPAddresses = []net.IP{ip}
 	} else {
+		if strings.EqualFold(match, candidate) {
+			return true
+		}
 		mockCert.DNSNames = []string{match}
 	}
 	return mockCert.VerifyHostname(candidate) == nil

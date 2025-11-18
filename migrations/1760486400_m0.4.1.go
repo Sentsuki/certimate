@@ -13,52 +13,41 @@ func init() {
 
 		// adapt to new workflow data structure
 		{
-			type dWorkflowNode struct {
-				Id     string           `json:"id"`
-				Type   string           `json:"type"`
-				Data   map[string]any   `json:"data"`
-				Blocks []*dWorkflowNode `json:"blocks,omitempty,omitzero"`
-			}
+			walker := &mWorkflowGraphWalker{}
+			walker.Define(func(node *mWorkflowNode) (_changed bool, _err error) {
+				_changed = false
+				_err = nil
 
-			var deepMigrateNode func(node *dWorkflowNode) (_node *dWorkflowNode, _migrated bool)
-			var deepMigrateNodes func(nodes []*dWorkflowNode) (_nodes []*dWorkflowNode, _migrated bool)
-			deepMigrateNode = func(node *dWorkflowNode) (*dWorkflowNode, bool) {
-				migrated := false
+				if node.Type != "bizDeploy" {
+					return
+				}
 
-				if node.Type == "bizDeploy" {
-					if node.Data != nil {
-						if _, ok := node.Data["config"]; ok {
-							nodeCfg := node.Data["config"].(map[string]any)
-							if nodeCfg["provider"] == "local" && nodeCfg["providerAccessId"] != nil {
-								delete(nodeCfg, "providerAccessId")
-								node.Data["config"] = nodeCfg
-								migrated = true
-							}
+				if node.Data == nil {
+					return
+				}
+
+				if _, ok := node.Data["config"]; !ok {
+					return
+				}
+
+				nodeCfg := node.Data["config"].(map[string]any)
+
+				provider := nodeCfg["provider"]
+				switch provider {
+				case "local":
+					{
+						if nodeCfg["providerAccessId"] != nil {
+							delete(nodeCfg, "providerAccessId")
+
+							node.Data["config"] = nodeCfg
+							_changed = true
+							return
 						}
 					}
 				}
 
-				if len(node.Blocks) > 0 {
-					if newBlocks, changed := deepMigrateNodes(node.Blocks); changed {
-						node.Blocks = newBlocks
-						migrated = true
-					}
-				}
-
-				return node, migrated
-			}
-			deepMigrateNodes = func(nodes []*dWorkflowNode) ([]*dWorkflowNode, bool) {
-				migrated := false
-
-				for i, node := range nodes {
-					if newNode, changed := deepMigrateNode(node); changed {
-						nodes[i] = newNode
-						migrated = true
-					}
-				}
-
-				return nodes, migrated
-			}
+				return
+			})
 
 			// update collection `workflow`
 			//   - fix #982
@@ -76,33 +65,47 @@ func init() {
 				for _, record := range records {
 					changed := false
 
-					graphDraft := make(map[string]any)
-					if err := record.UnmarshalJSONField("graphDraft", &graphDraft); err == nil {
-						if _, ok := graphDraft["nodes"]; ok {
-							nodes := make([]*dWorkflowNode, 0)
-							if err := mapstructure.Decode(graphDraft["nodes"], &nodes); err != nil {
+					if record.GetRaw("graphDraft") != nil {
+						graph := make(map[string]any)
+						if err := record.UnmarshalJSONField("graphDraft", &graph); err != nil {
+							return err
+						}
+
+						if _, ok := graph["nodes"]; ok {
+							nodes := make([]*mWorkflowNode, 0)
+							if err := mapstructure.Decode(graph["nodes"], &nodes); err != nil {
 								return err
 							}
 
-							if newNodes, migrated := deepMigrateNodes(nodes); migrated {
-								graphDraft["nodes"] = newNodes
-								record.Set("graphDraft", graphDraft)
+							nodesChanged, err := walker.Visit(nodes)
+							if err != nil {
+								return err
+							} else if nodesChanged {
+								graph["nodes"] = nodes
+								record.Set("graphDraft", graph)
 								changed = true
 							}
 						}
 					}
 
-					graphContent := make(map[string]any)
-					if err := record.UnmarshalJSONField("graphContent", &graphContent); err == nil {
-						if _, ok := graphContent["nodes"]; ok {
-							nodes := make([]*dWorkflowNode, 0)
-							if err := mapstructure.Decode(graphContent["nodes"], &nodes); err != nil {
+					if record.GetRaw("graphContent") != nil {
+						graph := make(map[string]any)
+						if err := record.UnmarshalJSONField("graphContent", &graph); err != nil {
+							return err
+						}
+
+						if _, ok := graph["nodes"]; ok {
+							nodes := make([]*mWorkflowNode, 0)
+							if err := mapstructure.Decode(graph["nodes"], &nodes); err != nil {
 								return err
 							}
 
-							if newNodes, migrated := deepMigrateNodes(nodes); migrated {
-								graphContent["nodes"] = newNodes
-								record.Set("graphContent", graphContent)
+							nodesChanged, err := walker.Visit(nodes)
+							if err != nil {
+								return err
+							} else if nodesChanged {
+								graph["nodes"] = nodes
+								record.Set("graphContent", graph)
 								changed = true
 							}
 						}

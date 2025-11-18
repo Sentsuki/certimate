@@ -4,24 +4,25 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core"
-	aliyundcdn "github.com/certimate-go/certimate/pkg/core/ssl-deployer/providers/aliyun-dcdn"
+	"github.com/certimate-go/certimate/pkg/core/deployer"
+	aliyundcdn "github.com/certimate-go/certimate/pkg/core/deployer/providers/aliyun-dcdn"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeAliyunDCDN, func(options *ProviderFactoryOptions) (core.SSLDeployer, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeAliyunDCDN, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
 		credentials := domain.AccessConfigForAliyun{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := aliyundcdn.NewSSLDeployerProvider(&aliyundcdn.SSLDeployerProviderConfig{
-			AccessKeyId:     credentials.AccessKeyId,
-			AccessKeySecret: credentials.AccessKeySecret,
-			ResourceGroupId: credentials.ResourceGroupId,
-			Region:          xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			Domain:          xmaps.GetString(options.ProviderExtendedConfig, "domain"),
+		provider, err := aliyundcdn.NewDeployer(&aliyundcdn.DeployerConfig{
+			AccessKeyId:        credentials.AccessKeyId,
+			AccessKeySecret:    credentials.AccessKeySecret,
+			ResourceGroupId:    credentials.ResourceGroupId,
+			Region:             xmaps.GetString(options.ProviderExtendedConfig, "region"),
+			DomainMatchPattern: xmaps.GetString(options.ProviderExtendedConfig, "domainMatchPattern"),
+			Domain:             xmaps.GetString(options.ProviderExtendedConfig, "domain"),
 		})
 		return provider, err
 	})
