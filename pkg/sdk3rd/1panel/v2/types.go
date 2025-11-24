@@ -1,4 +1,4 @@
-package onepanelv2
+package v2
 
 type apiResponse interface {
 	GetCode() int32

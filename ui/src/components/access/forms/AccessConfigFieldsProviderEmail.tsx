@@ -3,6 +3,7 @@ import { Form, Input, InputNumber, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
+import Show from "@/components/Show";
 import { validEmailAddress, validPortNumber } from "@/utils/validators";
 
 import { useFormNestedFieldsContext } from "./_context";
@@ -18,9 +19,11 @@ const AccessConfigFormFieldsProviderEmail = () => {
   const formInst = Form.useFormInstance();
   const initialValues = getInitialValues();
 
+  const fieldSmtpTLS = Form.useWatch<boolean>([parentNamePath, "smtpTls"], formInst);
+
   const handleTlsSwitchChange = (checked: boolean) => {
     const oldPort = formInst.getFieldValue([parentNamePath, "smtpPort"]);
-    const newPort = checked && (oldPort == null || oldPort === 25) ? 465 : !checked && (oldPort == null || oldPort === 465) ? 25 : oldPort;
+    const newPort = checked && (oldPort == null || oldPort === 25) ? 587 : !checked && (oldPort == null || oldPort === 587) ? 25 : oldPort;
     if (newPort !== oldPort) {
       formInst.setFieldValue([parentNamePath, "smtpPort"], newPort);
     }
@@ -52,9 +55,29 @@ const AccessConfigFormFieldsProviderEmail = () => {
         </div>
       </div>
 
-      <Form.Item name={[parentNamePath, "smtpTls"]} initialValue={initialValues.smtpTls} label={t("access.form.email_smtp_tls.label")} rules={[formRule]}>
-        <Switch onChange={handleTlsSwitchChange} />
-      </Form.Item>
+      <div className="flex space-x-2">
+        <div className="w-1/2">
+          <Form.Item name={[parentNamePath, "smtpTls"]} initialValue={initialValues.smtpTls} label={t("access.form.email_smtp_tls.label")} rules={[formRule]}>
+            <Switch onChange={handleTlsSwitchChange} />
+          </Form.Item>
+        </div>
+
+        <div className="w-1/2">
+          <Show when={fieldSmtpTLS}>
+            <Form.Item
+              name={[parentNamePath, "allowInsecureConnections"]}
+              initialValue={initialValues.allowInsecureConnections}
+              label={t("access.form.shared_allow_insecure_conns.label")}
+              rules={[formRule]}
+            >
+              <Switch
+                checkedChildren={t("access.form.shared_allow_insecure_conns.switch.on")}
+                unCheckedChildren={t("access.form.shared_allow_insecure_conns.switch.off")}
+              />
+            </Form.Item>
+          </Show>
+        </div>
+      </div>
 
       <Form.Item name={[parentNamePath, "username"]} initialValue={initialValues.username} label={t("access.form.email_username.label")} rules={[formRule]}>
         <Input autoComplete="new-password" placeholder={t("access.form.email_username.placeholder")} />
@@ -126,6 +149,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
         if (!v) return true;
         return validEmailAddress(v);
       }, t("common.errmsg.email_invalid")),
+    allowInsecureConnections: z.boolean().nullish(),
   });
 };
 

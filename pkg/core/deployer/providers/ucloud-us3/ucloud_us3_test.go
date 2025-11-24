@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_UCLOUDUS3_"
+	argsPrefix := "UCLOUDUS3_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ucloud_us3_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUS3_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUS3_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUS3_PRIVATEKEY="your-private-key" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUS3_PUBLICKEY="your-public-key" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUS3_REGION="cn-bj2" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUS3_BUCKET="your-us3-bucket" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUS3_DOMAIN="example.com"
+	--UCLOUDUS3_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--UCLOUDUS3_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--UCLOUDUS3_PRIVATEKEY="your-private-key" \
+	--UCLOUDUS3_PUBLICKEY="your-public-key" \
+	--UCLOUDUS3_REGION="cn-bj2" \
+	--UCLOUDUS3_BUCKET="your-us3-bucket" \
+	--UCLOUDUS3_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

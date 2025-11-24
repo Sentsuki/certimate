@@ -43,12 +43,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -58,15 +58,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 查询已有证书，避免重复上传
 	// REF: https://support.huaweicloud.com/api-elb/ListCertificates.html
 	listCertificatesMarker := (*string)(nil)
@@ -82,8 +82,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			Limit:  lo.ToPtr(int32(2000)),
 			Type:   lo.ToPtr([]string{"server"}),
 		}
-		listCertificatesResp, err := m.sdkClient.ListCertificates(listCertificatesReq)
-		m.logger.Debug("sdk request 'elb.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
+		listCertificatesResp, err := c.sdkClient.ListCertificates(listCertificatesReq)
+		c.logger.Debug("sdk request 'elb.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'elb.ListCertificates': %w", err)
 		}
@@ -95,7 +95,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		for _, certItem := range *listCertificatesResp.Certificates {
 			// 如果已存在相同证书，直接返回
 			if xcert.EqualCertificatesFromPEM(certPEM, certItem.Certificate) {
-				m.logger.Info("ssl certificate already exists")
+				c.logger.Info("ssl certificate already exists")
 				return &certmgr.UploadResult{
 					CertId:   certItem.Id,
 					CertName: certItem.Name,
@@ -112,7 +112,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 
 	// 获取项目 ID
 	// REF: https://support.huaweicloud.com/api-iam/iam_06_0001.html
-	projectId, err := getSdkProjectId(m.config.AccessKeyId, m.config.SecretAccessKey, m.config.Region)
+	projectId, err := getSdkProjectId(c.config.AccessKeyId, c.config.SecretAccessKey, c.config.Region)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get SDK project id: %w", err)
 	}
@@ -125,7 +125,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	createCertificateReq := &hcelbmodel.CreateCertificateRequest{
 		Body: &hcelbmodel.CreateCertificateRequestBody{
 			Certificate: &hcelbmodel.CreateCertificateOption{
-				EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+				EnterpriseProjectId: lo.EmptyableToPtr(c.config.EnterpriseProjectId),
 				ProjectId:           lo.ToPtr(projectId),
 				Name:                lo.ToPtr(certName),
 				Certificate:         lo.ToPtr(certPEM),
@@ -133,8 +133,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			},
 		},
 	}
-	createCertificateResp, err := m.sdkClient.CreateCertificate(createCertificateReq)
-	m.logger.Debug("sdk request 'elb.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
+	createCertificateResp, err := c.sdkClient.CreateCertificate(createCertificateReq)
+	c.logger.Debug("sdk request 'elb.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'elb.CreateCertificate': %w", err)
 	}
@@ -143,6 +143,27 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   createCertificateResp.Certificate.Id,
 		CertName: createCertificateResp.Certificate.Name,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	// 更新证书
+	// REF: https://support.huaweicloud.com/api-elb/UpdateCertificate.html
+	updateCertificateReq := &hcelbmodel.UpdateCertificateRequest{
+		CertificateId: certIdOrName,
+		Body: &hcelbmodel.UpdateCertificateRequestBody{
+			Certificate: &hcelbmodel.UpdateCertificateOption{
+				Certificate: lo.ToPtr(certPEM),
+				PrivateKey:  lo.ToPtr(privkeyPEM),
+			},
+		},
+	}
+	updateCertificateResp, err := c.sdkClient.UpdateCertificate(updateCertificateReq)
+	c.logger.Debug("sdk request 'elb.UpdateCertificate'", slog.Any("request", updateCertificateReq), slog.Any("response", updateCertificateResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'elb.UpdateCertificate': %w", err)
+	}
+
+	return &certmgr.OperateResult{}, nil
 }
 
 func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.ElbClient, error) {

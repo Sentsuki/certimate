@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_CTCCCLOUDAO_"
+	argsPrefix := "CTCCCLOUDAO_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -32,10 +32,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ctcccloud_ao_test.go -args \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDAO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDAO_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDAO_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDAO_SECRETACCESSKEY="your-secret-access-key"
+	--CTCCCLOUDAO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--CTCCCLOUDAO_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--CTCCCLOUDAO_ACCESSKEYID="your-access-key-id" \
+	--CTCCCLOUDAO_SECRETACCESSKEY="your-secret-access-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

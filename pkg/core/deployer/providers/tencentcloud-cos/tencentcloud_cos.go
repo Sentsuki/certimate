@@ -46,12 +46,12 @@ type wSDKClients struct {
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	clients, err := createSDKClients(config.SecretId, config.SecretKey, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
@@ -59,7 +59,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		SecretKey: config.SecretKey,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("could not create ssl manager: %w", err)
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
 	}
 
 	return &Deployer{
@@ -80,7 +80,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	d.sdkCertmgr.SetLogger(logger)
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.Bucket == "" {
 		return nil, errors.New("config `bucket` is required")
 	}

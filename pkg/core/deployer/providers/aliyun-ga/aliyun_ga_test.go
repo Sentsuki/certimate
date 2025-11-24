@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_ALIYUNGA_"
+	argsPrefix := "ALIYUNGA_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_ga_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNGA_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNGA_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNGA_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNGA_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNGA_ACCELERATORID="your-ga-accelerator-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNGA_LISTENERID="your-ga-listener-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNGA_DOMAIN="your-ga-sni-domain"
+	--ALIYUNGA_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNGA_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNGA_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNGA_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNGA_ACCELERATORID="your-ga-accelerator-id" \
+	--ALIYUNGA_LISTENERID="your-ga-listener-id" \
+	--ALIYUNGA_DOMAIN="your-ga-sni-domain"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

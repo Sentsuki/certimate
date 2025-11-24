@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_HUAWEICLOUDCDN_"
+	argsPrefix := "HUAWEICLOUDCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./huaweicloud_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDCDN_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDCDN_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDCDN_REGION="cn-north-1" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDCDN_DOMAIN="example.com"
+	--HUAWEICLOUDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--HUAWEICLOUDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--HUAWEICLOUDCDN_ACCESSKEYID="your-access-key-id" \
+	--HUAWEICLOUDCDN_SECRETACCESSKEY="your-secret-access-key" \
+	--HUAWEICLOUDCDN_REGION="cn-north-1" \
+	--HUAWEICLOUDCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

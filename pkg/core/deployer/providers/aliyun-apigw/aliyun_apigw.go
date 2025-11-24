@@ -63,12 +63,12 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	clients, err := createSDKClients(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
@@ -80,7 +80,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 			Else("ap-southeast-1"),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("could not create ssl manager: %w", err)
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
 	}
 
 	return &Deployer{
@@ -99,7 +99,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	switch d.config.ServiceType {
 	case SERVICE_TYPE_TRADITIONAL:
 		if err := d.deployToTraditional(ctx, certPEM, privkeyPEM); err != nil {
@@ -118,7 +118,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *Deployer) deployToTraditional(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToTraditional(ctx context.Context, certPEM, privkeyPEM string) error {
 	if d.config.GroupId == "" {
 		return errors.New("config `groupId` is required")
 	}
@@ -208,7 +208,7 @@ func (d *Deployer) deployToTraditional(ctx context.Context, certPEM string, priv
 	return nil
 }
 
-func (d *Deployer) deployToCloudNative(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToCloudNative(ctx context.Context, certPEM, privkeyPEM string) error {
 	if d.config.GatewayId == "" {
 		return errors.New("config `gatewayId` is required")
 	}

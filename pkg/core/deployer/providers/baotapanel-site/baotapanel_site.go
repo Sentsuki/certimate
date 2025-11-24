@@ -22,9 +22,7 @@ type DeployerConfig struct {
 	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
 	// 网站类型。
 	SiteType string `json:"siteType"`
-	// 网站名称（单个）。
-	SiteName string `json:"siteName,omitempty"`
-	// 网站名称（多个）。
+	// 网站名称。
 	SiteNames []string `json:"siteNames,omitempty"`
 }
 
@@ -38,12 +36,12 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.ApiKey, config.AllowInsecureConnections)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Deployer{
@@ -61,34 +59,14 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+	if len(d.config.SiteNames) == 0 {
+		return nil, errors.New("config `siteNames` is required")
+	}
+
 	switch d.config.SiteType {
-	case "php":
+	case "any":
 		{
-			if d.config.SiteName == "" {
-				return nil, errors.New("config `siteName` is required")
-			}
-
-			// 设置站点 SSL 证书
-			siteSetSSLReq := &btsdk.SiteSetSSLRequest{
-				SiteName:    d.config.SiteName,
-				Type:        "0",
-				Certificate: certPEM,
-				PrivateKey:  privkeyPEM,
-			}
-			siteSetSSLResp, err := d.sdkClient.SiteSetSSL(siteSetSSLReq)
-			d.logger.Debug("sdk request 'bt.SiteSetSSL'", slog.Any("request", siteSetSSLReq), slog.Any("response", siteSetSSLResp))
-			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request 'bt.SiteSetSSL': %w", err)
-			}
-		}
-
-	case "other":
-		{
-			if len(d.config.SiteNames) == 0 {
-				return nil, errors.New("config `siteNames` is required")
-			}
-
 			// 上传证书
 			sslCertSaveCertReq := &btsdk.SSLCertSaveCertRequest{
 				Certificate: certPEM,
@@ -117,10 +95,43 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported site type '%s'", d.config.SiteType)
+		{
+			// 遍历更新域名证书
+			var errs []error
+			for _, siteName := range d.config.SiteNames {
+				select {
+				case <-ctx.Done():
+					return nil, ctx.Err()
+				default:
+					if err := d.updateSiteCertificate(ctx, siteName, certPEM, privkeyPEM); err != nil {
+						errs = append(errs, err)
+					}
+				}
+			}
+			if len(errs) > 0 {
+				return nil, errors.Join(errs...)
+			}
+		}
 	}
 
 	return &deployer.DeployResult{}, nil
+}
+
+func (d *Deployer) updateSiteCertificate(ctx context.Context, siteName string, certPEM, privkeyPEM string) error {
+	// 设置站点 SSL 证书
+	siteSetSSLReq := &btsdk.SiteSetSSLRequest{
+		SiteName:    siteName,
+		Type:        "0",
+		Certificate: certPEM,
+		PrivateKey:  privkeyPEM,
+	}
+	siteSetSSLResp, err := d.sdkClient.SiteSetSSL(siteSetSSLReq)
+	d.logger.Debug("sdk request 'bt.SiteSetSSL'", slog.Any("request", siteSetSSLReq), slog.Any("response", siteSetSSLResp))
+	if err != nil {
+		return fmt.Errorf("failed to execute sdk request 'bt.SiteSetSSL': %w", err)
+	}
+
+	return nil
 }
 
 func createSDKClient(serverUrl, apiKey string, skipTlsVerify bool) (*btsdk.Client, error) {

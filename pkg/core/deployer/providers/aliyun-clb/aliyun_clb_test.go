@@ -23,7 +23,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_ALIYUNCLB_"
+	argsPrefix := "ALIYUNCLB_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -39,14 +39,14 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_clb_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_REGION="cn-hangzhou" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_LOADBALANCERID="your-clb-instance-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_LISTENERPORT=443 \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNCLB_DOMAIN="your-clb-sni-domain"
+	--ALIYUNCLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNCLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNCLB_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNCLB_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNCLB_REGION="cn-hangzhou" \
+	--ALIYUNCLB_LOADBALANCERID="your-clb-instance-id" \
+	--ALIYUNCLB_LISTENERPORT=443 \
+	--ALIYUNCLB_DOMAIN="your-clb-sni-domain"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

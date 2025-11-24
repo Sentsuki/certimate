@@ -34,12 +34,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -49,21 +49,21 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 避免重复上传
-	if res, err := m.tryFindCert(ctx, certPEM); err != nil {
+	if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM); err != nil {
 		return nil, err
-	} else if res != nil {
-		m.logger.Info("ssl certificate already exists")
-		return res, nil
+	} else if upok {
+		c.logger.Info("ssl certificate already exists")
+		return upres, nil
 	}
 
 	// 提取服务器证书
@@ -84,17 +84,17 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		PrivateKey:         lo.ToPtr(privkeyPEM),
 		EncryptionStandard: lo.ToPtr("INTERNATIONAL"),
 	}
-	uploadCertificateResp, err := m.sdkClient.UploadCertificate(uploadCertificateReq)
-	m.logger.Debug("sdk request 'cms.UploadCertificate'", slog.Any("request", uploadCertificateReq), slog.Any("response", uploadCertificateResp))
+	uploadCertificateResp, err := c.sdkClient.UploadCertificate(uploadCertificateReq)
+	c.logger.Debug("sdk request 'cms.UploadCertificate'", slog.Any("request", uploadCertificateReq), slog.Any("response", uploadCertificateResp))
 	if err != nil {
 		if uploadCertificateResp != nil && uploadCertificateResp.GetError() == "CCMS_100000067" {
-			if res, err := m.tryFindCert(ctx, certPEM); err != nil {
+			if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM); err != nil {
 				return nil, err
-			} else if res == nil {
+			} else if !upok {
 				return nil, errors.New("ctyun cms: no certificate found")
 			} else {
-				m.logger.Info("ssl certificate already exists")
-				return res, nil
+				c.logger.Info("ssl certificate already exists")
+				return upres, nil
 			}
 		}
 
@@ -102,20 +102,24 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	}
 
 	// 获取刚刚上传证书 ID
-	if res, err := m.tryFindCert(ctx, certPEM); err != nil {
+	if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM); err != nil {
 		return nil, err
-	} else if res == nil {
+	} else if !upok {
 		return nil, fmt.Errorf("could not find ssl certificate, may be upload failed")
 	} else {
-		return res, nil
+		return upres, nil
 	}
 }
 
-func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
+}
+
+func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM string) (*certmgr.UploadResult, bool, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	// 查询用户证书列表
@@ -125,7 +129,7 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, false, ctx.Err()
 		default:
 		}
 
@@ -135,10 +139,10 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 			Keyword:  lo.ToPtr(certX509.Subject.CommonName),
 			Origin:   lo.ToPtr("UPLOAD"),
 		}
-		getCertificateListResp, err := m.sdkClient.GetCertificateList(getCertificateListReq)
-		m.logger.Debug("sdk request 'cms.GetCertificateList'", slog.Any("request", getCertificateListReq), slog.Any("response", getCertificateListResp))
+		getCertificateListResp, err := c.sdkClient.GetCertificateList(getCertificateListReq)
+		c.logger.Debug("sdk request 'cms.GetCertificateList'", slog.Any("request", getCertificateListReq), slog.Any("response", getCertificateListResp))
 		if err != nil {
-			return nil, fmt.Errorf("failed to execute sdk request 'cms.GetCertificateList': %w", err)
+			return nil, false, fmt.Errorf("failed to execute sdk request 'cms.GetCertificateList': %w", err)
 		}
 
 		if getCertificateListResp.ReturnObj == nil {
@@ -168,11 +172,11 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   certItem.Id,
 				CertName: certItem.Name,
-			}, nil
+			}, true, nil
 		}
 
 		if len(getCertificateListResp.ReturnObj.List) < getCertificateListPageSize {
@@ -182,7 +186,7 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 		getCertificateListPageNum++
 	}
 
-	return nil, nil
+	return nil, false, nil
 }
 
 func createSDKClient(accessKeyId, secretAccessKey string) (*ctyuncms.Client, error) {

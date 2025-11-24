@@ -17,14 +17,15 @@ func init() {
 		}
 
 		provider, err := email.NewNotifier(&email.NotifierConfig{
-			SmtpHost:        credentials.SmtpHost,
-			SmtpPort:        credentials.SmtpPort,
-			SmtpTls:         credentials.SmtpTls,
-			Username:        credentials.Username,
-			Password:        credentials.Password,
-			SenderAddress:   credentials.SenderAddress,
-			SenderName:      credentials.SenderName,
-			ReceiverAddress: xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "receiverAddress", credentials.ReceiverAddress),
+			SmtpHost:                 credentials.SmtpHost,
+			SmtpPort:                 credentials.SmtpPort,
+			SmtpTls:                  credentials.SmtpTls,
+			Username:                 credentials.Username,
+			Password:                 credentials.Password,
+			SenderAddress:            credentials.SenderAddress,
+			SenderName:               credentials.SenderName,
+			ReceiverAddress:          xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "receiverAddress", credentials.ReceiverAddress),
+			AllowInsecureConnections: credentials.AllowInsecureConnections,
 		})
 		return provider, err
 	})

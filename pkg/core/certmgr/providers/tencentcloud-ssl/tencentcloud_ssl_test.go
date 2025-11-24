@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_TENCENTCLOUDSSL_"
+	argsPrefix := "TENCENTCLOUDSSL_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -32,10 +32,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_ssl_test.go -args \
-	--CERTIMATE_SSLMANAGER_TENCENTCLOUDSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_TENCENTCLOUDSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_TENCENTCLOUDSSL_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLMANAGER_TENCENTCLOUDSSL_SECRETKEY="your-secret-key"
+	--TENCENTCLOUDSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDSSL_SECRETID="your-secret-id" \
+	--TENCENTCLOUDSSL_SECRETKEY="your-secret-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BAIDUCLOUDCDN_"
+	argsPrefix := "BAIDUCLOUDCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./baiducloud_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDCDN_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDCDN_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDCDN_DOMAIN="example.com"
+	--BAIDUCLOUDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BAIDUCLOUDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BAIDUCLOUDCDN_ACCESSKEYID="your-access-key-id" \
+	--BAIDUCLOUDCDN_SECRETACCESSKEY="your-secret-access-key" \
+	--BAIDUCLOUDCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

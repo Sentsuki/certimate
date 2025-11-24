@@ -1,4 +1,4 @@
-﻿package ovhcloud
+package ovhcloud
 
 const (
 	AUTH_METHOD_APPLICATION = "application"

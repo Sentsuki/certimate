@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_NOTIFIER_WEBHOOK_"
+	argsPrefix := "WEBHOOK_"
 
 	flag.StringVar(&fWebhookUrl, argsPrefix+"URL", "", "")
 	flag.StringVar(&fWebhookContentType, argsPrefix+"CONTENTTYPE", "application/json", "")
@@ -31,8 +31,8 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./webhook_test.go -args \
-	--CERTIMATE_NOTIFIER_WEBHOOK_URL="https://example.com/your-webhook-url" \
-	--CERTIMATE_NOTIFIER_WEBHOOK_CONTENTTYPE="application/json"
+	--WEBHOOK_URL="https://example.com/your-webhook-url" \
+	--WEBHOOK_CONTENTTYPE="application/json"
 */
 func TestNotify(t *testing.T) {
 	flag.Parse()

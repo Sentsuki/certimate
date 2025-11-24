@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDVOD_"
+	argsPrefix := "TENCENTCLOUDVOD_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,12 +37,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_vod_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDVOD_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDVOD_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDVOD_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDVOD_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDVOD_SUBAPPID="your-app-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDVOD_DOMAIN="example.com"
+	--TENCENTCLOUDVOD_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDVOD_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDVOD_SECRETID="your-secret-id" \
+	--TENCENTCLOUDVOD_SECRETKEY="your-secret-key" \
+	--TENCENTCLOUDVOD_SUBAPPID="your-app-id" \
+	--TENCENTCLOUDVOD_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

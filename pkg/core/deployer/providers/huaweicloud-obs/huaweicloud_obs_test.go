@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_"
+	argsPrefix := "HUAWEICLOUDOBS_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./huaweicloud_obs_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_REGION="cn-north-4" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_BUCKET="your-bucket" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDOBS_DOMAIN="example.com"
+	--HUAWEICLOUDOBS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--HUAWEICLOUDOBS_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--HUAWEICLOUDOBS_ACCESSKEYID="your-access-key-id" \
+	--HUAWEICLOUDOBS_SECRETACCESSKEY="your-secret-access-key" \
+	--HUAWEICLOUDOBS_REGION="cn-north-4" \
+	--HUAWEICLOUDOBS_BUCKET="your-bucket" \
+	--HUAWEICLOUDOBS_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

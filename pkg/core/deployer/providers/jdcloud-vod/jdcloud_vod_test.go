@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_JDCLOUDVOD_"
+	argsPrefix := "JDCLOUDVOD_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./jdcloud_vod_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDVOD_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDVOD_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDVOD_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDVOD_ACCESSKEYSECRET="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDVOD_DOMAIN="example.com"
+	--JDCLOUDVOD_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--JDCLOUDVOD_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--JDCLOUDVOD_ACCESSKEYID="your-access-key-id" \
+	--JDCLOUDVOD_ACCESSKEYSECRET="your-secret-access-key" \
+	--JDCLOUDVOD_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -24,11 +24,30 @@ type Provider interface {
 	// 出参：
 	//   - res：上传结果。
 	//   - err: 错误。
-	Upload(ctx context.Context, certPEM string, privkeyPEM string) (_res *UploadResult, _err error)
+	Upload(ctx context.Context, certPEM, privkeyPEM string) (_res *UploadResult, _err error)
+
+	// 更新证书。
+	//
+	// 入参：
+	//   - ctx：上下文。
+	//   - certIdOrName：证书 ID 或名称，即云服务商处的证书标识符。
+	//   - certPEM：证书 PEM 内容。
+	//   - privkeyPEM：私钥 PEM 内容。
+	//
+	// 出参：
+	//   - res：操作结果。
+	//   - err: 错误。
+	Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (_res *OperateResult, _err error)
+}
+
+// 表示 SSL 证书管理操作结果的数据结构。
+type OperateResult struct {
+	ExtendedData map[string]any `json:"extendedData,omitempty"`
 }
 
 // 表示 SSL 证书管理上传结果的数据结构，包含上传后的证书 ID、名称和其他数据。
 type UploadResult struct {
+	OperateResult
 	CertId       string         `json:"certId,omitempty"`
 	CertName     string         `json:"certName,omitempty"`
 	ExtendedData map[string]any `json:"extendedData,omitempty"`

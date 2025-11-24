@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_ALIYUNDCDN_"
+	argsPrefix := "ALIYUNDCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_dcdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNDCDN_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNDCDN_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNDCDN_DOMAIN="example.com"
+	--ALIYUNDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNDCDN_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNDCDN_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNDCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

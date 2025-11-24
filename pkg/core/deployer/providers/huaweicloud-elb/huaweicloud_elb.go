@@ -56,12 +56,12 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
@@ -71,7 +71,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		Region:              config.Region,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("could not create ssl manager: %w", err)
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
 	}
 
 	return &Deployer{
@@ -92,7 +92,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	d.sdkCertmgr.SetLogger(logger)
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 根据部署资源类型决定部署方式
 	switch d.config.ResourceType {
 	case RESOURCE_TYPE_CERTIFICATE:
@@ -117,32 +117,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *Deployer) deployToCertificate(ctx context.Context, certPEM string, privkeyPEM string) error {
-	if d.config.CertificateId == "" {
-		return errors.New("config `certificateId` is required")
-	}
-
-	// 更新证书
-	// REF: https://support.huaweicloud.com/api-elb/UpdateCertificate.html
-	updateCertificateReq := &hcelbmodel.UpdateCertificateRequest{
-		CertificateId: d.config.CertificateId,
-		Body: &hcelbmodel.UpdateCertificateRequestBody{
-			Certificate: &hcelbmodel.UpdateCertificateOption{
-				Certificate: lo.ToPtr(certPEM),
-				PrivateKey:  lo.ToPtr(privkeyPEM),
-			},
-		},
-	}
-	updateCertificateResp, err := d.sdkClient.UpdateCertificate(updateCertificateReq)
-	d.logger.Debug("sdk request 'elb.UpdateCertificate'", slog.Any("request", updateCertificateReq), slog.Any("response", updateCertificateResp))
-	if err != nil {
-		return fmt.Errorf("failed to execute sdk request 'elb.UpdateCertificate': %w", err)
-	}
-
-	return nil
-}
-
-func (d *Deployer) deployToLoadbalancer(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToLoadbalancer(ctx context.Context, certPEM, privkeyPEM string) error {
 	if d.config.LoadbalancerId == "" {
 		return errors.New("config `loadbalancerId` is required")
 	}
@@ -233,7 +208,7 @@ func (d *Deployer) deployToLoadbalancer(ctx context.Context, certPEM string, pri
 	return nil
 }
 
-func (d *Deployer) deployToListener(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToListener(ctx context.Context, certPEM, privkeyPEM string) error {
 	if d.config.ListenerId == "" {
 		return errors.New("config `listenerId` is required")
 	}
@@ -249,6 +224,22 @@ func (d *Deployer) deployToListener(ctx context.Context, certPEM string, privkey
 	// 更新监听器证书
 	if err := d.updateListenerCertificate(ctx, d.config.ListenerId, upres.CertId); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM string) error {
+	if d.config.CertificateId == "" {
+		return errors.New("config `certificateId` is required")
+	}
+
+	// 替换证书
+	opres, err := d.sdkCertmgr.Replace(ctx, d.config.CertificateId, certPEM, privkeyPEM)
+	if err != nil {
+		return fmt.Errorf("failed to replace certificate file: %w", err)
+	} else {
+		d.logger.Info("ssl certificate replaced", slog.Any("result", opres))
 	}
 
 	return nil

@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_VOLCENGINECLB_"
+	argsPrefix := "VOLCENGINECLB_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./volcengine_clb_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECLB_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECLB_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECLB_REGION="cn-beijing" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECLB_LISTENERID="your-listener-id"
+	--VOLCENGINECLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--VOLCENGINECLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--VOLCENGINECLB_ACCESSKEYID="your-access-key-id" \
+	--VOLCENGINECLB_ACCESSKEYSECRET="your-access-key-secret" \
+	--VOLCENGINECLB_REGION="cn-beijing" \
+	--VOLCENGINECLB_LISTENERID="your-listener-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

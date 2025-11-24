@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_"
+	argsPrefix := "VOLCENGINEIMAGEX_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./volcengine_imagex_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_REGION="cn-north-1" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_SERVICEID="your-service-id" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINEIMAGEX_DOMAIN="example.com"
+	--VOLCENGINEIMAGEX_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--VOLCENGINEIMAGEX_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--VOLCENGINEIMAGEX_ACCESSKEYID="your-access-key-id" \
+	--VOLCENGINEIMAGEX_ACCESSKEYSECRET="your-access-key-secret" \
+	--VOLCENGINEIMAGEX_REGION="cn-north-1" \
+	--VOLCENGINEIMAGEX_SERVICEID="your-service-id" \
+	--VOLCENGINEIMAGEX_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

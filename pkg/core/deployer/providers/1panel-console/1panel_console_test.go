@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_1PANELCONSOLE_"
+	argsPrefix := "1PANELCONSOLE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./1panel_console_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_1PANELCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_1PANELCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_1PANELCONSOLE_SERVERURL="http://127.0.0.1:20410" \
-	--CERTIMATE_SSLDEPLOYER_1PANELCONSOLE_APIVERSION="v1" \
-	--CERTIMATE_SSLDEPLOYER_1PANELCONSOLE_APIKEY="your-api-key"
+	--1PANELCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--1PANELCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--1PANELCONSOLE_SERVERURL="http://127.0.0.1:20410" \
+	--1PANELCONSOLE_APIVERSION="v1" \
+	--1PANELCONSOLE_APIKEY="your-api-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

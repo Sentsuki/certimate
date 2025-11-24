@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BYTEPLUSCDN_"
+	argsPrefix := "BYTEPLUSCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./byteplus_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BYTEPLUSCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BYTEPLUSCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BYTEPLUSCDN_ACCESSKEY="your-access-key" \
-	--CERTIMATE_SSLDEPLOYER_BYTEPLUSCDN_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_BYTEPLUSCDN_DOMAIN="example.com"
+	--BYTEPLUSCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BYTEPLUSCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BYTEPLUSCDN_ACCESSKEY="your-access-key" \
+	--BYTEPLUSCDN_SECRETKEY="your-secret-key" \
+	--BYTEPLUSCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

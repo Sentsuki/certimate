@@ -1,4 +1,4 @@
-﻿package hostname_test
+package hostname_test
 
 import (
 	"testing"

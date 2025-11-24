@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_FLEXCDN_"
+	argsPrefix := "FLEXCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./flexcdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_FLEXCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_FLEXCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_FLEXCDN_SERVERURL="http://127.0.0.1:7788" \
-	--CERTIMATE_SSLDEPLOYER_FLEXCDN_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_FLEXCDN_ACCESSKEY="your-access-key" \
-	--CERTIMATE_SSLDEPLOYER_FLEXCDN_CERTIFICATEID="your-certificate-id"
+	--FLEXCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--FLEXCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--FLEXCDN_SERVERURL="http://127.0.0.1:7788" \
+	--FLEXCDN_ACCESSKEYID="your-access-key-id" \
+	--FLEXCDN_ACCESSKEY="your-access-key" \
+	--FLEXCDN_CERTIFICATEID="your-certificate-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

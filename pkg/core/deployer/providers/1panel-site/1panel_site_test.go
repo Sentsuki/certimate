@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_1PANELSITE_"
+	argsPrefix := "1PANELSITE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./1panel_site_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_1PANELSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_1PANELSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_1PANELSITE_SERVERURL="http://127.0.0.1:20410" \
-	--CERTIMATE_SSLDEPLOYER_1PANELSITE_APIVERSION="v1" \
-	--CERTIMATE_SSLDEPLOYER_1PANELSITE_APIKEY="your-api-key" \
-	--CERTIMATE_SSLDEPLOYER_1PANELSITE_WEBSITEID="your-website-id"
+	--1PANELSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--1PANELSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--1PANELSITE_SERVERURL="http://127.0.0.1:20410" \
+	--1PANELSITE_APIVERSION="v1" \
+	--1PANELSITE_APIKEY="your-api-key" \
+	--1PANELSITE_WEBSITEID="your-website-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()
@@ -62,6 +62,7 @@ func TestDeploy(t *testing.T) {
 			ApiKey:                   fApiKey,
 			AllowInsecureConnections: true,
 			ResourceType:             provider.RESOURCE_TYPE_WEBSITE,
+			WebsiteMatchPattern:      provider.WEBSITE_MATCH_PATTERN_SPECIFIED,
 			WebsiteId:                fWebsiteId,
 		})
 		if err != nil {

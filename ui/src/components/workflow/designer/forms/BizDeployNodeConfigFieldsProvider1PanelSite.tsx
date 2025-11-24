@@ -1,5 +1,5 @@
 import { getI18n, useTranslation } from "react-i18next";
-import { Form, Input, Select } from "antd";
+import { Form, Input, Radio, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -9,6 +9,9 @@ import { useFormNestedFieldsContext } from "./_context";
 
 const RESOURCE_TYPE_WEBSITE = "website" as const;
 const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
+
+const WEBSITE_MATCH_PATTERN_SPECIFIED = "specified" as const;
+const WEBSITE_MATCH_PATTERN_CERTSAN = "certsan" as const;
 
 const BizDeployNodeConfigFieldsProvider1PanelSite = () => {
   const { i18n, t } = useTranslation();
@@ -22,6 +25,7 @@ const BizDeployNodeConfigFieldsProvider1PanelSite = () => {
   const initialValues = getInitialValues();
 
   const fieldResourceType = Form.useWatch([parentNamePath, "resourceType"], formInst);
+  const fieldWebsiteMatchPattern = Form.useWatch([parentNamePath, "websiteMatchPattern"], { form: formInst, preserve: true });
 
   return (
     <>
@@ -53,14 +57,38 @@ const BizDeployNodeConfigFieldsProvider1PanelSite = () => {
 
       <Show when={fieldResourceType === RESOURCE_TYPE_WEBSITE}>
         <Form.Item
-          name={[parentNamePath, "websiteId"]}
-          initialValue={initialValues.websiteId}
-          label={t("workflow_node.deploy.form.1panel_site_website_id.label")}
+          name={[parentNamePath, "websiteMatchPattern"]}
+          initialValue={initialValues.websiteMatchPattern}
+          label={t("workflow_node.deploy.form.1panel_site_website_match_pattern.label")}
+          extra={
+            fieldWebsiteMatchPattern === WEBSITE_MATCH_PATTERN_CERTSAN ? (
+              <span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.1panel_site_website_match_pattern.help_certsan") }}></span>
+            ) : (
+              void 0
+            )
+          }
           rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.1panel_site_website_id.tooltip") }}></span>}
         >
-          <Input type="number" placeholder={t("workflow_node.deploy.form.1panel_site_website_id.placeholder")} />
+          <Radio.Group
+            options={[WEBSITE_MATCH_PATTERN_SPECIFIED, WEBSITE_MATCH_PATTERN_CERTSAN].map((s) => ({
+              key: s,
+              label: t(`workflow_node.deploy.form.1panel_site_website_match_pattern.option.${s}.label`),
+              value: s,
+            }))}
+          />
         </Form.Item>
+
+        <Show when={fieldWebsiteMatchPattern !== WEBSITE_MATCH_PATTERN_CERTSAN}>
+          <Form.Item
+            name={[parentNamePath, "websiteId"]}
+            initialValue={initialValues.websiteId}
+            label={t("workflow_node.deploy.form.1panel_site_website_id.label")}
+            rules={[formRule]}
+            tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.1panel_site_website_id.tooltip") }}></span>}
+          >
+            <Input type="number" placeholder={t("workflow_node.deploy.form.1panel_site_website_id.placeholder")} />
+          </Form.Item>
+        </Show>
       </Show>
 
       <Show when={fieldResourceType === RESOURCE_TYPE_CERTIFICATE}>
@@ -81,6 +109,8 @@ const BizDeployNodeConfigFieldsProvider1PanelSite = () => {
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
     resourceType: RESOURCE_TYPE_WEBSITE,
+    websiteMatchPattern: WEBSITE_MATCH_PATTERN_SPECIFIED,
+    websiteId: "",
   };
 };
 
@@ -91,6 +121,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
     .object({
       nodeName: z.string().nullish(),
       resourceType: z.literal([RESOURCE_TYPE_WEBSITE, RESOURCE_TYPE_CERTIFICATE], t("workflow_node.deploy.form.shared_resource_type.placeholder")),
+      websiteMatchPattern: z.string().nullish(),
       websiteId: z.union([z.string(), z.number()]).nullish(),
       certificateId: z.union([z.string(), z.number()]).nullish(),
     })
@@ -98,12 +129,26 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
       switch (values.resourceType) {
         case RESOURCE_TYPE_WEBSITE:
           {
-            const res = z.preprocess((v) => Number(v), z.number().int().positive()).safeParse(values.websiteId);
-            if (!res.success) {
+            if (values.websiteMatchPattern) {
+              switch (values.websiteMatchPattern) {
+                case WEBSITE_MATCH_PATTERN_SPECIFIED:
+                  {
+                    const res = z.preprocess((v) => Number(v), z.number().int().positive()).safeParse(values.websiteId);
+                    if (!res.success) {
+                      ctx.addIssue({
+                        code: "custom",
+                        message: t("workflow_node.deploy.form.1panel_site_website_id.placeholder"),
+                        path: ["websiteId"],
+                      });
+                    }
+                  }
+                  break;
+              }
+            } else {
               ctx.addIssue({
                 code: "custom",
-                message: t("workflow_node.deploy.form.1panel_site_website_id.placeholder"),
-                path: ["websiteId"],
+                message: t("workflow_node.deploy.form.1panel_site_website_match_pattern.placeholder"),
+                path: ["websiteMatchPattern"],
               });
             }
           }

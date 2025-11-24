@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_PROXMOXVE_"
+	argsPrefix := "PROXMOXVE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./proxmoxve_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_PROXMOXVE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_PROXMOXVE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_PROXMOXVE_SERVERURL="http://127.0.0.1:8006" \
-	--CERTIMATE_SSLDEPLOYER_PROXMOXVE_APITOKEN="your-api-token" \
-	--CERTIMATE_SSLDEPLOYER_PROXMOXVE_APITOKENSECRET="your-api-token-secret" \
-	--CERTIMATE_SSLDEPLOYER_PROXMOXVE_NODENAME="your-cluster-node-name"
+	--PROXMOXVE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--PROXMOXVE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--PROXMOXVE_SERVERURL="http://127.0.0.1:8006" \
+	--PROXMOXVE_APITOKEN="your-api-token" \
+	--PROXMOXVE_APITOKENSECRET="your-api-token-secret" \
+	--PROXMOXVE_NODENAME="your-cluster-node-name"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

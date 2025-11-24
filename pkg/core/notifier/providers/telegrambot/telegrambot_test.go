@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_NOTIFIER_TELEGRAMBOT_"
+	argsPrefix := "TELEGRAMBOT_"
 
 	flag.StringVar(&fApiToken, argsPrefix+"APITOKEN", "", "")
 	flag.StringVar(&fChatId, argsPrefix+"CHATID", "", "")
@@ -31,8 +31,8 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./telegrambot_test.go -args \
-	--CERTIMATE_NOTIFIER_TELEGRAMBOT_APITOKEN="your-api-token" \
-	--CERTIMATE_NOTIFIER_TELEGRAMBOT_CHATID="your-chat-id"
+	--TELEGRAMBOT_APITOKEN="your-api-token" \
+	--TELEGRAMBOT_CHATID="your-chat-id"
 */
 func TestNotify(t *testing.T) {
 	flag.Parse()

@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BUNNYCDN_"
+	argsPrefix := "BUNNYCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./bunny_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BUNNYCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BUNNYCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BUNNYCDN_APITOKEN="your-api-token" \
-	--CERTIMATE_SSLDEPLOYER_BUNNYCDN_PULLZONEID="your-pull-zone-id" \
-	--CERTIMATE_SSLDEPLOYER_BUNNYCDN_HOSTNAME="example.com"
+	--BUNNYCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BUNNYCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BUNNYCDN_APITOKEN="your-api-token" \
+	--BUNNYCDN_PULLZONEID="your-pull-zone-id" \
+	--BUNNYCDN_HOSTNAME="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

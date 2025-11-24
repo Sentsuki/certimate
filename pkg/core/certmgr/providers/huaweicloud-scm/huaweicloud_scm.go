@@ -40,12 +40,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -55,15 +55,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -83,14 +83,14 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		}
 
 		listCertificatesReq := &hcscmmodel.ListCertificatesRequest{
-			EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+			EnterpriseProjectId: lo.EmptyableToPtr(c.config.EnterpriseProjectId),
 			Limit:               lo.ToPtr(int32(listCertificatesLimit)),
 			Offset:              lo.ToPtr(int32(listCertificatesOffset)),
 			SortDir:             lo.ToPtr("DESC"),
 			SortKey:             lo.ToPtr("certExpiredTime"),
 		}
-		listCertificatesResp, err := m.sdkClient.ListCertificates(listCertificatesReq)
-		m.logger.Debug("sdk request 'scm.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
+		listCertificatesResp, err := c.sdkClient.ListCertificates(listCertificatesReq)
+		c.logger.Debug("sdk request 'scm.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'scm.ListCertificates': %w", err)
 		}
@@ -114,8 +114,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			exportCertificateReq := &hcscmmodel.ExportCertificateRequest{
 				CertificateId: certItem.Id,
 			}
-			exportCertificateResp, err := m.sdkClient.ExportCertificate(exportCertificateReq)
-			m.logger.Debug("sdk request 'scm.ExportCertificate'", slog.Any("request", exportCertificateReq), slog.Any("response", exportCertificateResp))
+			exportCertificateResp, err := c.sdkClient.ExportCertificate(exportCertificateReq)
+			c.logger.Debug("sdk request 'scm.ExportCertificate'", slog.Any("request", exportCertificateReq), slog.Any("response", exportCertificateResp))
 			if err != nil {
 				if exportCertificateResp != nil && exportCertificateResp.HttpStatusCode == 404 {
 					continue
@@ -128,7 +128,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   certItem.Id,
 				CertName: certItem.Name,
@@ -149,14 +149,14 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	// REF: https://support.huaweicloud.com/api-ccm/ImportCertificate.html
 	importCertificateReq := &hcscmmodel.ImportCertificateRequest{
 		Body: &hcscmmodel.ImportCertificateRequestBody{
-			EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+			EnterpriseProjectId: lo.EmptyableToPtr(c.config.EnterpriseProjectId),
 			Name:                certName,
 			Certificate:         certPEM,
 			PrivateKey:          privkeyPEM,
 		},
 	}
-	importCertificateResp, err := m.sdkClient.ImportCertificate(importCertificateReq)
-	m.logger.Debug("sdk request 'scm.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
+	importCertificateResp, err := c.sdkClient.ImportCertificate(importCertificateReq)
+	c.logger.Debug("sdk request 'scm.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'scm.ImportCertificate': %w", err)
 	}
@@ -165,6 +165,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   *importCertificateResp.CertificateId,
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.ScmClient, error) {

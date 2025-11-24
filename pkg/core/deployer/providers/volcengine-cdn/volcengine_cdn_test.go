@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_VOLCENGINECDN_"
+	argsPrefix := "VOLCENGINECDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./volcengine_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECDN_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECDN_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINECDN_DOMAIN="example.com"
+	--VOLCENGINECDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--VOLCENGINECDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--VOLCENGINECDN_ACCESSKEYID="your-access-key-id" \
+	--VOLCENGINECDN_ACCESSKEYSECRET="your-access-key-secret" \
+	--VOLCENGINECDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

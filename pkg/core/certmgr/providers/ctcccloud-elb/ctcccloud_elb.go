@@ -34,12 +34,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -49,29 +49,29 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 查询证书列表，避免重复上传
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=24&api=5692&data=88&isNormal=1&vid=82
 	listCertificatesReq := &ctyunelb.ListCertificatesRequest{
-		RegionID: lo.ToPtr(m.config.RegionId),
+		RegionID: lo.ToPtr(c.config.RegionId),
 	}
-	listCertificatesResp, err := m.sdkClient.ListCertificates(listCertificatesReq)
-	m.logger.Debug("sdk request 'elb.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
+	listCertificatesResp, err := c.sdkClient.ListCertificates(listCertificatesReq)
+	c.logger.Debug("sdk request 'elb.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'elb.ListCertificates': %w", err)
 	} else {
 		for _, certItem := range listCertificatesResp.ReturnObj {
 			// 如果已存在相同证书，直接返回
 			if xcert.EqualCertificatesFromPEM(certPEM, certItem.Certificate) {
-				m.logger.Info("ssl certificate already exists")
+				c.logger.Info("ssl certificate already exists")
 				return &certmgr.UploadResult{
 					CertId:   certItem.ID,
 					CertName: certItem.Name,
@@ -87,15 +87,15 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	// REF: https://eop.ctyun.cn/ebp/ctapiDocument/search?sid=24&api=5685&data=88&isNormal=1&vid=82
 	createCertificateReq := &ctyunelb.CreateCertificateRequest{
 		ClientToken: lo.ToPtr(security.RandomString(32)),
-		RegionID:    lo.ToPtr(m.config.RegionId),
+		RegionID:    lo.ToPtr(c.config.RegionId),
 		Name:        lo.ToPtr(certName),
 		Description: lo.ToPtr("upload from certimate"),
 		Type:        lo.ToPtr("Server"),
 		Certificate: lo.ToPtr(certPEM),
 		PrivateKey:  lo.ToPtr(privkeyPEM),
 	}
-	createCertificateResp, err := m.sdkClient.CreateCertificate(createCertificateReq)
-	m.logger.Debug("sdk request 'elb.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
+	createCertificateResp, err := c.sdkClient.CreateCertificate(createCertificateReq)
+	c.logger.Debug("sdk request 'elb.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'elb.CreateCertificate': %w", err)
 	}
@@ -104,6 +104,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   createCertificateResp.ReturnObj.ID,
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(accessKeyId, secretAccessKey string) (*ctyunelb.Client, error) {

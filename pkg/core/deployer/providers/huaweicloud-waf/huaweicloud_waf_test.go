@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_"
+	argsPrefix := "HUAWEICLOUDWAF_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./huaweicloud_waf_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_REGION="cn-north-1" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_RESOURCETYPE="premium" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDWAF_DOMAIN="example.com"
+	--HUAWEICLOUDWAF_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--HUAWEICLOUDWAF_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--HUAWEICLOUDWAF_ACCESSKEYID="your-access-key-id" \
+	--HUAWEICLOUDWAF_SECRETACCESSKEY="your-secret-access-key" \
+	--HUAWEICLOUDWAF_REGION="cn-north-1" \
+	--HUAWEICLOUDWAF_RESOURCETYPE="premium" \
+	--HUAWEICLOUDWAF_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

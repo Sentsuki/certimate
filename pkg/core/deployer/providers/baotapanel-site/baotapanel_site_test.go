@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BAOTAPANELSITE_"
+	argsPrefix := "BAOTAPANELSITE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./baotapanel_site_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELSITE_SERVERURL="http://127.0.0.1:8888" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELSITE_APIKEY="your-api-key" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELSITE_SITETYPE="php" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELSITE_SITENAME="your-site-name"
+	--BAOTAPANELSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BAOTAPANELSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BAOTAPANELSITE_SERVERURL="http://127.0.0.1:8888" \
+	--BAOTAPANELSITE_APIKEY="your-api-key" \
+	--BAOTAPANELSITE_SITETYPE="php" \
+	--BAOTAPANELSITE_SITENAME="your-site-name"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()
@@ -61,7 +61,6 @@ func TestDeploy(t *testing.T) {
 			ApiKey:                   fApiKey,
 			AllowInsecureConnections: true,
 			SiteType:                 fSiteType,
-			SiteName:                 fSiteName,
 			SiteNames:                []string{fSiteName},
 		})
 		if err != nil {

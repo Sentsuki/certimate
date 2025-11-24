@@ -33,12 +33,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.SecretId, config.SecretKey, config.Endpoint)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -48,23 +48,23 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 上传新证书
 	// REF: https://cloud.tencent.com/document/api/400/41665
 	uploadCertificateReq := tcssl.NewUploadCertificateRequest()
 	uploadCertificateReq.CertificatePublicKey = common.StringPtr(certPEM)
 	uploadCertificateReq.CertificatePrivateKey = common.StringPtr(privkeyPEM)
 	uploadCertificateReq.Repeatable = common.BoolPtr(false)
-	uploadCertificateResp, err := m.sdkClient.UploadCertificate(uploadCertificateReq)
-	m.logger.Debug("sdk request 'ssl.UploadCertificate'", slog.Any("request", uploadCertificateReq), slog.Any("response", uploadCertificateResp))
+	uploadCertificateResp, err := c.sdkClient.UploadCertificate(uploadCertificateReq)
+	c.logger.Debug("sdk request 'ssl.UploadCertificate'", slog.Any("request", uploadCertificateReq), slog.Any("response", uploadCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'ssl.UploadCertificate': %w", err)
 	}
@@ -72,6 +72,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	return &certmgr.UploadResult{
 		CertId: *uploadCertificateResp.Response.CertificateId,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(secretId, secretKey, endpoint string) (*internal.SslClient, error) {

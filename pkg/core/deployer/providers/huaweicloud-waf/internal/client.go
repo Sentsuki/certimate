@@ -1,4 +1,4 @@
-﻿package internal
+package internal
 
 import (
 	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"

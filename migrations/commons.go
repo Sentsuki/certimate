@@ -1,4 +1,4 @@
-﻿package migrations
+package migrations
 
 type mWorkflowGraphWalker struct {
 	visitors []mWorkflowNodeVisitor

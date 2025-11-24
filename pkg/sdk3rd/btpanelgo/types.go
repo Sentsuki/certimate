@@ -4,10 +4,6 @@ import (
 	"encoding/json"
 )
 
-type apiRequestWithBlob interface {
-	GetBlob() []byte
-}
-
 type apiResponse interface {
 	GetStatus() json.RawMessage
 	GetMessage() *string
@@ -28,11 +24,16 @@ func (r *apiResponseBase) GetMessage() *string {
 }
 
 type SiteData struct {
-	Id            int32  `json:"id"`
-	Name          string `json:"name"`
-	ProjectType   string `json:"project_type"`
-	ProjectConfig string `json:"project_config"`
-	AddTime       string `json:"addTime"`
+	Id          int32  `json:"id"`
+	ProjectType string `json:"project_type"`
+	Name        string `json:"name"`
+	Note        string `json:"ps"`
+	Status      string `json:"status"`
+	SSLInfo     []*struct {
+		Name   string `json:"name"`
+		Status bool   `json:"status"`
+	} `json:"ssl_info"`
+	AddTime string `json:"addtime"`
 }
 
 type PageData struct {

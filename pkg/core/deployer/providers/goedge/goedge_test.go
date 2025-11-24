@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_GOEDGE_"
+	argsPrefix := "GOEDGE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./goedge_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_GOEDGE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_GOEDGE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_GOEDGE_SERVERURL="http://127.0.0.1:7788" \
-	--CERTIMATE_SSLDEPLOYER_GOEDGE_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_GOEDGE_ACCESSKEY="your-access-key" \
-	--CERTIMATE_SSLDEPLOYER_GOEDGE_CERTIFICATEID="your-certificate-id"
+	--GOEDGE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--GOEDGE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--GOEDGE_SERVERURL="http://127.0.0.1:7788" \
+	--GOEDGE_ACCESSKEYID="your-access-key-id" \
+	--GOEDGE_ACCESSKEY="your-access-key" \
+	--GOEDGE_CERTIFICATEID="your-certificate-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

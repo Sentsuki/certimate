@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_"
+	argsPrefix := "BAIDUCLOUDAPPBLB_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./baiducloud_appblb_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_REGION="bj" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_LOADBALANCERID="your-blb-loadbalancer-id" \
-	--CERTIMATE_SSLDEPLOYER_BAIDUCLOUDAPPBLB_DOMAIN="your-blb-sni-domain"
+	--BAIDUCLOUDAPPBLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BAIDUCLOUDAPPBLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BAIDUCLOUDAPPBLB_ACCESSKEYID="your-access-key-id" \
+	--BAIDUCLOUDAPPBLB_SECRETACCESSKEY="your-secret-access-key" \
+	--BAIDUCLOUDAPPBLB_REGION="bj" \
+	--BAIDUCLOUDAPPBLB_LOADBALANCERID="your-blb-loadbalancer-id" \
+	--BAIDUCLOUDAPPBLB_DOMAIN="your-blb-sni-domain"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

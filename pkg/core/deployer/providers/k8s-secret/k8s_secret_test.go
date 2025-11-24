@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_K8SSECRET_"
+	argsPrefix := "K8SSECRET_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./k8s_secret_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_K8SSECRET_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_K8SSECRET_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_K8SSECRET_NAMESPACE="default" \
-	--CERTIMATE_SSLDEPLOYER_K8SSECRET_SECRETNAME="secret" \
-	--CERTIMATE_SSLDEPLOYER_K8SSECRET_SECRETDATAKEYFORCRT="tls.crt" \
-	--CERTIMATE_SSLDEPLOYER_K8SSECRET_SECRETDATAKEYFORKEY="tls.key"
+	--K8SSECRET_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--K8SSECRET_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--K8SSECRET_NAMESPACE="default" \
+	--K8SSECRET_SECRETNAME="secret" \
+	--K8SSECRET_SECRETDATAKEYFORCRT="tls.crt" \
+	--K8SSECRET_SECRETDATAKEYFORKEY="tls.key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

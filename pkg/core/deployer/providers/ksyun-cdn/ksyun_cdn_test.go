@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_KSYUNCDN_"
+	argsPrefix := "KSYUNCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ksyun_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_KSYUNCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_KSYUNCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_KSYUNCDN_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_KSYUNCDN_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_KSYUNCDN_DOMAIN="example.com" \
-	--CERTIMATE_SSLDEPLOYER_KSYUNCDN_CERTIFICATEID="your-certificate-id"
+	--KSYUNCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--KSYUNCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--KSYUNCDN_ACCESSKEYID="your-access-key-id" \
+	--KSYUNCDN_SECRETACCESSKEY="your-secret-access-key" \
+	--KSYUNCDN_DOMAIN="example.com" \
+	--KSYUNCDN_CERTIFICATEID="your-certificate-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

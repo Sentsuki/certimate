@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_RAINYUNRCDN_"
+	argsPrefix := "RAINYUNRCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ucloud_ucdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_RAINYUNRCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_RAINYUNRCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_RAINYUNRCDN_APIKEY="your-api-key" \
-	--CERTIMATE_SSLDEPLOYER_RAINYUNRCDN_INSTANCEID="your-rcdn-instance-id" \
-	--CERTIMATE_SSLDEPLOYER_RAINYUNRCDN_DOMAIN="example.com"
+	--RAINYUNRCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--RAINYUNRCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--RAINYUNRCDN_APIKEY="your-api-key" \
+	--RAINYUNRCDN_INSTANCEID="your-rcdn-instance-id" \
+	--RAINYUNRCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

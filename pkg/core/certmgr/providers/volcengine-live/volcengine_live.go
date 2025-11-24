@@ -32,7 +32,7 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client := velive.NewInstance()
@@ -46,20 +46,20 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 查询证书列表，避免重复上传
 	// REF: https://www.volcengine.com/docs/6469/1186278#%E6%9F%A5%E8%AF%A2%E8%AF%81%E4%B9%A6%E5%88%97%E8%A1%A8
 	listCertReq := &velive.ListCertV2Body{}
-	listCertResp, err := m.sdkClient.ListCertV2(ctx, listCertReq)
-	m.logger.Debug("sdk request 'live.ListCertV2'", slog.Any("request", listCertReq), slog.Any("response", listCertResp))
+	listCertResp, err := c.sdkClient.ListCertV2(ctx, listCertReq)
+	c.logger.Debug("sdk request 'live.ListCertV2'", slog.Any("request", listCertReq), slog.Any("response", listCertResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'live.ListCertV2': %w", err)
 	}
@@ -70,8 +70,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			describeCertDetailSecretReq := &velive.DescribeCertDetailSecretV2Body{
 				ChainID: ve.String(certItem.ChainID),
 			}
-			describeCertDetailSecretResp, err := m.sdkClient.DescribeCertDetailSecretV2(ctx, describeCertDetailSecretReq)
-			m.logger.Debug("sdk request 'live.DescribeCertDetailSecretV2'", slog.Any("request", describeCertDetailSecretReq), slog.Any("response", describeCertDetailSecretResp))
+			describeCertDetailSecretResp, err := c.sdkClient.DescribeCertDetailSecretV2(ctx, describeCertDetailSecretReq)
+			c.logger.Debug("sdk request 'live.DescribeCertDetailSecretV2'", slog.Any("request", describeCertDetailSecretReq), slog.Any("response", describeCertDetailSecretResp))
 			if err != nil {
 				continue
 			}
@@ -79,7 +79,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			// 如果已存在相同证书，直接返回
 			oldCertPEM := strings.Join(describeCertDetailSecretResp.Result.SSL.Chain, "\n\n")
 			if xcert.EqualCertificatesFromPEM(certPEM, oldCertPEM) {
-				m.logger.Info("ssl certificate already exists")
+				c.logger.Info("ssl certificate already exists")
 				return &certmgr.UploadResult{
 					CertId:   certItem.ChainID,
 					CertName: certItem.CertName,
@@ -101,8 +101,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		},
 		UseWay: "https",
 	}
-	createCertResp, err := m.sdkClient.CreateCert(ctx, createCertReq)
-	m.logger.Debug("sdk request 'live.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))
+	createCertResp, err := c.sdkClient.CreateCert(ctx, createCertReq)
+	c.logger.Debug("sdk request 'live.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'live.CreateCert': %w", err)
 	}
@@ -111,4 +111,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   *createCertResp.Result.ChainID,
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }

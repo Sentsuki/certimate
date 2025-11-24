@@ -45,12 +45,12 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Deployer{
@@ -68,7 +68,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 根据部署资源类型决定部署方式
 	switch d.config.ResourceType {
 	case RESOURCE_TYPE_DOMAIN:
@@ -88,7 +88,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *Deployer) deployToDomain(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToDomain(ctx context.Context, certPEM, privkeyPEM string) error {
 	// 获取待部署的域名列表
 	var domains []string
 	switch d.config.DomainMatchPattern {
@@ -174,7 +174,7 @@ func (d *Deployer) deployToDomain(ctx context.Context, certPEM string, privkeyPE
 	return nil
 }
 
-func (d *Deployer) deployToCertificate(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM string) error {
 	if d.config.CertificateId == "" {
 		return errors.New("config `certificateId` is required")
 	}
@@ -317,9 +317,9 @@ func (d *Deployer) findDomainIdByDomain(ctx context.Context, domain string) (str
 	return "", fmt.Errorf("could not find domain '%s'", domain)
 }
 
-func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, certPEM string, privkeyPEM string) error {
+func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, certPEM, privkeyPEM string) error {
 	// 获取域名 ID
-	domainId, err := d.findDomainIdByDomain(ctx, d.config.Domain)
+	domainId, err := d.findDomainIdByDomain(ctx, domain)
 	if err != nil {
 		return err
 	}

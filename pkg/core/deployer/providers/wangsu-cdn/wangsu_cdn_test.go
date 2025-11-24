@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_WANGSUCDN_"
+	argsPrefix := "WANGSUCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./wangsu_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDN_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDN_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDN_DOMAIN="example.com"
+	--WANGSUCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--WANGSUCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--WANGSUCDN_ACCESSKEYID="your-access-key-id" \
+	--WANGSUCDN_ACCESSKEYSECRET="your-access-key-secret" \
+	--WANGSUCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

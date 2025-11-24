@@ -24,7 +24,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_"
+	argsPrefix := "WANGSUCDNPRO_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -41,15 +41,15 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./wangsu_cdnpro_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_APIKEY="your-api-key" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_ENVIRONMENT="production" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_DOMAIN="example.com" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_CERTIFICATEID="your-certificate-id" \
-	--CERTIMATE_SSLDEPLOYER_WANGSUCDNPRO_WEBHOOKID="your-webhook-id"
+	--WANGSUCDNPRO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--WANGSUCDNPRO_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--WANGSUCDNPRO_ACCESSKEYID="your-access-key-id" \
+	--WANGSUCDNPRO_ACCESSKEYSECRET="your-access-key-secret" \
+	--WANGSUCDNPRO_APIKEY="your-api-key" \
+	--WANGSUCDNPRO_ENVIRONMENT="production" \
+	--WANGSUCDNPRO_DOMAIN="example.com" \
+	--WANGSUCDNPRO_CERTIFICATEID="your-certificate-id" \
+	--WANGSUCDNPRO_WEBHOOKID="your-webhook-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

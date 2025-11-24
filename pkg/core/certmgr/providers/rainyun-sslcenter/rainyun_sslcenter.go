@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
@@ -29,12 +30,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.ApiKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -44,21 +45,21 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 避免重复上传
-	if res, err := m.tryFindCert(ctx, certPEM); err != nil {
+	if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM); err != nil {
 		return nil, err
-	} else if res != nil {
-		m.logger.Info("ssl certificate already exists")
-		return res, nil
+	} else if upok {
+		c.logger.Info("ssl certificate already exists")
+		return upres, nil
 	}
 
 	// SSL 证书上传
@@ -67,27 +68,48 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		Cert: certPEM,
 		Key:  privkeyPEM,
 	}
-	sslCenterCreateResp, err := m.sdkClient.SslCenterCreate(sslCenterCreateReq)
-	m.logger.Debug("sdk request 'sslcenter.Create'", slog.Any("request", sslCenterCreateReq), slog.Any("response", sslCenterCreateResp))
+	sslCenterCreateResp, err := c.sdkClient.SslCenterCreate(sslCenterCreateReq)
+	c.logger.Debug("sdk request 'sslcenter.Create'", slog.Any("request", sslCenterCreateReq), slog.Any("response", sslCenterCreateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.Create': %w", err)
 	}
 
 	// 获取刚刚上传证书 ID
-	if res, err := m.tryFindCert(ctx, certPEM); err != nil {
+	if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM); err != nil {
 		return nil, err
-	} else if res == nil {
+	} else if !upok {
 		return nil, errors.New("could not find ssl certificate, may be upload failed")
 	} else {
-		return res, nil
+		return upres, nil
 	}
 }
 
-func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	certId, err := strconv.ParseInt(certIdOrName, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	// SSL 证书替换操作
+	// REF: https://s.apifox.cn/a4595cc8-44c5-4678-a2a3-eed7738dab03/api-69943049
+	sslCenterUpdateReq := &rainyunsdk.SslCenterUpdateRequest{
+		Cert: certPEM,
+		Key:  privkeyPEM,
+	}
+	sslCenterUpdateResp, err := c.sdkClient.SslCenterUpdate(certId, sslCenterUpdateReq)
+	c.logger.Debug("sdk request 'sslcenter.Update'", slog.Int64("certId", certId), slog.Any("request", sslCenterUpdateReq), slog.Any("response", sslCenterUpdateResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.Update': %w", err)
+	}
+
+	return &certmgr.OperateResult{}, nil
+}
+
+func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM string) (*certmgr.UploadResult, bool, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	// 获取 SSL 证书列表
@@ -98,7 +120,7 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, false, ctx.Err()
 		default:
 		}
 
@@ -109,10 +131,10 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 			Page:    lo.ToPtr(int32(sslCenterListPage)),
 			PerPage: lo.ToPtr(int32(sslCenterListPerPage)),
 		}
-		sslCenterListResp, err := m.sdkClient.SslCenterList(sslCenterListReq)
-		m.logger.Debug("sdk request 'sslcenter.List'", slog.Any("request", sslCenterListReq), slog.Any("response", sslCenterListResp))
+		sslCenterListResp, err := c.sdkClient.SslCenterList(sslCenterListReq)
+		c.logger.Debug("sdk request 'sslcenter.List'", slog.Any("request", sslCenterListReq), slog.Any("response", sslCenterListResp))
 		if err != nil {
-			return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.List': %w", err)
+			return nil, false, fmt.Errorf("failed to execute sdk request 'sslcenter.List': %w", err)
 		}
 
 		if sslCenterListResp.Data == nil {
@@ -131,9 +153,9 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 			}
 
 			// 对比证书内容
-			sslCenterGetResp, err := m.sdkClient.SslCenterGet(sslItem.ID)
+			sslCenterGetResp, err := c.sdkClient.SslCenterGet(sslItem.ID)
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request 'sslcenter.Get': %w", err)
+				return nil, false, fmt.Errorf("failed to execute sdk request 'sslcenter.Get': %w", err)
 			} else {
 				if !xcert.EqualCertificatesFromPEM(certPEM, sslCenterGetResp.Data.Cert) {
 					continue
@@ -143,7 +165,7 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
 			return &certmgr.UploadResult{
 				CertId: fmt.Sprintf("%d", sslItem.ID),
-			}, nil
+			}, true, nil
 		}
 
 		if len(sslCenterListResp.Data.Records) < sslCenterListPerPage {
@@ -153,7 +175,7 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 		sslCenterListPage++
 	}
 
-	return nil, nil
+	return nil, false, nil
 }
 
 func createSDKClient(apiKey string) (*rainyunsdk.Client, error) {

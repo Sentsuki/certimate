@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BAOTAWAFCONSOLE_"
+	argsPrefix := "BAOTAWAFCONSOLE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,10 +33,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./baotawaf_console_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BAOTAWAFCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAWAFCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAWAFCONSOLE_SERVERURL="http://127.0.0.1:8888" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAWAFCONSOLE_APIKEY="your-api-key"
+	--BAOTAWAFCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BAOTAWAFCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BAOTAWAFCONSOLE_SERVERURL="http://127.0.0.1:8888" \
+	--BAOTAWAFCONSOLE_APIKEY="your-api-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

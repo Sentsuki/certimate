@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_"
+	argsPrefix := "CTCCCLOUDELB_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ctcccloud_elb_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_REGIONID="your-region-id" \
-	--CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_LOADBALANCERID="your-elb-instance-id" \
-	--CERTIMATE_SSLDEPLOYER_CTCCCLOUDELB_LISTENERID="your-elb-listener-id"
+	--CTCCCLOUDELB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--CTCCCLOUDELB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--CTCCCLOUDELB_ACCESSKEYID="your-access-key-id" \
+	--CTCCCLOUDELB_SECRETACCESSKEY="your-secret-access-key" \
+	--CTCCCLOUDELB_REGIONID="your-region-id" \
+	--CTCCCLOUDELB_LOADBALANCERID="your-elb-instance-id" \
+	--CTCCCLOUDELB_LISTENERID="your-elb-listener-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

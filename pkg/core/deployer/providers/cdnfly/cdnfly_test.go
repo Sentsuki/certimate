@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_CDNFLY_"
+	argsPrefix := "CDNFLY_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./cdnfly_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_CDNFLY_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_CDNFLY_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_CDNFLY_SERVERURL="http://127.0.0.1:88" \
-	--CERTIMATE_SSLDEPLOYER_CDNFLY_APIKEY="your-api-key" \
-	--CERTIMATE_SSLDEPLOYER_CDNFLY_APISECRET="your-api-secret" \
-	--CERTIMATE_SSLDEPLOYER_CDNFLY_CERTIFICATEID="your-cert-id"
+	--CDNFLY_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--CDNFLY_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--CDNFLY_SERVERURL="http://127.0.0.1:88" \
+	--CDNFLY_APIKEY="your-api-key" \
+	--CDNFLY_APISECRET="your-api-secret" \
+	--CDNFLY_CERTIFICATEID="your-cert-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -19,7 +19,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_NETLIFYSITE_"
+	argsPrefix := "NETLIFYSITE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -31,10 +31,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./netlify_site_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_NETLIFYSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_NETLIFYSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_NETLIFYSITE_APITOKEN="your-api-token" \
-	--CERTIMATE_SSLDEPLOYER_NETLIFYSITE_SITEID="your-site-id"
+	--NETLIFYSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--NETLIFYSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--NETLIFYSITE_APITOKEN="your-api-token" \
+	--NETLIFYSITE_SITEID="your-site-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

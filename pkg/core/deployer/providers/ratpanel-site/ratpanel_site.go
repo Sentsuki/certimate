@@ -8,7 +8,7 @@ import (
 	"log/slog"
 
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	rpsdk "github.com/certimate-go/certimate/pkg/sdk3rd/ratpanel"
+	ratpanelsdk "github.com/certimate-go/certimate/pkg/sdk3rd/ratpanel"
 )
 
 type DeployerConfig struct {
@@ -21,25 +21,25 @@ type DeployerConfig struct {
 	// 是否允许不安全的连接。
 	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
 	// 网站名称。
-	SiteName string `json:"siteName"`
+	SiteNames []string `json:"siteNames"`
 }
 
 type Deployer struct {
 	config    *DeployerConfig
 	logger    *slog.Logger
-	sdkClient *rpsdk.Client
+	sdkClient *ratpanelsdk.Client
 }
 
 var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.AccessTokenId, config.AccessToken, config.AllowInsecureConnections)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Deployer{
@@ -57,28 +57,48 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
-	if d.config.SiteName == "" {
-		return nil, errors.New("config `siteName` is required")
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+	if len(d.config.SiteNames) == 0 {
+		return nil, errors.New("config `siteNames` is required")
 	}
 
+	// 遍历更新域名证书
+	var errs []error
+	for _, siteName := range d.config.SiteNames {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+			if err := d.updateSiteCertificate(ctx, siteName, certPEM, privkeyPEM); err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
+	}
+
+	return &deployer.DeployResult{}, nil
+}
+
+func (d *Deployer) updateSiteCertificate(ctx context.Context, siteName string, certPEM, privkeyPEM string) error {
 	// 设置站点 SSL 证书
-	setWebsiteCertReq := &rpsdk.SetWebsiteCertRequest{
-		SiteName:    d.config.SiteName,
+	setWebsiteCertReq := &ratpanelsdk.SetWebsiteCertRequest{
+		SiteName:    siteName,
 		Certificate: certPEM,
 		PrivateKey:  privkeyPEM,
 	}
 	setWebsiteCertResp, err := d.sdkClient.SetWebsiteCert(setWebsiteCertReq)
 	d.logger.Debug("sdk request 'ratpanel.SetWebsiteCert'", slog.Any("request", setWebsiteCertReq), slog.Any("response", setWebsiteCertResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'ratpanel.SetWebsiteCert': %w", err)
+		return fmt.Errorf("failed to execute sdk request 'ratpanel.SetWebsiteCert': %w", err)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return nil
 }
 
-func createSDKClient(serverUrl string, accessTokenId int64, accessToken string, skipTlsVerify bool) (*rpsdk.Client, error) {
-	client, err := rpsdk.NewClient(serverUrl, accessTokenId, accessToken)
+func createSDKClient(serverUrl string, accessTokenId int64, accessToken string, skipTlsVerify bool) (*ratpanelsdk.Client, error) {
+	client, err := ratpanelsdk.NewClient(serverUrl, accessTokenId, accessToken)
 	if err != nil {
 		return nil, err
 	}

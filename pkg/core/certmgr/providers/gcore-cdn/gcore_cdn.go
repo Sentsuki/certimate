@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/G-Core/gcorelabscdn-go/gcore/provider"
+	gcore "github.com/G-Core/gcorelabscdn-go/gcore/provider"
 	"github.com/G-Core/gcorelabscdn-go/sslcerts"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
@@ -29,12 +29,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.ApiToken)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -44,15 +44,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 新增证书
 	// REF: https://api.gcore.com/docs/cdn#tag/SSL-certificates/operation/add_ssl_certificates
 	createCertificateReq := &sslcerts.CreateRequest{
@@ -62,8 +62,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		Automated:      false,
 		ValidateRootCA: false,
 	}
-	createCertificateResp, err := m.sdkClient.Create(ctx, createCertificateReq)
-	m.logger.Debug("sdk request 'sslcerts.Create'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
+	createCertificateResp, err := c.sdkClient.Create(ctx, createCertificateReq)
+	c.logger.Debug("sdk request 'sslcerts.Create'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'sslcerts.Create': %w", err)
 	}
@@ -74,14 +74,18 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	}, nil
 }
 
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
+}
+
 func createSDKClient(apiToken string) (*sslcerts.Service, error) {
 	if apiToken == "" {
 		return nil, errors.New("invalid gcore api token")
 	}
 
-	requester := provider.NewClient(
+	requester := gcore.NewClient(
 		gcoresdk.BASE_URL,
-		provider.WithSigner(gcoresdk.NewAuthRequestSigner(apiToken)),
+		gcore.WithSigner(gcoresdk.NewAuthRequestSigner(apiToken)),
 	)
 	service := sslcerts.NewService(requester)
 	return service, nil

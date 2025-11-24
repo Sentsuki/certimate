@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	bdsdk "github.com/certimate-go/certimate/pkg/sdk3rd/baiducloud/cert"
+	baiducert "github.com/certimate-go/certimate/pkg/sdk3rd/baiducloud/cert"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -23,19 +23,19 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *bdsdk.Client
+	sdkClient *baiducert.Client
 }
 
 var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -45,15 +45,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -62,8 +62,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 
 	// 查看证书列表
 	// REF: https://cloud.baidu.com/doc/Reference/s/Gjwvz27xu#35-%E6%9F%A5%E7%9C%8B%E8%AF%81%E4%B9%A6%E5%88%97%E8%A1%A8%E8%AF%A6%E6%83%85
-	listCertDetail, err := m.sdkClient.ListCertDetail()
-	m.logger.Debug("sdk request 'cert.ListCertDetail'", slog.Any("response", listCertDetail))
+	listCertDetail, err := c.sdkClient.ListCertDetail()
+	c.logger.Debug("sdk request 'cert.ListCertDetail'", slog.Any("response", listCertDetail))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cert.ListCertDetail': %w", err)
 	} else {
@@ -86,8 +86,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 对比证书内容
-			getCertDetailResp, err := m.sdkClient.GetCertRawData(certItem.CertId)
-			m.logger.Debug("sdk request 'cert.GetCertRawData'", slog.Any("certId", certItem.CertId), slog.Any("response", getCertDetailResp))
+			getCertDetailResp, err := c.sdkClient.GetCertRawData(certItem.CertId)
+			c.logger.Debug("sdk request 'cert.GetCertRawData'", slog.Any("certId", certItem.CertId), slog.Any("response", getCertDetailResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'cert.GetCertRawData': %w", err)
 			} else {
@@ -97,7 +97,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   certItem.CertId,
 				CertName: certItem.CertName,
@@ -107,12 +107,12 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 
 	// 创建证书
 	// REF: https://cloud.baidu.com/doc/Reference/s/Gjwvz27xu#31-%E5%88%9B%E5%BB%BA%E8%AF%81%E4%B9%A6
-	createCertReq := &bdsdk.CreateCertArgs{}
+	createCertReq := &baiducert.CreateCertArgs{}
 	createCertReq.CertName = fmt.Sprintf("certimate-%d", time.Now().UnixMilli())
 	createCertReq.CertServerData = certPEM
 	createCertReq.CertPrivateData = privkeyPEM
-	createCertResp, err := m.sdkClient.CreateCert(createCertReq)
-	m.logger.Debug("sdk request 'cert.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))
+	createCertResp, err := c.sdkClient.CreateCert(createCertReq)
+	c.logger.Debug("sdk request 'cert.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cert.CreateCert': %w", err)
 	}
@@ -123,8 +123,12 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	}, nil
 }
 
-func createSDKClient(accessKeyId, secretAccessKey string) (*bdsdk.Client, error) {
-	client, err := bdsdk.NewClient(accessKeyId, secretAccessKey, "")
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
+}
+
+func createSDKClient(accessKeyId, secretAccessKey string) (*baiducert.Client, error) {
+	client, err := baiducert.NewClient(accessKeyId, secretAccessKey, "")
 	if err != nil {
 		return nil, err
 	}

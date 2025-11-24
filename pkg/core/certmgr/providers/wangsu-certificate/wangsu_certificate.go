@@ -33,12 +33,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -48,15 +48,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -65,8 +65,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 
 	// 查询证书列表，避免重复上传
 	// REF: https://www.wangsu.com/document/api-doc/22675?productCode=certificatemanagement
-	listCertificatesResp, err := m.sdkClient.ListCertificates()
-	m.logger.Debug("sdk request 'certificatemanagement.ListCertificates'", slog.Any("response", listCertificatesResp))
+	listCertificatesResp, err := c.sdkClient.ListCertificates()
+	c.logger.Debug("sdk request 'certificatemanagement.ListCertificates'", slog.Any("response", listCertificatesResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'certificatemanagement.ListCertificates': %w", err)
 	}
@@ -87,7 +87,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   certItem.CertificateId,
 				CertName: certItem.Name,
@@ -106,8 +106,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		PrivateKey:  lo.ToPtr(privkeyPEM),
 		Comment:     lo.ToPtr("upload from certimate"),
 	}
-	createCertificateResp, err := m.sdkClient.CreateCertificate(createCertificateReq)
-	m.logger.Debug("sdk request 'certificatemanagement.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
+	createCertificateResp, err := c.sdkClient.CreateCertificate(createCertificateReq)
+	c.logger.Debug("sdk request 'certificatemanagement.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'certificatemanagement.CreateCertificate': %w", err)
 	}
@@ -124,6 +124,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   wangsuCertIdMatches[1],
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(accessKeyId, accessKeySecret string) (*wangsusdk.Client, error) {

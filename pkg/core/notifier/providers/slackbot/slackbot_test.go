@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_NOTIFIER_SLACKBOT_"
+	argsPrefix := "SLACKBOT_"
 
 	flag.StringVar(&fApiToken, argsPrefix+"APITOKEN", "", "")
 	flag.StringVar(&fChannelId, argsPrefix+"CHANNELID", "", "")
@@ -31,8 +31,8 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./slackbot_test.go -args \
-	--CERTIMATE_NOTIFIER_SLACKBOT_APITOKEN="your-bot-token" \
-	--CERTIMATE_NOTIFIER_SLACKBOT_CHANNELID="your-channel-id"
+	--SLACKBOT_APITOKEN="your-bot-token" \
+	--SLACKBOT_CHANNELID="your-channel-id"
 */
 func TestNotify(t *testing.T) {
 	flag.Parse()

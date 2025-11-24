@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_AWSCLOUDFRONT_"
+	argsPrefix := "AWSCLOUDFRONT_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aws_cloudfront_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_AWSCLOUDFRONT_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_AWSCLOUDFRONT_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_AWSCLOUDFRONT_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_AWSCLOUDFRONT_SECRETACCESSKEY="your-secret-access-id" \
-	--CERTIMATE_SSLDEPLOYER_AWSCLOUDFRONT_REGION="us-east-1" \
-	--CERTIMATE_SSLDEPLOYER_AWSCLOUDFRONT_DISTRIBUTIONID="your-distribution-id"
+	--AWSCLOUDFRONT_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--AWSCLOUDFRONT_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--AWSCLOUDFRONT_ACCESSKEYID="your-access-key-id" \
+	--AWSCLOUDFRONT_SECRETACCESSKEY="your-secret-access-id" \
+	--AWSCLOUDFRONT_REGION="us-east-1" \
+	--AWSCLOUDFRONT_DISTRIBUTIONID="your-distribution-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

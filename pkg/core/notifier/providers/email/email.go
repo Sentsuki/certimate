@@ -3,12 +3,10 @@ package email
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
-	"net"
-	"net/smtp"
-	"strconv"
 
-	"github.com/domodwyer/mailyak/v3"
+	"github.com/wneessen/go-mail"
 
 	"github.com/certimate-go/certimate/pkg/core/notifier"
 	xtls "github.com/certimate-go/certimate/pkg/utils/tls"
@@ -32,6 +30,8 @@ type NotifierConfig struct {
 	SenderName string `json:"senderName,omitempty"`
 	// 收件人邮箱。
 	ReceiverAddress string `json:"receiverAddress"`
+	// 是否允许不安全的连接。
+	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
 }
 
 type Notifier struct {
@@ -61,41 +61,57 @@ func (n *Notifier) SetLogger(logger *slog.Logger) {
 }
 
 func (n *Notifier) Notify(ctx context.Context, subject string, message string) (*notifier.NotifyResult, error) {
-	var smtpAuth smtp.Auth
-	if n.config.Username != "" || n.config.Password != "" {
-		smtpAuth = smtp.PlainAuth("", n.config.Username, n.config.Password, n.config.SmtpHost)
+	clientOptions := []mail.Option{
+		mail.WithSMTPAuth(mail.SMTPAuthAutoDiscover),
+		mail.WithUsername(n.config.Username),
+		mail.WithPassword(n.config.Password),
 	}
 
-	var smtpAddr string
 	if n.config.SmtpPort == 0 {
 		if n.config.SmtpTls {
-			smtpAddr = net.JoinHostPort(n.config.SmtpHost, "465")
+			clientOptions = append(clientOptions, mail.WithPort(mail.DefaultPortTLS))
 		} else {
-			smtpAddr = net.JoinHostPort(n.config.SmtpHost, "25")
+			clientOptions = append(clientOptions, mail.WithPort(mail.DefaultPort))
 		}
 	} else {
-		smtpAddr = net.JoinHostPort(n.config.SmtpHost, strconv.Itoa(int(n.config.SmtpPort)))
+		clientOptions = append(clientOptions, mail.WithPort(int(n.config.SmtpPort)))
 	}
 
-	var yak *mailyak.MailYak
 	if n.config.SmtpTls {
-		yakWithTls, err := mailyak.NewWithTLS(smtpAddr, smtpAuth, xtls.NewCompatibleConfig())
-		if err != nil {
-			return nil, err
+		tlsConfig := xtls.NewCompatibleConfig()
+		if n.config.AllowInsecureConnections {
+			tlsConfig.InsecureSkipVerify = true
+		} else {
+			tlsConfig.ServerName = n.config.SmtpHost
 		}
-		yak = yakWithTls
+
+		mail.WithSSL()
+		mail.WithSSLPort(true)
+		mail.WithTLSConfig(tlsConfig)
 	} else {
-		yak = mailyak.New(smtpAddr, smtpAuth)
+		mail.WithTLSPolicy(mail.TLSOpportunistic)
 	}
 
-	yak.From(n.config.SenderAddress)
-	yak.FromName(n.config.SenderName)
-	yak.To(n.config.ReceiverAddress)
-	yak.Subject(subject)
-	yak.Plain().Set(message)
+	client, err := mail.NewClient(n.config.SmtpHost, clientOptions...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create smtp client: %w", err)
+	}
 
-	if err := yak.Send(); err != nil {
-		return nil, err
+	client.ErrorHandlerRegistry.RegisterHandler("smtp.qq.com", "QUIT", &wQQMailQuitErrorHandler{})
+	defer client.Close()
+
+	msg := mail.NewMsg()
+	msg.Subject(subject)
+	msg.SetBodyString(mail.TypeTextPlain, message)
+	if n.config.SenderName == "" {
+		msg.From(n.config.SenderAddress)
+	} else {
+		msg.FromFormat(n.config.SenderName, n.config.SenderAddress)
+	}
+	msg.To(n.config.ReceiverAddress)
+
+	if err := client.DialAndSend(msg); err != nil {
+		return nil, fmt.Errorf("failed to send mail: %w", err)
 	}
 
 	return &notifier.NotifyResult{}, nil

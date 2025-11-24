@@ -1,4 +1,4 @@
-﻿package internal
+package internal
 
 import (
 	httpclient "github.com/huaweicloud/huaweicloud-sdk-go-v3/core"
@@ -33,5 +33,15 @@ func (c *ElbClient) ListCertificates(request *model.ListCertificatesRequest) (*m
 		return nil, err
 	} else {
 		return resp.(*model.ListCertificatesResponse), nil
+	}
+}
+
+func (c *ElbClient) UpdateCertificate(request *model.UpdateCertificateRequest) (*model.UpdateCertificateResponse, error) {
+	requestDef := hwelb.GenReqDefForUpdateCertificate()
+
+	if resp, err := c.HcClient.Sync(request, requestDef); err != nil {
+		return nil, err
+	} else {
+		return resp.(*model.UpdateCertificateResponse), nil
 	}
 }

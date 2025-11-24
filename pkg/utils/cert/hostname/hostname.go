@@ -1,4 +1,4 @@
-﻿package hostname
+package hostname
 
 import (
 	"crypto/x509"

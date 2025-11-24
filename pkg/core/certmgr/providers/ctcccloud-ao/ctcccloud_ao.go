@@ -33,12 +33,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -48,15 +48,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -80,8 +80,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			PerPage:   lo.ToPtr(int32(listCertPerPage)),
 			UsageMode: lo.ToPtr(int32(0)),
 		}
-		listCertsResp, err := m.sdkClient.ListCerts(listCertsReq)
-		m.logger.Debug("sdk request 'ao.ListCerts'", slog.Any("request", listCertsReq), slog.Any("response", listCertsResp))
+		listCertsResp, err := c.sdkClient.ListCerts(listCertsReq)
+		c.logger.Debug("sdk request 'ao.ListCerts'", slog.Any("request", listCertsReq), slog.Any("response", listCertsResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'ao.ListCerts': %w", err)
 		}
@@ -112,8 +112,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			queryCertReq := &ctyunao.QueryCertRequest{
 				Id: lo.ToPtr(certItem.Id),
 			}
-			queryCertResp, err := m.sdkClient.QueryCert(queryCertReq)
-			m.logger.Debug("sdk request 'ao.QueryCert'", slog.Any("request", queryCertReq), slog.Any("response", queryCertResp))
+			queryCertResp, err := c.sdkClient.QueryCert(queryCertReq)
+			c.logger.Debug("sdk request 'ao.QueryCert'", slog.Any("request", queryCertReq), slog.Any("response", queryCertResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'ao.QueryCert': %w", err)
 			} else if queryCertResp.ReturnObj != nil && queryCertResp.ReturnObj.Result != nil {
@@ -123,7 +123,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   fmt.Sprintf("%d", queryCertResp.ReturnObj.Result.Id),
 				CertName: queryCertResp.ReturnObj.Result.Name,
@@ -147,8 +147,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		Certs: lo.ToPtr(certPEM),
 		Key:   lo.ToPtr(privkeyPEM),
 	}
-	createCertResp, err := m.sdkClient.CreateCert(createCertReq)
-	m.logger.Debug("sdk request 'ao.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))
+	createCertResp, err := c.sdkClient.CreateCert(createCertReq)
+	c.logger.Debug("sdk request 'ao.CreateCert'", slog.Any("request", createCertReq), slog.Any("response", createCertResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'ao.CreateCert': %w", err)
 	}
@@ -157,6 +157,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   fmt.Sprintf("%d", createCertResp.ReturnObj.Id),
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(accessKeyId, secretAccessKey string) (*ctyunao.Client, error) {

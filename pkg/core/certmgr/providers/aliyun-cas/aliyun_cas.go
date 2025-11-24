@@ -40,12 +40,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -55,15 +55,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -83,13 +83,13 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		}
 
 		listUserCertificateOrderReq := &alicas.ListUserCertificateOrderRequest{
-			ResourceGroupId: lo.EmptyableToPtr(m.config.ResourceGroupId),
+			ResourceGroupId: lo.EmptyableToPtr(c.config.ResourceGroupId),
 			CurrentPage:     tea.Int64(int64(listUserCertificateOrderPage)),
 			ShowSize:        tea.Int64(int64(listUserCertificateOrderLimit)),
 			OrderType:       tea.String("CERT"),
 		}
-		listUserCertificateOrderResp, err := m.sdkClient.ListUserCertificateOrderWithContext(ctx, listUserCertificateOrderReq, &dara.RuntimeOptions{})
-		m.logger.Debug("sdk request 'cas.ListUserCertificateOrder'", slog.Any("request", listUserCertificateOrderReq), slog.Any("response", listUserCertificateOrderResp))
+		listUserCertificateOrderResp, err := c.sdkClient.ListUserCertificateOrderWithContext(ctx, listUserCertificateOrderReq, &dara.RuntimeOptions{})
+		c.logger.Debug("sdk request 'cas.ListUserCertificateOrder'", slog.Any("request", listUserCertificateOrderReq), slog.Any("response", listUserCertificateOrderResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'cas.ListUserCertificateOrder': %w", err)
 		}
@@ -116,8 +116,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			getUserCertificateDetailReq := &alicas.GetUserCertificateDetailRequest{
 				CertId: certItem.CertificateId,
 			}
-			getUserCertificateDetailResp, err := m.sdkClient.GetUserCertificateDetailWithContext(ctx, getUserCertificateDetailReq, &dara.RuntimeOptions{})
-			m.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
+			getUserCertificateDetailResp, err := c.sdkClient.GetUserCertificateDetailWithContext(ctx, getUserCertificateDetailReq, &dara.RuntimeOptions{})
+			c.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err)
 			} else {
@@ -127,7 +127,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   fmt.Sprintf("%d", tea.Int64Value(certItem.CertificateId)),
 				CertName: *certItem.Name,
@@ -151,13 +151,13 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	// 上传新证书
 	// REF: https://help.aliyun.com/zh/ssl-certificate/developer-reference/api-cas-2020-04-07-uploadusercertificate
 	uploadUserCertificateReq := &alicas.UploadUserCertificateRequest{
-		ResourceGroupId: lo.EmptyableToPtr(m.config.ResourceGroupId),
+		ResourceGroupId: lo.EmptyableToPtr(c.config.ResourceGroupId),
 		Name:            tea.String(certName),
 		Cert:            tea.String(certPEM),
 		Key:             tea.String(privkeyPEM),
 	}
-	uploadUserCertificateResp, err := m.sdkClient.UploadUserCertificateWithContext(ctx, uploadUserCertificateReq, &dara.RuntimeOptions{})
-	m.logger.Debug("sdk request 'cas.UploadUserCertificate'", slog.Any("request", uploadUserCertificateReq), slog.Any("response", uploadUserCertificateResp))
+	uploadUserCertificateResp, err := c.sdkClient.UploadUserCertificateWithContext(ctx, uploadUserCertificateReq, &dara.RuntimeOptions{})
+	c.logger.Debug("sdk request 'cas.UploadUserCertificate'", slog.Any("request", uploadUserCertificateReq), slog.Any("response", uploadUserCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cas.UploadUserCertificate': %w", err)
 	}
@@ -168,8 +168,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:     uploadUserCertificateResp.Body.CertId,
 		CertFilter: tea.Bool(true),
 	}
-	getUserCertificateDetailResp, err := m.sdkClient.GetUserCertificateDetailWithContext(ctx, getUserCertificateDetailReq, &dara.RuntimeOptions{})
-	m.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
+	getUserCertificateDetailResp, err := c.sdkClient.GetUserCertificateDetailWithContext(ctx, getUserCertificateDetailReq, &dara.RuntimeOptions{})
+	c.logger.Debug("sdk request 'cas.GetUserCertificateDetail'", slog.Any("request", getUserCertificateDetailReq), slog.Any("response", getUserCertificateDetailResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cas.GetUserCertificateDetail': %w", err)
 	}
@@ -182,6 +182,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			"CertIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
 		},
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.CasClient, error) {

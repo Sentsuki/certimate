@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_QINIUKODO_"
+	argsPrefix := "QINIUKODO_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./qiniu_kodo_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_QINIUKODO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_QINIUKODO_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_QINIUKODO_ACCESSKEY="your-access-key" \
-	--CERTIMATE_SSLDEPLOYER_QINIUKODO_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_QINIUKODO_BUCKET="your-bucket" \
-	--CERTIMATE_SSLDEPLOYER_QINIUKODO_DOMAIN="example.com"
+	--QINIUKODO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--QINIUKODO_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--QINIUKODO_ACCESSKEY="your-access-key" \
+	--QINIUKODO_SECRETKEY="your-secret-key" \
+	--QINIUKODO_BUCKET="your-bucket" \
+	--QINIUKODO_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

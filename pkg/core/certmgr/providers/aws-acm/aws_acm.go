@@ -35,12 +35,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -50,15 +50,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -86,8 +86,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			NextToken: listCertificatesNextToken,
 			MaxItems:  aws.Int32(1000),
 		}
-		listCertificatesResp, err := m.sdkClient.ListCertificates(ctx, listCertificatesReq)
-		m.logger.Debug("sdk request 'acm.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
+		listCertificatesResp, err := c.sdkClient.ListCertificates(ctx, listCertificatesReq)
+		c.logger.Debug("sdk request 'acm.ListCertificates'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'acm.ListCertificates': %w", err)
 		}
@@ -110,7 +110,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			getCertificateReq := &awsacm.GetCertificateInput{
 				CertificateArn: certItem.CertificateArn,
 			}
-			getCertificateResp, err := m.sdkClient.GetCertificate(ctx, getCertificateReq)
+			getCertificateResp, err := c.sdkClient.GetCertificate(ctx, getCertificateReq)
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'acm.GetCertificate': %w", err)
 			} else {
@@ -120,7 +120,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId: *certItem.CertificateArn,
 			}, nil
@@ -140,8 +140,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertificateChain: ([]byte)(intermediaCertPEM),
 		PrivateKey:       ([]byte)(privkeyPEM),
 	}
-	importCertificateResp, err := m.sdkClient.ImportCertificate(ctx, importCertificateReq)
-	m.logger.Debug("sdk request 'acm.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
+	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, importCertificateReq)
+	c.logger.Debug("sdk request 'acm.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'acm.ImportCertificate': %w", err)
 	}
@@ -149,6 +149,30 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	return &certmgr.UploadResult{
 		CertId: aws.ToString(importCertificateResp.CertificateArn),
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	// 提取服务器证书
+	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract certs: %w", err)
+	}
+
+	// 导入证书
+	// REF: https://docs.aws.amazon.com/en_us/acm/latest/APIReference/API_ImportCertificate.html
+	importCertificateReq := &awsacm.ImportCertificateInput{
+		CertificateArn:   aws.String(certIdOrName),
+		Certificate:      ([]byte)(serverCertPEM),
+		CertificateChain: ([]byte)(intermediaCertPEM),
+		PrivateKey:       ([]byte)(privkeyPEM),
+	}
+	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, importCertificateReq)
+	c.logger.Debug("sdk request 'acm.ImportCertificate'", slog.Any("request", importCertificateReq), slog.Any("response", importCertificateResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'acm.ImportCertificate': %w", err)
+	}
+
+	return &certmgr.OperateResult{}, nil
 }
 
 func createSDKClient(accessKeyId, secretAccessKey, region string) (*awsacm.Client, error) {

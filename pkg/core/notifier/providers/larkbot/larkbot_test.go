@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_NOTIFIER_LARKBOT_"
+	argsPrefix := "LARKBOT_"
 
 	flag.StringVar(&fWebhookUrl, argsPrefix+"WEBHOOKURL", "", "")
 	flag.StringVar(&fSecret, argsPrefix+"SECRET", "", "")
@@ -31,8 +31,8 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./larkbot_test.go -args \
-	--CERTIMATE_NOTIFIER_LARKBOT_WEBHOOKURL="https://example.com/your-webhook-url" \
-	--CERTIMATE_NOTIFIER_LARKBOT_SECRET="your-secret"
+	--LARKBOT_WEBHOOKURL="https://example.com/your-webhook-url" \
+	--LARKBOT_SECRET="your-secret"
 */
 func TestNotify(t *testing.T) {
 	flag.Parse()

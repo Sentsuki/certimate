@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_DOGECLOUDCDN_"
+	argsPrefix := "DOGECLOUDCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./dogecloud_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_DOGECLOUDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_DOGECLOUDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_DOGECLOUDCDN_ACCESSKEY="your-access-key" \
-	--CERTIMATE_SSLDEPLOYER_DOGECLOUDCDN_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_DOGECLOUDCDN_DOMAIN="example.com"
+	--DOGECLOUDCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--DOGECLOUDCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--DOGECLOUDCDN_ACCESSKEY="your-access-key" \
+	--DOGECLOUDCDN_SECRETKEY="your-secret-key" \
+	--DOGECLOUDCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

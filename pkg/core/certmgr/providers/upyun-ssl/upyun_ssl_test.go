@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_UPYUNSSL_"
+	argsPrefix := "UPYUNSSL_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -32,10 +32,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./upyun_ssl_test.go -args \
-	--CERTIMATE_SSLMANAGER_UPYUNSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_UPYUNSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_UPYUNSSL_USERNAME="your-username" \
-	--CERTIMATE_SSLMANAGER_UPYUNSSL_PASSWORD="your-password"
+	--UPYUNSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--UPYUNSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--UPYUNSSL_USERNAME="your-username" \
+	--UPYUNSSL_PASSWORD="your-password"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

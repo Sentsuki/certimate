@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCDN_"
+	argsPrefix := "TENCENTCLOUDCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_gaap_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDGAAP_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDGAAP_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDGAAP_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDGAAP_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDGAAP_PROXYID="your-gaap-group-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDGAAP_LISTENERID="your-clb-listener-id"
+	--TENCENTCLOUDGAAP_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDGAAP_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDGAAP_SECRETID="your-secret-id" \
+	--TENCENTCLOUDGAAP_SECRETKEY="your-secret-key" \
+	--TENCENTCLOUDGAAP_PROXYID="your-gaap-group-id" \
+	--TENCENTCLOUDGAAP_LISTENERID="your-clb-listener-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -18,7 +18,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_CACHEFLY_"
+	argsPrefix := "CACHEFLY_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -29,9 +29,9 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./cachefly_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_CACHEFLY_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_CACHEFLY_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_CACHEFLY_APITOKEN="your-api-token"
+	--CACHEFLY_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--CACHEFLY_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--CACHEFLY_APITOKEN="your-api-token"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

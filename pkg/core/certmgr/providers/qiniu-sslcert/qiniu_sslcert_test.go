@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_QINIUSSLCERT_"
+	argsPrefix := "QINIUSSLCERT_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -32,10 +32,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./qiniu_sslcert_test.go -args \
-	--CERTIMATE_SSLMANAGER_QINIUSSLCERT_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_QINIUSSLCERT_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_QINIUSSLCERT_ACCESSKEY="your-access-key" \
-	--CERTIMATE_SSLMANAGER_QINIUSSLCERT_SECRETKEY="your-secret-key"
+	--QINIUSSLCERT_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--QINIUSSLCERT_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--QINIUSSLCERT_ACCESSKEY="your-access-key" \
+	--QINIUSSLCERT_SECRETKEY="your-secret-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

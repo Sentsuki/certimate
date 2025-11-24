@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_LECDN_"
+	argsPrefix := "LECDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,12 +37,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./lecdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_LECDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_LECDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_LECDN_SERVERURL="http://127.0.0.1:5090" \
-	--CERTIMATE_SSLDEPLOYER_LECDN_USERNAME="your-username" \
-	--CERTIMATE_SSLDEPLOYER_LECDN_PASSWORD="your-password" \
-	--CERTIMATE_SSLDEPLOYER_LECDN_CERTIFICATEID="your-certificate-id"
+	--LECDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--LECDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--LECDN_SERVERURL="http://127.0.0.1:5090" \
+	--LECDN_USERNAME="your-username" \
+	--LECDN_PASSWORD="your-password" \
+	--LECDN_CERTIFICATEID="your-certificate-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

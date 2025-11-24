@@ -28,12 +28,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKey, config.SecretKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -43,15 +43,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 生成新证书名（需符合多吉云命名规则）
 	certName := fmt.Sprintf("certimate-%d", time.Now().UnixMilli())
 
@@ -62,8 +62,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		Certificate: certPEM,
 		PrivateKey:  privkeyPEM,
 	}
-	uploadSslCertResp, err := m.sdkClient.UploadCdnCert(uploadSslCertReq)
-	m.logger.Debug("sdk request 'cdn.UploadCdnCert'", slog.Any("request", uploadSslCertReq), slog.Any("response", uploadSslCertResp))
+	uploadSslCertResp, err := c.sdkClient.UploadCdnCert(uploadSslCertReq)
+	c.logger.Debug("sdk request 'cdn.UploadCdnCert'", slog.Any("request", uploadSslCertReq), slog.Any("response", uploadSslCertResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cdn.UploadCdnCert': %w", err)
 	}
@@ -72,6 +72,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   fmt.Sprintf("%d", uploadSslCertResp.Data.Id),
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(accessKey, secretKey string) (*dogesdk.Client, error) {

@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_JDCLOUDALB_"
+	argsPrefix := "JDCLOUDALB_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./jdcloud_alb_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDALB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDALB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDALB_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDALB_ACCESSKEYSECRET="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDALB_REGION_ID="cn-north-1" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDALB_LOADBALANCERID="your-alb-loadbalancer-id" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDALB_LISTENERID="your-alb-listener-id"
+	--JDCLOUDALB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--JDCLOUDALB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--JDCLOUDALB_ACCESSKEYID="your-access-key-id" \
+	--JDCLOUDALB_ACCESSKEYSECRET="your-secret-access-key" \
+	--JDCLOUDALB_REGION_ID="cn-north-1" \
+	--JDCLOUDALB_LOADBALANCERID="your-alb-loadbalancer-id" \
+	--JDCLOUDALB_LISTENERID="your-alb-listener-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -23,7 +23,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCDN_"
+	argsPrefix := "TENCENTCLOUDCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -39,14 +39,14 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_clb_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_REGION="ap-guangzhou" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_LOADBALANCERID="your-clb-lb-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_LISTENERID="your-clb-lbl-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCLB_DOMAIN="example.com"
+	--TENCENTCLOUDCLB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDCLB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDCLB_SECRETID="your-secret-id" \
+	--TENCENTCLOUDCLB_SECRETKEY="your-secret-key" \
+	--TENCENTCLOUDCLB_REGION="ap-guangzhou" \
+	--TENCENTCLOUDCLB_LOADBALANCERID="your-clb-lb-id" \
+	--TENCENTCLOUDCLB_LISTENERID="your-clb-lbl-id" \
+	--TENCENTCLOUDCLB_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

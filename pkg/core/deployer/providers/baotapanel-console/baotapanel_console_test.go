@@ -19,7 +19,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BAOTAPANELCONSOLE_"
+	argsPrefix := "BAOTAPANELCONSOLE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -31,10 +31,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./baotapanel_console_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELCONSOLE_SERVERURL="http://127.0.0.1:8888" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELCONSOLE_APIKEY="your-api-key"
+	--BAOTAPANELCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BAOTAPANELCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BAOTAPANELCONSOLE_SERVERURL="http://127.0.0.1:8888" \
+	--BAOTAPANELCONSOLE_APIKEY="your-api-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

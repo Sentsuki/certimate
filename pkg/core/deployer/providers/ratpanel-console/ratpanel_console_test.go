@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_RATPANELCONSOLE_"
+	argsPrefix := "RATPANELCONSOLE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ratpanel_console_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_RATPANELCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELCONSOLE_SERVERURL="http://127.0.0.1:8888" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELCONSOLE_ACCESSTOKENID="your-access-token-id" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELCONSOLE_ACCESSTOKEN="your-access-token"
+	--RATPANELCONSOLE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--RATPANELCONSOLE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--RATPANELCONSOLE_SERVERURL="http://127.0.0.1:8888" \
+	--RATPANELCONSOLE_ACCESSTOKENID="your-access-token-id" \
+	--RATPANELCONSOLE_ACCESSTOKEN="your-access-token"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -48,7 +48,7 @@
   "access.form.shared_acme_eab_hmac_key.placeholder": "请输入 ACME EAB HMAC Key",
   "access.form.shared_allow_insecure_conns.label": "忽略 SSL/TLS 证书错误",
   "access.form.shared_allow_insecure_conns.switch.on": "允许",
-  "access.form.shared_allow_insecure_conns.switch.off": "不允许",
+  "access.form.shared_allow_insecure_conns.switch.off": "禁止",
   "access.form.1panel_server_url.label": "1Panel 服务地址",
   "access.form.1panel_server_url.placeholder": "请输入 1Panel 服务地址",
   "access.form.1panel_server_url.help": "提示：请勿包含安全入口后缀。",

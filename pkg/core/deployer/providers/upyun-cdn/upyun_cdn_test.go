@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_UPYUNCDN_"
+	argsPrefix := "UPYUNCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./upyun_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_UPYUNCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_UPYUNCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_UPYUNCDN_USERNAME="your-username" \
-	--CERTIMATE_SSLDEPLOYER_UPYUNCDN_PASSWORD="your-password" \
-	--CERTIMATE_SSLDEPLOYER_UPYUNCDN_DOMAIN="example.com"
+	--UPYUNCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--UPYUNCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--UPYUNCDN_USERNAME="your-username" \
+	--UPYUNCDN_PASSWORD="your-password" \
+	--UPYUNCDN_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

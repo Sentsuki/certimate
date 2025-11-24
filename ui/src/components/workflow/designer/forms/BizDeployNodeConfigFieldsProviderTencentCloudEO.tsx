@@ -1,5 +1,5 @@
 import { getI18n, useTranslation } from "react-i18next";
-import { Form, Input, Radio } from "antd";
+import { Flex, Form, Input, Radio, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -88,6 +88,21 @@ const BizDeployNodeConfigFieldsProviderTencentCloudEO = () => {
           />
         </Form.Item>
       </Show>
+
+      <Form.Item
+        label={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.label")}
+        extra={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.help")}
+      >
+        <Flex align="center" gap={8} wrap="wrap">
+          <Form.Item name={[parentNamePath, "enableMultipleSSL"]} initialValue={initialValues.enableMultipleSSL} noStyle rules={[formRule]}>
+            <Switch
+              checkedChildren={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.switch.on")}
+              unCheckedChildren={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.switch.off")}
+            />
+          </Form.Item>
+          <div>{t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.switch.suffix")}</div>
+        </Flex>
+      </Form.Item>
     </>
   );
 };
@@ -109,6 +124,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
       zoneId: z.string().nonempty(t("workflow_node.deploy.form.tencentcloud_eo_zone_id.placeholder")),
       domainMatchPattern: z.string().nonempty(t("workflow_node.deploy.form.shared_domain_match_pattern.placeholder")).default(DOMAIN_MATCH_PATTERN_EXACT),
       domains: z.string().nullish(),
+      enableMultipleSSL: z.boolean().nullish(),
     })
     .superRefine((values, ctx) => {
       if (values.domainMatchPattern) {

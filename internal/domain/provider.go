@@ -310,7 +310,7 @@ const (
 	DeploymentProviderTypeRainYunRCDN           = DeploymentProviderType(AccessProviderTypeRainYun + "-rcdn")
 	DeploymentProviderTypeRatPanelConsole       = DeploymentProviderType(AccessProviderTypeRatPanel + "-console")
 	DeploymentProviderTypeRatPanelSite          = DeploymentProviderType(AccessProviderTypeRatPanel + "-site")
-	DeploymentProviderTypeSafeLine              = DeploymentProviderType(AccessProviderTypeSafeLine)
+	DeploymentProviderTypeSafeLineSite          = DeploymentProviderType(AccessProviderTypeSafeLine + "-site")
 	DeploymentProviderTypeSSH                   = DeploymentProviderType(AccessProviderTypeSSH)
 	DeploymentProviderTypeTencentCloudCDN       = DeploymentProviderType(AccessProviderTypeTencentCloud + "-cdn")
 	DeploymentProviderTypeTencentCloudCLB       = DeploymentProviderType(AccessProviderTypeTencentCloud + "-clb")

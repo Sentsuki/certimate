@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_WEBHOOK_"
+	argsPrefix := "WEBHOOK_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./webhook_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_WEBHOOK_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_WEBHOOK_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_WEBHOOK_URL="https://example.com/your-webhook-url" \
-	--CERTIMATE_SSLDEPLOYER_WEBHOOK_CONTENTTYPE="application/json" \
-	--CERTIMATE_SSLDEPLOYER_WEBHOOK_DATA="{\"certificate\":\"${CERTIFICATE}\",\"privateKey\":\"${PRIVATE_KEY}\"}"
+	--WEBHOOK_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--WEBHOOK_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--WEBHOOK_URL="https://example.com/your-webhook-url" \
+	--WEBHOOK_CONTENTTYPE="application/json" \
+	--WEBHOOK_DATA="{\"certificate\":\"${CERTIFICATE}\",\"privateKey\":\"${PRIVATE_KEY}\"}"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

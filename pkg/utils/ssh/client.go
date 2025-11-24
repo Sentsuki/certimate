@@ -1,4 +1,4 @@
-﻿package ssh
+package ssh
 
 import (
 	"fmt"
@@ -18,10 +18,20 @@ func NewClientWithPassword(conn net.Conn, host string, port int, username string
 	authentications := make([]ssh.AuthMethod, 0)
 	authentications = append(authentications, ssh.Password(password))
 	authentications = append(authentications, ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) ([]string, error) {
-		if len(questions) == 1 {
-			return []string{password}, nil
+		answers := make([]string, len(questions))
+		if len(answers) == 0 {
+			return answers, nil
 		}
-		return nil, fmt.Errorf("unexpected keyboard interactive question [%s]", strings.Join(questions, ", "))
+
+		for i, question := range questions {
+			question = strings.TrimSpace(strings.TrimSuffix(strings.TrimSpace(question), ":"))
+			if strings.EqualFold(question, "Password") {
+				answers[i] = password
+				return answers, nil
+			}
+		}
+
+		return nil, fmt.Errorf("unexpected keyboard interactive question '%s'", strings.Join(questions, ", "))
 	}))
 	return newClientWithAuthMethods(conn, host, port, username, authentications)
 }

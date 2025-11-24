@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_JDCLOUDLIVE_"
+	argsPrefix := "JDCLOUDLIVE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./jdcloud_live_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDLIVE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDLIVE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDLIVE_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDLIVE_ACCESSKEYSECRET="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_JDCLOUDLIVE_DOMAIN="example.com"
+	--JDCLOUDLIVE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--JDCLOUDLIVE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--JDCLOUDLIVE_ACCESSKEYID="your-access-key-id" \
+	--JDCLOUDLIVE_ACCESSKEYSECRET="your-secret-access-key" \
+	--JDCLOUDLIVE_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

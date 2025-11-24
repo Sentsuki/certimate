@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_ALIYUNFC_"
+	argsPrefix := "ALIYUNFC_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_fc_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNFC_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNFC_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNFC_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNFC_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNFC_REGION="cn-hangzhou" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNFC_DOMAIN="example.com"
+	--ALIYUNFC_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNFC_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNFC_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNFC_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNFC_REGION="cn-hangzhou" \
+	--ALIYUNFC_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

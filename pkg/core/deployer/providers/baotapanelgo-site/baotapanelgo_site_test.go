@@ -16,28 +16,31 @@ var (
 	fInputKeyPath  string
 	fServerUrl     string
 	fApiKey        string
+	fSiteType      string
 	fSiteName      string
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_BAOTAPANELGOSITE_"
+	argsPrefix := "BAOTAPANELGOSITE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
 	flag.StringVar(&fServerUrl, argsPrefix+"SERVERURL", "", "")
 	flag.StringVar(&fApiKey, argsPrefix+"APIKEY", "", "")
+	flag.StringVar(&fSiteType, argsPrefix+"SITETYPE", "", "")
 	flag.StringVar(&fSiteName, argsPrefix+"SITENAME", "", "")
 }
 
 /*
 Shell command to run this test:
 
-	go test -v ./baotapanel_site_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELGOSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELGOSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELGOSITE_SERVERURL="http://127.0.0.1:8888" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELGOSITE_APIKEY="your-api-key" \
-	--CERTIMATE_SSLDEPLOYER_BAOTAPANELGOSITE_SITENAME="your-site-name"
+	go test -v ./baotapanelgo_site_test.go -args \
+	--BAOTAPANELGOSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--BAOTAPANELGOSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--BAOTAPANELGOSITE_SERVERURL="http://127.0.0.1:8888" \
+	--BAOTAPANELGOSITE_APIKEY="your-api-key" \
+	--BAOTAPANELGOSITE_SITETYPE="your-site-type" \
+	--BAOTAPANELGOSITE_SITENAME="your-site-name"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()
@@ -49,6 +52,7 @@ func TestDeploy(t *testing.T) {
 			fmt.Sprintf("INPUTKEYPATH: %v", fInputKeyPath),
 			fmt.Sprintf("SERVERURL: %v", fServerUrl),
 			fmt.Sprintf("APIKEY: %v", fApiKey),
+			fmt.Sprintf("SITETYPE: %v", fSiteType),
 			fmt.Sprintf("SITENAME: %v", fSiteName),
 		}, "\n"))
 
@@ -56,7 +60,8 @@ func TestDeploy(t *testing.T) {
 			ServerUrl:                fServerUrl,
 			ApiKey:                   fApiKey,
 			AllowInsecureConnections: true,
-			SiteName:                 fSiteName,
+			SiteType:                 fSiteType,
+			SiteNames:                []string{fSiteName},
 		})
 		if err != nil {
 			t.Errorf("err: %+v", err)

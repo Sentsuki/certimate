@@ -1,4 +1,4 @@
-﻿package awscloudfront
+package awscloudfront
 
 const (
 	CERTIFICATE_SOURCE_ACM = "ACM"

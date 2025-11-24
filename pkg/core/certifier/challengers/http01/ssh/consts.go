@@ -1,4 +1,4 @@
-﻿package ssh
+package ssh
 
 const (
 	AUTH_METHOD_NONE     = "none"

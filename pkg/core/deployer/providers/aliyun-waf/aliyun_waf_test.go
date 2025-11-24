@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_ALIYUNWAF_"
+	argsPrefix := "ALIYUNWAF_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_waf_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNWAF_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNWAF_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNWAF_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNWAF_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNWAF_REGION="cn-hangzhou" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNWAF_INSTANCEID="your-waf-instance-id"
+	--ALIYUNWAF_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNWAF_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNWAF_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNWAF_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNWAF_REGION="cn-hangzhou" \
+	--ALIYUNWAF_INSTANCEID="your-waf-instance-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

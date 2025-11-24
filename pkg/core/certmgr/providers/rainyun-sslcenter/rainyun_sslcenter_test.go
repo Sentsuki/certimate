@@ -19,7 +19,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_RAINYUNSSLCENTER_"
+	argsPrefix := "RAINYUNSSLCENTER_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -30,9 +30,9 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./rainyun_sslcenter_test.go -args \
-	--CERTIMATE_SSLMANAGER_RAINYUNSSLCENTER_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_RAINYUNSSLCENTER_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_RAINYUNSSLCENTER_APIKEY="your-api-key"
+	--RAINYUNSSLCENTER_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--RAINYUNSSLCENTER_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--RAINYUNSSLCENTER_APIKEY="your-api-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

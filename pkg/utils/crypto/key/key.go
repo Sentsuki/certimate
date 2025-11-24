@@ -1,4 +1,4 @@
-﻿package key
+package key
 
 import (
 	"crypto"

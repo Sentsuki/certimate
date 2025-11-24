@@ -1,9 +1,13 @@
 import { getI18n, useTranslation } from "react-i18next";
-import { Form, Input } from "antd";
+import { Form, Select } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
+import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
+
 import { useFormNestedFieldsContext } from "./_context";
+
+const MULTIPLE_INPUT_SEPARATOR = ";";
 
 const BizDeployNodeConfigFieldsProviderBaotaPanelGoSite = () => {
   const { i18n, t } = useTranslation();
@@ -18,13 +22,35 @@ const BizDeployNodeConfigFieldsProviderBaotaPanelGoSite = () => {
   return (
     <>
       <Form.Item
-        name={[parentNamePath, "siteName"]}
-        initialValue={initialValues.siteName}
-        label={t("workflow_node.deploy.form.baotapanelgo_site_name.label")}
+        name={[parentNamePath, "siteType"]}
+        initialValue={initialValues.siteType}
+        label={t("workflow_node.deploy.form.baotapanelgo_site_type.label")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.baotapanelgo_site_name.tooltip") }}></span>}
       >
-        <Input placeholder={t("workflow_node.deploy.form.baotapanelgo_site_name.placeholder")} />
+        <Select
+          options={["php", "java", "asp", "go", "python", "nodejs", "proxy", "general"].map((s) => ({
+            value: s,
+            label: t(`workflow_node.deploy.form.baotapanelgo_site_type.option.${s}.label`),
+          }))}
+          placeholder={t("workflow_node.deploy.form.shared_resource_type.placeholder")}
+        />
+      </Form.Item>
+
+      <Form.Item
+        name={[parentNamePath, "siteNames"]}
+        initialValue={initialValues.siteNames}
+        label={t("workflow_node.deploy.form.baotapanelgo_site_names.label")}
+        extra={t("workflow_node.deploy.form.baotapanelgo_site_names.help")}
+        rules={[formRule]}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.baotapanelgo_site_names.tooltip") }}></span>}
+      >
+        <MultipleSplitValueInput
+          modalTitle={t("workflow_node.deploy.form.baotapanelgo_site_names.multiple_input_modal.title")}
+          placeholder={t("workflow_node.deploy.form.baotapanelgo_site_names.placeholder")}
+          placeholderInModal={t("workflow_node.deploy.form.baotapanelgo_site_names.multiple_input_modal.placeholder")}
+          separator={MULTIPLE_INPUT_SEPARATOR}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
+        />
       </Form.Item>
     </>
   );
@@ -32,7 +58,8 @@ const BizDeployNodeConfigFieldsProviderBaotaPanelGoSite = () => {
 
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
-    siteName: "",
+    siteType: "php",
+    siteNames: "",
   };
 };
 
@@ -40,7 +67,19 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
   const { t } = i18n;
 
   return z.object({
-    siteName: z.string().nonempty(t("workflow_node.deploy.form.baotapanelgo_site_name.placeholder")),
+    siteType: z.string().nonempty(t("workflow_node.deploy.form.baotapanelgo_site_type.placeholder")),
+    siteNames: z
+      .string()
+      .nonempty(t("workflow_node.deploy.form.baotapanelgo_site_names.placeholder"))
+      .refine(
+        (v) => {
+          if (!v) return false;
+          return String(v)
+            .split(MULTIPLE_INPUT_SEPARATOR)
+            .every((s) => !!s.trim());
+        },
+        { error: t("workflow_node.deploy.form.baotapanelgo_site_names.placeholder") }
+      ),
   });
 };
 

@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_APISIX_"
+	argsPrefix := "APISIX_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./apisix_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_APISIX_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_APISIX_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_APISIX_SERVERURL="http://127.0.0.1:9080" \
-	--CERTIMATE_SSLDEPLOYER_APISIX_APIKEY="your-api-key" \
-	--CERTIMATE_SSLDEPLOYER_APISIX_CERTIFICATEID="your-certificate-id"
+	--APISIX_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--APISIX_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--APISIX_SERVERURL="http://127.0.0.1:9080" \
+	--APISIX_APIKEY="your-api-key" \
+	--APISIX_CERTIFICATEID="your-certificate-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

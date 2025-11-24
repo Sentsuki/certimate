@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_CTCCCLOUDELB_"
+	argsPrefix := "CTCCCLOUDELB_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -34,11 +34,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ctcccloud_elb_test.go -args \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDELB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDELB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDELB_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDELB_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLMANAGER_CTCCCLOUDELB_REGIONID="your-region-id"
+	--CTCCCLOUDELB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--CTCCCLOUDELB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--CTCCCLOUDELB_ACCESSKEYID="your-access-key-id" \
+	--CTCCCLOUDELB_SECRETACCESSKEY="your-secret-access-key" \
+	--CTCCCLOUDELB_REGIONID="your-region-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

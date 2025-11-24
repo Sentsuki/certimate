@@ -2,13 +2,11 @@ package azurekeyvault
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azcertificates"
 
@@ -16,7 +14,6 @@ import (
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/azure-keyvault"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	azenv "github.com/certimate-go/certimate/pkg/sdk3rd/azure/env"
-	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
 type DeployerConfig struct {
@@ -46,12 +43,12 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.TenantId, config.ClientId, config.ClientSecret, config.CloudName, config.KeyVaultName)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
@@ -62,7 +59,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		KeyVaultName: config.KeyVaultName,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("could not create ssl manager: %w", err)
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
 	}
 
 	return &Deployer{
@@ -83,19 +80,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	d.sdkCertmgr.SetLogger(logger)
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
-	// 解析证书内容
-	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
-	if err != nil {
-		return nil, err
-	}
-
-	// 转换证书格式
-	certPFX, err := xcert.TransformCertificateFromPEMToPFX(certPEM, privkeyPEM, "")
-	if err != nil {
-		return nil, fmt.Errorf("failed to transform certificate from PEM to PFX: %w", err)
-	}
-
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.CertificateName == "" {
 		// 上传证书
 		upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
@@ -105,40 +90,12 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string
 			d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 		}
 	} else {
-		// 获取证书
-		// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/get-certificate/get-certificate
-		getCertificateResp, err := d.sdkClient.GetCertificate(ctx, d.config.CertificateName, "", nil)
-		d.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", d.config.CertificateName), slog.Any("response", getCertificateResp))
+		// 替换证书
+		opres, err := d.sdkCertmgr.Replace(ctx, d.config.CertificateName, certPEM, privkeyPEM)
 		if err != nil {
-			var respErr *azcore.ResponseError
-			if !errors.As(err, &respErr) || (respErr.ErrorCode != "ResourceNotFound" && respErr.ErrorCode != "CertificateNotFound") {
-				return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificate': %w", err)
-			}
+			return nil, fmt.Errorf("failed to replace certificate file: %w", err)
 		} else {
-			// 如果已存在相同证书，直接返回
-			if xcert.EqualCertificatesFromPEM(certPEM, string(getCertificateResp.CER)) {
-				return &deployer.DeployResult{}, nil
-			}
-		}
-
-		// 导入证书
-		// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/import-certificate/import-certificate
-		importCertificateParams := azcertificates.ImportCertificateParameters{
-			Base64EncodedCertificate: to.Ptr(base64.StdEncoding.EncodeToString(certPFX)),
-			CertificatePolicy: &azcertificates.CertificatePolicy{
-				SecretProperties: &azcertificates.SecretProperties{
-					ContentType: to.Ptr("application/x-pkcs12"),
-				},
-			},
-			Tags: map[string]*string{
-				"certimate/cert-cn": to.Ptr(certX509.Subject.CommonName),
-				"certimate/cert-sn": to.Ptr(certX509.SerialNumber.Text(16)),
-			},
-		}
-		importCertificateResp, err := d.sdkClient.ImportCertificate(ctx, d.config.CertificateName, importCertificateParams, nil)
-		d.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("request.certificateName", d.config.CertificateName), slog.Any("request.parameters", importCertificateParams), slog.Any("response", importCertificateResp))
-		if err != nil {
-			return nil, fmt.Errorf("failed to execute sdk request 'keyvault.ImportCertificate': %w", err)
+			d.logger.Info("ssl certificate replaced", slog.Any("result", opres))
 		}
 	}
 

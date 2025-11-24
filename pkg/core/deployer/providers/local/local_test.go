@@ -26,7 +26,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_LOCAL_"
+	argsPrefix := "LOCAL_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -45,17 +45,17 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./local_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_OUTPUTCERTPATH="/path/to/your-output-cert" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_OUTPUTKEYPATH="/path/to/your-output-key" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_PFXPASSWORD="your-pfx-password" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_JKSALIAS="your-jks-alias" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_JKSKEYPASS="your-jks-keypass" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_JKSSTOREPASS="your-jks-storepass" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_SHELLENV="sh" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_PRECOMMAND="echo 'hello world'" \
-	--CERTIMATE_SSLDEPLOYER_LOCAL_POSTCOMMAND="echo 'bye-bye world'"
+	--LOCAL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--LOCAL_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--LOCAL_OUTPUTCERTPATH="/path/to/your-output-cert" \
+	--LOCAL_OUTPUTKEYPATH="/path/to/your-output-key" \
+	--LOCAL_PFXPASSWORD="your-pfx-password" \
+	--LOCAL_JKSALIAS="your-jks-alias" \
+	--LOCAL_JKSKEYPASS="your-jks-keypass" \
+	--LOCAL_JKSSTOREPASS="your-jks-storepass" \
+	--LOCAL_SHELLENV="sh" \
+	--LOCAL_PRECOMMAND="echo 'hello world'" \
+	--LOCAL_POSTCOMMAND="echo 'bye-bye world'"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

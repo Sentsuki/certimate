@@ -14,7 +14,7 @@ import (
 	"github.com/pocketbase/dbx"
 
 	"github.com/certimate-go/certimate/internal/app"
-	"github.com/certimate-go/certimate/internal/certapply"
+	"github.com/certimate-go/certimate/internal/certacme"
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/internal/domain/dtos"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
@@ -196,12 +196,12 @@ func (s *CertificateService) RevokeCertificate(ctx context.Context, req *dtos.Ce
 		return nil, fmt.Errorf("failed to revoke certificate: could not find acme account: %w", err)
 	}
 
-	legoClient, err := certapply.NewACMEClientWithAccount(acmeAccount)
+	legoClient, err := certacme.NewACMEClientWithAccount(acmeAccount)
 	if err != nil {
 		return nil, fmt.Errorf("failed to revoke certificate: could not initialize acme config: %w", err)
 	}
 
-	revokeReq := &certapply.RevokeCertificateRequest{
+	revokeReq := &certacme.RevokeCertificateRequest{
 		Certificate: certificate.Certificate,
 	}
 	_, err = legoClient.RevokeCertificate(ctx, revokeReq)

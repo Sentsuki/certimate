@@ -24,7 +24,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_"
+	argsPrefix := "ALIYUNAPIGW_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -41,15 +41,15 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_apigw_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_REGION="cn-hangzhou" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_SERVICETYPE="cloudnative" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_GATEWAYID="your-api-gateway-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_GROUPID="your-api-group-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNAPIGW_DOMAIN="example.com"
+	--ALIYUNAPIGW_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNAPIGW_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNAPIGW_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNAPIGW_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNAPIGW_REGION="cn-hangzhou" \
+	--ALIYUNAPIGW_SERVICETYPE="cloudnative" \
+	--ALIYUNAPIGW_GATEWAYID="your-api-gateway-id" \
+	--ALIYUNAPIGW_GROUPID="your-api-group-id" \
+	--ALIYUNAPIGW_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

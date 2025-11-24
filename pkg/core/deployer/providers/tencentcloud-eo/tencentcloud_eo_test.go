@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_"
+	argsPrefix := "TENCENTCLOUDEO_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_eo_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_ZONEID="your-zone-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDEO_DOMAINS="example.com"
+	--TENCENTCLOUDEO_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDEO_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDEO_SECRETID="your-secret-id" \
+	--TENCENTCLOUDEO_SECRETKEY="your-secret-key" \
+	--TENCENTCLOUDEO_ZONEID="your-zone-id" \
+	--TENCENTCLOUDEO_DOMAINS="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()
@@ -62,6 +62,7 @@ func TestDeploy(t *testing.T) {
 			ZoneId:             fZoneId,
 			DomainMatchPattern: provider.DOMAIN_MATCH_PATTERN_EXACT,
 			Domains:            strings.Split(fDomains, ";"),
+			EnableMultipleSSL:  true,
 		})
 		if err != nil {
 			t.Errorf("err: %+v", err)

@@ -26,7 +26,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_NOTIFIER_EMAIL_"
+	argsPrefix := "EMAIL_"
 
 	flag.StringVar(&fSmtpHost, argsPrefix+"SMTPHOST", "", "")
 	flag.Int64Var(&fSmtpPort, argsPrefix+"SMTPPORT", 0, "")
@@ -41,13 +41,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./email_test.go -args \
-	--CERTIMATE_NOTIFIER_EMAIL_SMTPHOST="smtp.example.com" \
-	--CERTIMATE_NOTIFIER_EMAIL_SMTPPORT=465 \
-	--CERTIMATE_NOTIFIER_EMAIL_SMTPTLS=true \
-	--CERTIMATE_NOTIFIER_EMAIL_USERNAME="your-username" \
-	--CERTIMATE_NOTIFIER_EMAIL_PASSWORD="your-password" \
-	--CERTIMATE_NOTIFIER_EMAIL_SENDERADDRESS="sender@example.com" \
-	--CERTIMATE_NOTIFIER_EMAIL_RECEIVERADDRESS="receiver@example.com"
+	--EMAIL_SMTPHOST="smtp.example.com" \
+	--EMAIL_SMTPPORT=465 \
+	--EMAIL_SMTPTLS=true \
+	--EMAIL_USERNAME="your-username" \
+	--EMAIL_PASSWORD="your-password" \
+	--EMAIL_SENDERADDRESS="sender@example.com" \
+	--EMAIL_RECEIVERADDRESS="receiver@example.com"
 */
 func TestNotify(t *testing.T) {
 	flag.Parse()

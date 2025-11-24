@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_"
+	argsPrefix := "VOLCENGINETOS_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./volcengine_tos_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_REGION="cn-beijing" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_BUCKET="your-tos-bucket" \
-	--CERTIMATE_SSLDEPLOYER_VOLCENGINETOS_DOMAIN="example.com"
+	--VOLCENGINETOS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--VOLCENGINETOS_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--VOLCENGINETOS_ACCESSKEYID="your-access-key-id" \
+	--VOLCENGINETOS_ACCESSKEYSECRET="your-access-key-secret" \
+	--VOLCENGINETOS_REGION="cn-beijing" \
+	--VOLCENGINETOS_BUCKET="your-tos-bucket" \
+	--VOLCENGINETOS_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -43,12 +43,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -58,15 +58,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 查询已有证书，避免重复上传
 	// REF: https://support.huaweicloud.com/api-waf/ListCertificates.html
 	// REF: https://support.huaweicloud.com/api-waf/ShowCertificate.html
@@ -80,12 +80,12 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		}
 
 		listCertificatesReq := &hcwafmodel.ListCertificatesRequest{
-			EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+			EnterpriseProjectId: lo.EmptyableToPtr(c.config.EnterpriseProjectId),
 			Page:                lo.ToPtr(int32(listCertificatesPage)),
 			Pagesize:            lo.ToPtr(int32(listCertificatesPageSize)),
 		}
-		listCertificatesResp, err := m.sdkClient.ListCertificates(listCertificatesReq)
-		m.logger.Debug("sdk request 'waf.ShowCertificate'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
+		listCertificatesResp, err := c.sdkClient.ListCertificates(listCertificatesReq)
+		c.logger.Debug("sdk request 'waf.ShowCertificate'", slog.Any("request", listCertificatesReq), slog.Any("response", listCertificatesResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'waf.ListCertificates': %w", err)
 		}
@@ -96,18 +96,18 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 
 		for _, certItem := range *listCertificatesResp.Items {
 			showCertificateReq := &hcwafmodel.ShowCertificateRequest{
-				EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+				EnterpriseProjectId: lo.EmptyableToPtr(c.config.EnterpriseProjectId),
 				CertificateId:       certItem.Id,
 			}
-			showCertificateResp, err := m.sdkClient.ShowCertificate(showCertificateReq)
-			m.logger.Debug("sdk request 'waf.ShowCertificate'", slog.Any("request", showCertificateReq), slog.Any("response", showCertificateResp))
+			showCertificateResp, err := c.sdkClient.ShowCertificate(showCertificateReq)
+			c.logger.Debug("sdk request 'waf.ShowCertificate'", slog.Any("request", showCertificateReq), slog.Any("response", showCertificateResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'waf.ShowCertificate': %w", err)
 			}
 
 			// 如果已存在相同证书，直接返回
 			if xcert.EqualCertificatesFromPEM(certPEM, lo.FromPtr(showCertificateResp.Content)) {
-				m.logger.Info("ssl certificate already exists")
+				c.logger.Info("ssl certificate already exists")
 				return &certmgr.UploadResult{
 					CertId:   certItem.Id,
 					CertName: certItem.Name,
@@ -128,15 +128,15 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	// 创建证书
 	// REF: https://support.huaweicloud.com/api-waf/CreateCertificate.html
 	createCertificateReq := &hcwafmodel.CreateCertificateRequest{
-		EnterpriseProjectId: lo.EmptyableToPtr(m.config.EnterpriseProjectId),
+		EnterpriseProjectId: lo.EmptyableToPtr(c.config.EnterpriseProjectId),
 		Body: &hcwafmodel.CreateCertificateRequestBody{
 			Name:    certName,
 			Content: certPEM,
 			Key:     privkeyPEM,
 		},
 	}
-	createCertificateResp, err := m.sdkClient.CreateCertificate(createCertificateReq)
-	m.logger.Debug("sdk request 'waf.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
+	createCertificateResp, err := c.sdkClient.CreateCertificate(createCertificateReq)
+	c.logger.Debug("sdk request 'waf.CreateCertificate'", slog.Any("request", createCertificateReq), slog.Any("response", createCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'waf.CreateCertificate': %w", err)
 	}
@@ -145,6 +145,10 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   *createCertificateResp.Id,
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
 }
 
 func createSDKClient(accessKeyId, secretAccessKey, region string) (*internal.WafClient, error) {

@@ -47,12 +47,12 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.SecretId, config.SecretKey, config.Endpoint)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
@@ -61,7 +61,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		Endpoint:  config.Endpoint,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("could not create ssl manager: %w", err)
+		return nil, fmt.Errorf("could not create certmgr: %w", err)
 	}
 
 	return &Deployer{
@@ -82,7 +82,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	d.sdkCertmgr.SetLogger(logger)
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.CertificateId == "" {
 		return nil, errors.New("config `certificateId` is required")
 	}
@@ -103,7 +103,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *Deployer) executeUpdateCertificateInstance(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) executeUpdateCertificateInstance(ctx context.Context, certPEM, privkeyPEM string) error {
 	// 上传证书
 	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
@@ -186,7 +186,7 @@ func (d *Deployer) executeUpdateCertificateInstance(ctx context.Context, certPEM
 	return nil
 }
 
-func (d *Deployer) executeUploadUpdateCertificateInstance(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) executeUploadUpdateCertificateInstance(ctx context.Context, certPEM, privkeyPEM string) error {
 	// 更新证书内容并更新关联的云资源
 	// REF: https://cloud.tencent.com/document/product/400/119791
 	var deployRecordId int64

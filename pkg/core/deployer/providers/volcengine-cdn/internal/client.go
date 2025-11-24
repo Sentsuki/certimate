@@ -1,4 +1,4 @@
-﻿package internal
+package internal
 
 import (
 	"github.com/volcengine/volcengine-go-sdk/service/cdn"

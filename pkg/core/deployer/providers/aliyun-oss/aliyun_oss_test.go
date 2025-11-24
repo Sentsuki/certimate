@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_ALIYUNOSS_"
+	argsPrefix := "ALIYUNOSS_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_oss_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNOSS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNOSS_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNOSS_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNOSS_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNOSS_REGION="cn-hangzhou" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNOSS_BUCKET="your-oss-bucket" \
-	--CERTIMATE_SSLDEPLOYER_ALIYUNOSS_DOMAIN="example.com"
+	--ALIYUNOSS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNOSS_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNOSS_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNOSS_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNOSS_REGION="cn-hangzhou" \
+	--ALIYUNOSS_BUCKET="your-oss-bucket" \
+	--ALIYUNOSS_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

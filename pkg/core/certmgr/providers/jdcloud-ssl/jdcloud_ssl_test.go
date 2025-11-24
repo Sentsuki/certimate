@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_JDCLOUDSSL_"
+	argsPrefix := "JDCLOUDSSL_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -32,10 +32,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./jdcloud_ssl_test.go -args \
-	--CERTIMATE_SSLMANAGER_JDCLOUDSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_JDCLOUDSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_JDCLOUDSSL_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLMANAGER_JDCLOUDSSL_ACCESSKEYSECRET="your-access-key-secret"
+	--JDCLOUDSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--JDCLOUDSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--JDCLOUDSSL_ACCESSKEYID="your-access-key-id" \
+	--JDCLOUDSSL_ACCESSKEYSECRET="your-access-key-secret"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

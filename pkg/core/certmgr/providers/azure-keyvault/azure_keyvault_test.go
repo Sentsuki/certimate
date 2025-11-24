@@ -23,7 +23,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_AZUREKEYVAULT_"
+	argsPrefix := "AZUREKEYVAULT_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -38,13 +38,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./azure_keyvault_test.go -args \
-	--CERTIMATE_SSLMANAGER_AZUREKEYVAULT_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_AZUREKEYVAULT_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_AZUREKEYVAULT_TENANTID="your-tenant-id" \
-	--CERTIMATE_SSLMANAGER_AZUREKEYVAULT_CLIENTID="your-app-registration-client-id" \
-	--CERTIMATE_SSLMANAGER_AZUREKEYVAULT_CLIENTSECRET="your-app-registration-client-secret" \
-	--CERTIMATE_SSLMANAGER_AZUREKEYVAULT_CLOUDNAME="china" \
-	--CERTIMATE_SSLMANAGER_AZUREKEYVAULT_KEYVAULTNAME="your-keyvault-name"
+	--AZUREKEYVAULT_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--AZUREKEYVAULT_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--AZUREKEYVAULT_TENANTID="your-tenant-id" \
+	--AZUREKEYVAULT_CLIENTID="your-app-registration-client-id" \
+	--AZUREKEYVAULT_CLIENTSECRET="your-app-registration-client-secret" \
+	--AZUREKEYVAULT_CLOUDNAME="china" \
+	--AZUREKEYVAULT_KEYVAULTNAME="your-keyvault-name"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

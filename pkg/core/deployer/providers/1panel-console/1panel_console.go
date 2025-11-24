@@ -9,8 +9,8 @@ import (
 	"strconv"
 
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	opsdk "github.com/certimate-go/certimate/pkg/sdk3rd/1panel"
-	opsdkv2 "github.com/certimate-go/certimate/pkg/sdk3rd/1panel/v2"
+	onepanelsdk "github.com/certimate-go/certimate/pkg/sdk3rd/1panel"
+	onepanelsdk2 "github.com/certimate-go/certimate/pkg/sdk3rd/1panel/v2"
 )
 
 type DeployerConfig struct {
@@ -37,12 +37,12 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.ApiVersion, config.ApiKey, config.AllowInsecureConnections)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Deployer{
@@ -60,43 +60,43 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	// 设置面板 SSL 证书
 	switch sdkClient := d.sdkClient.(type) {
-	case *opsdk.Client:
+	case *onepanelsdk.Client:
 		{
-			updateSettingsSSLReq := &opsdk.UpdateSettingsSSLRequest{
+			settingsSSLUpdateReq := &onepanelsdk.SettingsSSLUpdateRequest{
 				Cert:        certPEM,
 				Key:         privkeyPEM,
 				SSL:         "enable",
 				SSLType:     "import-paste",
 				AutoRestart: strconv.FormatBool(d.config.AutoRestart),
 			}
-			updateSystemSSLResp, err := sdkClient.UpdateSettingsSSL(updateSettingsSSLReq)
-			d.logger.Debug("sdk request '1panel.UpdateSettingsSSL'", slog.Any("request", updateSettingsSSLReq), slog.Any("response", updateSystemSSLResp))
+			settingsSSLUpdateResp, err := sdkClient.SettingsSSLUpdate(settingsSSLUpdateReq)
+			d.logger.Debug("sdk request '1panel.SettingsSSLUpdate'", slog.Any("request", settingsSSLUpdateReq), slog.Any("response", settingsSSLUpdateResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.UpdateSettingsSSL': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request '1panel.SettingsSSLUpdate': %w", err)
 			}
 		}
 
-	case *opsdkv2.Client:
+	case *onepanelsdk2.Client:
 		{
-			updateCoreSettingsSSLReq := &opsdkv2.UpdateCoreSettingsSSLRequest{
+			coreSettingsSSLUpdateReq := &onepanelsdk2.CoreSettingsSSLUpdateRequest{
 				Cert:        certPEM,
 				Key:         privkeyPEM,
 				SSL:         "Enable",
 				SSLType:     "import-paste",
 				AutoRestart: strconv.FormatBool(d.config.AutoRestart),
 			}
-			updateCoreSystemSSLResp, err := sdkClient.UpdateCoreSettingsSSL(updateCoreSettingsSSLReq)
-			d.logger.Debug("sdk request '1panel.UpdateCoreSettingsSSL'", slog.Any("request", updateCoreSettingsSSLReq), slog.Any("response", updateCoreSystemSSLResp))
+			coreSettingsSSLUpdateResp, err := sdkClient.CoreSettingsSSLUpdate(coreSettingsSSLUpdateReq)
+			d.logger.Debug("sdk request '1panel.CoreSettingsSSLUpdate'", slog.Any("request", coreSettingsSSLUpdateReq), slog.Any("response", coreSettingsSSLUpdateResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.UpdateCoreSettingsSSL': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request '1panel.CoreSettingsSSLUpdate': %w", err)
 			}
 		}
 
 	default:
-		panic("sdk client is not implemented")
+		panic("unreachable")
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -109,7 +109,7 @@ const (
 
 func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool) (any, error) {
 	if apiVersion == sdkVersionV1 {
-		client, err := opsdk.NewClient(serverUrl, apiKey)
+		client, err := onepanelsdk.NewClient(serverUrl, apiKey)
 		if err != nil {
 			return nil, err
 		}
@@ -120,7 +120,7 @@ func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool) (
 
 		return client, nil
 	} else if apiVersion == sdkVersionV2 {
-		client, err := opsdkv2.NewClient(serverUrl, apiKey)
+		client, err := onepanelsdk2.NewClient(serverUrl, apiKey)
 		if err != nil {
 			return nil, err
 		}

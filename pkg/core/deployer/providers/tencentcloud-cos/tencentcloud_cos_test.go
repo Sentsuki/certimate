@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_"
+	argsPrefix := "TENCENTCLOUDCOS_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_cos_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_REGION="ap-guangzhou" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_BUCKET="your-cos-bucket" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCOS_DOMAIN="example.com"
+	--TENCENTCLOUDCOS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDCOS_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDCOS_SECRETID="your-secret-id" \
+	--TENCENTCLOUDCOS_SECRETKEY="your-secret-key" \
+	--TENCENTCLOUDCOS_REGION="ap-guangzhou" \
+	--TENCENTCLOUDCOS_BUCKET="your-cos-bucket" \
+	--TENCENTCLOUDCOS_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

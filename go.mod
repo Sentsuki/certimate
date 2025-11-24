@@ -40,7 +40,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/iam v1.50.0
 	github.com/baidubce/bce-sdk-go v0.9.251
 	github.com/byteplus-sdk/byteplus-sdk-golang v1.0.58
-	github.com/domodwyer/mailyak/v3 v3.6.2
 	github.com/go-acme/lego/v4 v4.28.0
 	github.com/go-cmd/cmd v1.4.3
 	github.com/go-resty/resty/v2 v2.16.5
@@ -76,6 +75,7 @@ require (
 	github.com/volcengine/ve-tos-golang-sdk/v2 v2.7.24
 	github.com/volcengine/volc-sdk-golang v1.0.226
 	github.com/volcengine/volcengine-go-sdk v1.1.47
+	github.com/wneessen/go-mail v0.7.2
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	gitlab.ecloud.com/ecloud/ecloudsdkclouddns v1.0.1
 	gitlab.ecloud.com/ecloud/ecloudsdkcore v1.0.0
@@ -197,6 +197,7 @@ require (
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/disintegration/imaging v1.6.2 // indirect
+	github.com/domodwyer/mailyak/v3 v3.6.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.10 // indirect

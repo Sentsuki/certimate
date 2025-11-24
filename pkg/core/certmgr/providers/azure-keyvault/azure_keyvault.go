@@ -41,12 +41,12 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.TenantId, config.ClientId, config.ClientSecret, config.CloudName, config.KeyVaultName)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -56,15 +56,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -79,7 +79,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 
 	// 获取证书列表，避免重复上传
 	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/get-certificates/get-certificates
-	listCertificatesPager := m.sdkClient.NewListCertificatePropertiesPager(nil)
+	listCertificatesPager := c.sdkClient.NewListCertificatePropertiesPager(nil)
 	for listCertificatesPager.More() {
 		page, err := listCertificatesPager.NextPage(context.TODO())
 		if err != nil {
@@ -113,8 +113,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 对比证书内容
-			getCertificateResp, err := m.sdkClient.GetCertificate(ctx, certItem.ID.Name(), certItem.ID.Version(), nil)
-			m.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", certItem.ID.Name()), slog.String("request.certificateVersion", certItem.ID.Version()), slog.Any("response", getCertificateResp))
+			getCertificateResp, err := c.sdkClient.GetCertificate(ctx, certItem.ID.Name(), certItem.ID.Version(), nil)
+			c.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", certItem.ID.Name()), slog.String("request.certificateVersion", certItem.ID.Version()), slog.Any("response", getCertificateResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificate': %w", err)
 			} else {
@@ -124,7 +124,7 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			m.logger.Info("ssl certificate already exists")
+			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   string(*certItem.ID),
 				CertName: certItem.ID.Name(),
@@ -157,8 +157,8 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 			TAG_CERTSN: to.Ptr(certSN),
 		},
 	}
-	importCertificateResp, err := m.sdkClient.ImportCertificate(ctx, certName, importCertificateParams, nil)
-	m.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("request.certificateName", certName), slog.Any("request.parameters", importCertificateParams), slog.Any("response", importCertificateResp))
+	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, certName, importCertificateParams, nil)
+	c.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("request.certificateName", certName), slog.Any("request.parameters", importCertificateParams), slog.Any("response", importCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'keyvault.ImportCertificate': %w", err)
 	}
@@ -167,6 +167,58 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 		CertId:   string(*importCertificateResp.ID),
 		CertName: certName,
 	}, nil
+}
+
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	// 解析证书内容
+	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换证书格式
+	certPFX, err := xcert.TransformCertificateFromPEMToPFX(certPEM, privkeyPEM, "")
+	if err != nil {
+		return nil, fmt.Errorf("failed to transform certificate from PEM to PFX: %w", err)
+	}
+
+	// 获取证书
+	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/get-certificate/get-certificate
+	getCertificateResp, err := c.sdkClient.GetCertificate(ctx, certIdOrName, "", nil)
+	c.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", certIdOrName), slog.Any("response", getCertificateResp))
+	if err != nil {
+		var respErr *azcore.ResponseError
+		if !errors.As(err, &respErr) || (respErr.ErrorCode != "ResourceNotFound" && respErr.ErrorCode != "CertificateNotFound") {
+			return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificate': %w", err)
+		}
+	} else {
+		// 如果已存在相同证书，直接返回
+		if xcert.EqualCertificatesFromPEM(certPEM, string(getCertificateResp.CER)) {
+			return &certmgr.OperateResult{}, nil
+		}
+	}
+
+	// 导入证书
+	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/import-certificate/import-certificate
+	importCertificateParams := azcertificates.ImportCertificateParameters{
+		Base64EncodedCertificate: to.Ptr(base64.StdEncoding.EncodeToString(certPFX)),
+		CertificatePolicy: &azcertificates.CertificatePolicy{
+			SecretProperties: &azcertificates.SecretProperties{
+				ContentType: to.Ptr("application/x-pkcs12"),
+			},
+		},
+		Tags: map[string]*string{
+			"certimate/cert-cn": to.Ptr(certX509.Subject.CommonName),
+			"certimate/cert-sn": to.Ptr(certX509.SerialNumber.Text(16)),
+		},
+	}
+	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, certIdOrName, importCertificateParams, nil)
+	c.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("request.certificateName", certIdOrName), slog.Any("request.parameters", importCertificateParams), slog.Any("response", importCertificateResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'keyvault.ImportCertificate': %w", err)
+	}
+
+	return &certmgr.OperateResult{}, nil
 }
 
 func createSDKClient(tenantId, clientId, clientSecret, cloudName, keyvaultName string) (*azcertificates.Client, error) {

@@ -1,9 +1,12 @@
 import { getI18n, useTranslation } from "react-i18next";
-import { Form, Input } from "antd";
+import { Form } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
+import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
 import { useFormNestedFieldsContext } from "./_context";
+
+const MULTIPLE_INPUT_SEPARATOR = ";";
 
 const BizDeployNodeConfigFieldsProviderRatPanelSite = () => {
   const { i18n, t } = useTranslation();
@@ -18,13 +21,20 @@ const BizDeployNodeConfigFieldsProviderRatPanelSite = () => {
   return (
     <>
       <Form.Item
-        name={[parentNamePath, "siteName"]}
-        initialValue={initialValues.siteName}
-        label={t("workflow_node.deploy.form.ratpanel_site_name.label")}
+        name={[parentNamePath, "siteNames"]}
+        initialValue={initialValues.siteNames}
+        label={t("workflow_node.deploy.form.ratpanel_site_names.label")}
+        extra={t("workflow_node.deploy.form.ratpanel_site_names.help")}
         rules={[formRule]}
-        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.ratpanel_site_name.tooltip") }}></span>}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.ratpanel_site_names.tooltip") }}></span>}
       >
-        <Input placeholder={t("workflow_node.deploy.form.ratpanel_site_name.placeholder")} />
+        <MultipleSplitValueInput
+          modalTitle={t("workflow_node.deploy.form.ratpanel_site_names.multiple_input_modal.title")}
+          placeholder={t("workflow_node.deploy.form.ratpanel_site_names.placeholder")}
+          placeholderInModal={t("workflow_node.deploy.form.ratpanel_site_names.multiple_input_modal.placeholder")}
+          separator={MULTIPLE_INPUT_SEPARATOR}
+          splitOptions={{ removeEmpty: true, trimSpace: true }}
+        />
       </Form.Item>
     </>
   );
@@ -32,7 +42,7 @@ const BizDeployNodeConfigFieldsProviderRatPanelSite = () => {
 
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
-    siteName: "",
+    siteNames: "",
   };
 };
 
@@ -40,7 +50,18 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
   const { t } = i18n;
 
   return z.object({
-    siteName: z.string().nonempty(t("workflow_node.deploy.form.ratpanel_site_name.placeholder")),
+    siteNames: z
+      .string()
+      .nonempty(t("workflow_node.deploy.form.ratpanel_site_names.placeholder"))
+      .refine(
+        (v) => {
+          if (!v) return false;
+          return String(v)
+            .split(MULTIPLE_INPUT_SEPARATOR)
+            .every((s) => !!s.trim());
+        },
+        { error: t("workflow_node.deploy.form.ratpanel_site_names.placeholder") }
+      ),
   });
 };
 

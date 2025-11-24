@@ -211,14 +211,15 @@ type AccessConfigForDynv6 struct {
 }
 
 type AccessConfigForEmail struct {
-	SmtpHost        string `json:"smtpHost"`
-	SmtpPort        int32  `json:"smtpPort"`
-	SmtpTls         bool   `json:"smtpTls"`
-	Username        string `json:"username"`
-	Password        string `json:"password"`
-	SenderAddress   string `json:"senderAddress"`
-	SenderName      string `json:"senderName"`
-	ReceiverAddress string `json:"receiverAddress,omitempty"`
+	SmtpHost                 string `json:"smtpHost"`
+	SmtpPort                 int32  `json:"smtpPort"`
+	SmtpTls                  bool   `json:"smtpTls"`
+	Username                 string `json:"username"`
+	Password                 string `json:"password"`
+	SenderAddress            string `json:"senderAddress"`
+	SenderName               string `json:"senderName"`
+	ReceiverAddress          string `json:"receiverAddress,omitempty"`
+	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
 }
 
 type AccessConfigForFlexCDN struct {

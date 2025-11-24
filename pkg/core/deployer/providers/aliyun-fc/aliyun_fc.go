@@ -55,12 +55,12 @@ type wSDKClients struct {
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl deployer provider is nil")
+		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
 	clients, err := createSDKClients(config.AccessKeyId, config.AccessKeySecret, config.Region)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Deployer{
@@ -78,7 +78,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	switch d.config.ServiceVersion {
 	case "3", "3.0":
 		if err := d.deployToFC3(ctx, certPEM, privkeyPEM); err != nil {
@@ -97,7 +97,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM string, privkeyPEM string
 	return &deployer.DeployResult{}, nil
 }
 
-func (d *Deployer) deployToFC3(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToFC3(ctx context.Context, certPEM, privkeyPEM string) error {
 	// 获取待部署的域名列表
 	var domains []string
 	switch d.config.DomainMatchPattern {
@@ -183,7 +183,7 @@ func (d *Deployer) deployToFC3(ctx context.Context, certPEM string, privkeyPEM s
 	return nil
 }
 
-func (d *Deployer) deployToFC2(ctx context.Context, certPEM string, privkeyPEM string) error {
+func (d *Deployer) deployToFC2(ctx context.Context, certPEM, privkeyPEM string) error {
 	// 获取待部署的域名列表
 	var domains []string
 	switch d.config.DomainMatchPattern {

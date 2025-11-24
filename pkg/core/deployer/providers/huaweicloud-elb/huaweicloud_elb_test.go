@@ -23,7 +23,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_"
+	argsPrefix := "HUAWEICLOUDELB_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -39,14 +39,14 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./huaweicloud_elb_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_SECRETACCESSKEY="your-secret-access-key" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_REGION="cn-north-1" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_CERTIFICATEID="your-elb-cert-id" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_LOADBALANCERID="your-elb-loadbalancer-id" \
-	--CERTIMATE_SSLDEPLOYER_HUAWEICLOUDELB_LISTENERID="your-elb-listener-id"
+	--HUAWEICLOUDELB_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--HUAWEICLOUDELB_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--HUAWEICLOUDELB_ACCESSKEYID="your-access-key-id" \
+	--HUAWEICLOUDELB_SECRETACCESSKEY="your-secret-access-key" \
+	--HUAWEICLOUDELB_REGION="cn-north-1" \
+	--HUAWEICLOUDELB_CERTIFICATEID="your-elb-cert-id" \
+	--HUAWEICLOUDELB_LOADBALANCERID="your-elb-loadbalancer-id" \
+	--HUAWEICLOUDELB_LISTENERID="your-elb-listener-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

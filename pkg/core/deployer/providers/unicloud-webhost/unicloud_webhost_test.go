@@ -22,7 +22,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_"
+	argsPrefix := "UNICLOUDWEBHOST_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -37,13 +37,13 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./unicloud_webhost_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_USERNAME="your-username" \
-	--CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_PASSWORD="your-password" \
-	--CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_SPACEPROVIDER="aliyun/tencent" \
-	--CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_SPACEID="your-space-id" \
-	--CERTIMATE_SSLDEPLOYER_UNICLOUDWEBHOST_DOMAIN="example.com"
+	--UNICLOUDWEBHOST_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--UNICLOUDWEBHOST_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--UNICLOUDWEBHOST_USERNAME="your-username" \
+	--UNICLOUDWEBHOST_PASSWORD="your-password" \
+	--UNICLOUDWEBHOST_SPACEPROVIDER="aliyun/tencent" \
+	--UNICLOUDWEBHOST_SPACEID="your-space-id" \
+	--UNICLOUDWEBHOST_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

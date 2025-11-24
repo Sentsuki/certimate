@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCSS_"
+	argsPrefix := "TENCENTCLOUDCSS_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_css_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCSS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCSS_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCSS_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCSS_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDCSS_DOMAIN="example.com"
+	--TENCENTCLOUDCSS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDCSS_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDCSS_SECRETID="your-secret-id" \
+	--TENCENTCLOUDCSS_SECRETKEY="your-secret-key" \
+	--TENCENTCLOUDCSS_DOMAIN="example.com"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_UCLOUDUCDN_"
+	argsPrefix := "UCLOUDUCDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ucloud_ucdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUCDN_PRIVATEKEY="your-private-key" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUCDN_PUBLICKEY="your-public-key" \
-	--CERTIMATE_SSLDEPLOYER_UCLOUDUCDN_DOMAINID="your-domain-id"
+	--UCLOUDUCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--UCLOUDUCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--UCLOUDUCDN_PRIVATEKEY="your-private-key" \
+	--UCLOUDUCDN_PUBLICKEY="your-public-key" \
+	--UCLOUDUCDN_DOMAINID="your-domain-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

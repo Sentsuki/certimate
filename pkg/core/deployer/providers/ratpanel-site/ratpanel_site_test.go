@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_RATPANELSITE_"
+	argsPrefix := "RATPANELSITE_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -35,12 +35,12 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ratpanel_site_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_RATPANELSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELSITE_SERVERURL="http://127.0.0.1:8888" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELSITE_ACCESSTOKENID="your-access-token-id" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELSITE_ACCESSTOKEN="your-access-token" \
-	--CERTIMATE_SSLDEPLOYER_RATPANELSITE_SITENAME="your-site-name"
+	--RATPANELSITE_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--RATPANELSITE_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--RATPANELSITE_SERVERURL="http://127.0.0.1:8888" \
+	--RATPANELSITE_ACCESSTOKENID="your-access-token-id" \
+	--RATPANELSITE_ACCESSTOKEN="your-access-token" \
+	--RATPANELSITE_SITENAME="your-site-name"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()
@@ -61,7 +61,7 @@ func TestDeploy(t *testing.T) {
 			AccessTokenId:            fAccessTokenId,
 			AccessToken:              fAccessToken,
 			AllowInsecureConnections: true,
-			SiteName:                 fSiteName,
+			SiteNames:                []string{fSiteName},
 		})
 		if err != nil {
 			t.Errorf("err: %+v", err)

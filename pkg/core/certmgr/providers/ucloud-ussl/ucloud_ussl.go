@@ -16,7 +16,7 @@ import (
 	ucloudauth "github.com/ucloud/ucloud-sdk-go/ucloud/auth"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	usslsdk "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ussl"
+	ucloudssl "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ussl"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -32,19 +32,19 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *usslsdk.USSLClient
+	sdkClient *ucloudssl.USSLClient
 }
 
 var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the ssl manager provider is nil")
+		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.PrivateKey, config.PublicKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not create sdk client: %w", err)
+		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	return &Certmgr{
@@ -54,15 +54,15 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	}, nil
 }
 
-func (m *Certmgr) SetLogger(logger *slog.Logger) {
+func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	if logger == nil {
-		m.logger = slog.New(slog.DiscardHandler)
+		c.logger = slog.New(slog.DiscardHandler)
 	} else {
-		m.logger = logger
+		c.logger = logger
 	}
 }
 
-func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
 	// 生成新证书名（需符合优刻得命名规则）
 	certName := fmt.Sprintf("certimate-%d", time.Now().UnixMilli())
 
@@ -74,25 +74,25 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 
 	// 上传托管证书
 	// REF: https://docs.ucloud.cn/api/usslcertificate-api/upload_normal_certificate
-	uploadNormalCertificateReq := m.sdkClient.NewUploadNormalCertificateRequest()
+	uploadNormalCertificateReq := c.sdkClient.NewUploadNormalCertificateRequest()
 	uploadNormalCertificateReq.CertificateName = ucloud.String(certName)
 	uploadNormalCertificateReq.SslPublicKey = ucloud.String(certPEMBase64)
 	uploadNormalCertificateReq.SslPrivateKey = ucloud.String(privkeyPEMBase64)
 	uploadNormalCertificateReq.SslMD5 = ucloud.String(certMd5Hex)
-	if m.config.ProjectId != "" {
-		uploadNormalCertificateReq.ProjectId = ucloud.String(m.config.ProjectId)
+	if c.config.ProjectId != "" {
+		uploadNormalCertificateReq.ProjectId = ucloud.String(c.config.ProjectId)
 	}
-	uploadNormalCertificateResp, err := m.sdkClient.UploadNormalCertificate(uploadNormalCertificateReq)
-	m.logger.Debug("sdk request 'ussl.UploadNormalCertificate'", slog.Any("request", uploadNormalCertificateReq), slog.Any("response", uploadNormalCertificateResp))
+	uploadNormalCertificateResp, err := c.sdkClient.UploadNormalCertificate(uploadNormalCertificateReq)
+	c.logger.Debug("sdk request 'ussl.UploadNormalCertificate'", slog.Any("request", uploadNormalCertificateReq), slog.Any("response", uploadNormalCertificateResp))
 	if err != nil {
 		if uploadNormalCertificateResp != nil && uploadNormalCertificateResp.GetRetCode() == 80035 {
-			if res, err := m.tryFindCert(ctx, certPEM); err != nil {
+			if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM); err != nil {
 				return nil, err
-			} else if res == nil {
+			} else if !upok {
 				return nil, errors.New("could not find ssl certificate, may be upload failed")
 			} else {
-				m.logger.Info("ssl certificate already exists")
-				return res, nil
+				c.logger.Info("ssl certificate already exists")
+				return upres, nil
 			}
 		}
 
@@ -108,11 +108,15 @@ func (m *Certmgr) Upload(ctx context.Context, certPEM string, privkeyPEM string)
 	}, nil
 }
 
-func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+	return nil, certmgr.ErrUnsupported
+}
+
+func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM string) (*certmgr.UploadResult, bool, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	// 查询用户证书列表
@@ -123,23 +127,23 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, false, ctx.Err()
 		default:
 		}
 
-		getCertificateListReq := m.sdkClient.NewGetCertificateListRequest()
+		getCertificateListReq := c.sdkClient.NewGetCertificateListRequest()
 		getCertificateListReq.Mode = ucloud.String("trust")
 		getCertificateListReq.Domain = ucloud.String(certX509.Subject.CommonName)
 		getCertificateListReq.Sort = ucloud.String("2")
 		getCertificateListReq.Page = ucloud.Int(getCertificateListPage)
 		getCertificateListReq.PageSize = ucloud.Int(getCertificateListLimit)
-		if m.config.ProjectId != "" {
-			getCertificateListReq.ProjectId = ucloud.String(m.config.ProjectId)
+		if c.config.ProjectId != "" {
+			getCertificateListReq.ProjectId = ucloud.String(c.config.ProjectId)
 		}
-		getCertificateListResp, err := m.sdkClient.GetCertificateList(getCertificateListReq)
-		m.logger.Debug("sdk request 'ussl.GetCertificateList'", slog.Any("request", getCertificateListReq), slog.Any("response", getCertificateListResp))
+		getCertificateListResp, err := c.sdkClient.GetCertificateList(getCertificateListReq)
+		c.logger.Debug("sdk request 'ussl.GetCertificateList'", slog.Any("request", getCertificateListReq), slog.Any("response", getCertificateListResp))
 		if err != nil {
-			return nil, fmt.Errorf("failed to execute sdk request 'ussl.GetCertificateList': %w", err)
+			return nil, false, fmt.Errorf("failed to execute sdk request 'ussl.GetCertificateList': %w", err)
 		}
 
 		for _, certItem := range getCertificateListResp.CertificateList {
@@ -158,14 +162,14 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 				continue
 			}
 
-			getCertificateDetailInfoReq := m.sdkClient.NewGetCertificateDetailInfoRequest()
+			getCertificateDetailInfoReq := c.sdkClient.NewGetCertificateDetailInfoRequest()
 			getCertificateDetailInfoReq.CertificateID = ucloud.Int(certItem.CertificateID)
-			if m.config.ProjectId != "" {
-				getCertificateDetailInfoReq.ProjectId = ucloud.String(m.config.ProjectId)
+			if c.config.ProjectId != "" {
+				getCertificateDetailInfoReq.ProjectId = ucloud.String(c.config.ProjectId)
 			}
-			getCertificateDetailInfoResp, err := m.sdkClient.GetCertificateDetailInfo(getCertificateDetailInfoReq)
+			getCertificateDetailInfoResp, err := c.sdkClient.GetCertificateDetailInfo(getCertificateDetailInfoReq)
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request 'ussl.GetCertificateDetailInfo': %w", err)
+				return nil, false, fmt.Errorf("failed to execute sdk request 'ussl.GetCertificateDetailInfo': %w", err)
 			}
 
 			switch certX509.SignatureAlgorithm {
@@ -216,7 +220,7 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 				ExtendedData: map[string]any{
 					"ResourceId": certItem.CertificateSN,
 				},
-			}, nil
+			}, true, nil
 		}
 
 		if len(getCertificateListResp.CertificateList) < getCertificateListLimit {
@@ -226,16 +230,16 @@ func (m *Certmgr) tryFindCert(ctx context.Context, certPEM string) (*certmgr.Upl
 		getCertificateListPage++
 	}
 
-	return nil, nil
+	return nil, false, nil
 }
 
-func createSDKClient(privateKey, publicKey string) (*usslsdk.USSLClient, error) {
+func createSDKClient(privateKey, publicKey string) (*ucloudssl.USSLClient, error) {
 	cfg := ucloud.NewConfig()
 
 	credential := ucloudauth.NewCredential()
 	credential.PrivateKey = privateKey
 	credential.PublicKey = publicKey
 
-	client := usslsdk.NewClient(&cfg, &credential)
+	client := ucloudssl.NewClient(&cfg, &credential)
 	return client, nil
 }

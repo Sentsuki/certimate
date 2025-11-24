@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_ALIYUNCAS_"
+	argsPrefix := "ALIYUNCAS_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -34,11 +34,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./aliyun_cas_test.go -args \
-	--CERTIMATE_SSLMANAGER_ALIYUNCAS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_ALIYUNCAS_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_ALIYUNCAS_ACCESSKEYID="your-access-key-id" \
-	--CERTIMATE_SSLMANAGER_ALIYUNCAS_ACCESSKEYSECRET="your-access-key-secret" \
-	--CERTIMATE_SSLMANAGER_ALIYUNCAS_REGION="cn-hangzhou"
+	--ALIYUNCAS_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--ALIYUNCAS_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--ALIYUNCAS_ACCESSKEYID="your-access-key-id" \
+	--ALIYUNCAS_ACCESSKEYSECRET="your-access-key-secret" \
+	--ALIYUNCAS_REGION="cn-hangzhou"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

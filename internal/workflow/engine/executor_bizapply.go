@@ -1,4 +1,4 @@
-﻿package engine
+package engine
 
 import (
 	"crypto/x509"
@@ -18,7 +18,7 @@ import (
 	"github.com/xhit/go-str2duration/v2"
 
 	"github.com/certimate-go/certimate/internal/app"
-	"github.com/certimate-go/certimate/internal/certapply"
+	"github.com/certimate-go/certimate/internal/certacme"
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/internal/repository"
 	"github.com/certimate-go/certimate/internal/tools/mproc"
@@ -73,9 +73,15 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 	lastOutput, lastCertificate, err := ne.getLastOutputArtifacts(execCtx)
 	if err != nil {
 		return execRes, err
-	} else if lastCertificate != nil {
-		ne.setOuputsOfResult(execCtx, execRes, lastCertificate, false)
-		ne.setVariablesOfResult(execCtx, execRes, lastCertificate)
+	} else {
+		if lastOutput != nil {
+			ne.logger.Info(fmt.Sprintf("found last workflow run #%s", lastOutput.RunId))
+		}
+
+		if lastCertificate != nil {
+			ne.setOuputsOfResult(execCtx, execRes, lastCertificate, false)
+			ne.setVariablesOfResult(execCtx, execRes, lastCertificate)
+		}
 	}
 
 	// 检测是否可以跳过本次执行
@@ -136,7 +142,7 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 }
 
 func (ne *bizApplyNodeExecutor) getLastOutputArtifacts(execCtx *NodeExecutionContext) (*domain.WorkflowOutput, *domain.Certificate, error) {
-	lastOutput, err := ne.wfoutputRepo.GetByNodeId(execCtx.ctx, execCtx.Node.Id)
+	lastOutput, err := ne.wfoutputRepo.GetByWorkflowIdAndNodeId(execCtx.ctx, execCtx.WorkflowId, execCtx.Node.Id)
 	if err != nil && !domain.IsRecordNotFoundError(err) {
 		return nil, nil, fmt.Errorf("failed to get last output record of node #%s: %w", execCtx.Node.Id, err)
 	}
@@ -203,7 +209,7 @@ func (ne *bizApplyNodeExecutor) checkCanSkip(execCtx *NodeExecutionContext, last
 	return false, ""
 }
 
-func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nodeCfg *domain.WorkflowNodeConfigForBizApply, lastCertificate *domain.Certificate) (*certapply.ObtainCertificateResponse, error) {
+func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nodeCfg *domain.WorkflowNodeConfigForBizApply, lastCertificate *domain.Certificate) (*certacme.ObtainCertificateResponse, error) {
 	// 读取私钥算法
 	// 如果复用私钥，则保持算法一致
 	legoKeyType, err := domain.CertificateKeyAlgorithmType(nodeCfg.KeyAlgorithm).KeyType()
@@ -260,13 +266,13 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 	}
 
 	// 初始化 ACME 配置项
-	legoOptions := &certapply.ACMEConfigOptions{
+	legoOptions := &certacme.ACMEConfigOptions{
 		CAProvider:       nodeCfg.CAProvider,
 		CAAccessConfig:   caAccessConfig,
 		CAProviderConfig: nodeCfg.CAProviderConfig,
 		CertifierKeyType: legoKeyType,
 	}
-	legoConfig, err := certapply.NewACMEConfig(legoOptions)
+	legoConfig, err := certacme.NewACMEConfig(legoOptions)
 	if err != nil {
 		ne.logger.Warn("could not initialize acme config")
 		return nil, err
@@ -276,7 +282,7 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 
 	// 初始化 ACME 账户
 	// 注意此步骤仍需在主进程中进行，以保证并发安全
-	legoUser, err := certapply.NewACMEAccountWithSingleFlight(legoConfig, nodeCfg.ContactEmail)
+	legoUser, err := certacme.NewACMEAccountWithSingleFlight(legoConfig, nodeCfg.ContactEmail)
 	if err != nil {
 		ne.logger.Warn("could not initialize acme account")
 		return nil, err
@@ -285,7 +291,7 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 	}
 
 	// 构造证书申请请求
-	obtainReq := &certapply.ObtainCertificateRequest{
+	obtainReq := &certacme.ObtainCertificateRequest{
 		Domains:        nodeCfg.Domains,
 		PrivateKeyType: legoKeyType,
 		PrivateKeyPEM: lo.
@@ -358,12 +364,12 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 	// 如果启用多进程模式，发送指令
 	if useMultiProc {
 		type InData struct {
-			Account *certapply.ACMEAccount              `json:"account,omitempty"`
-			Request *certapply.ObtainCertificateRequest `json:"request,omitempty"`
+			Account *certacme.ACMEAccount              `json:"account,omitempty"`
+			Request *certacme.ObtainCertificateRequest `json:"request,omitempty"`
 		}
 
 		type OutData struct {
-			Response *certapply.ObtainCertificateResponse `json:"response"`
+			Response *certacme.ObtainCertificateResponse `json:"response"`
 		}
 
 		msender := mproc.NewSender[InData, OutData]("certapply", ne.logger)
@@ -384,8 +390,8 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 	}
 
 	// 初始化 ACME 客户端
-	legolog.Logger = certapply.NewLegoLogger(app.GetLogger())
-	legoClient, err := certapply.NewACMEClientWithAccount(legoUser, func(c *lego.Config) error {
+	legolog.Logger = certacme.NewLegoLogger(app.GetLogger())
+	legoClient, err := certacme.NewACMEClientWithAccount(legoUser, func(c *lego.Config) error {
 		c.UserAgent = "certimate"
 		c.Certificate.KeyType = legoKeyType
 		return nil

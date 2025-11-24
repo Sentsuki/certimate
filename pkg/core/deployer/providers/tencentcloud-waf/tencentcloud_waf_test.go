@@ -23,7 +23,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_"
+	argsPrefix := "TENCENTCLOUDWAF_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -39,14 +39,14 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./tencentcloud_waf_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_SECRETID="your-secret-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_SECRETKEY="your-secret-key" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_REGION="ap-guangzhou" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_DOMAIN="example.com" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_DOMAINID="your-domain-id" \
-	--CERTIMATE_SSLDEPLOYER_TENCENTCLOUDWAF_INSTANCEID="your-instance-id"
+	--TENCENTCLOUDWAF_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--TENCENTCLOUDWAF_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--TENCENTCLOUDWAF_SECRETID="your-secret-id" \
+	--TENCENTCLOUDWAF_SECRETKEY="your-secret-key" \
+	--TENCENTCLOUDWAF_REGION="ap-guangzhou" \
+	--TENCENTCLOUDWAF_DOMAIN="example.com" \
+	--TENCENTCLOUDWAF_DOMAINID="your-domain-id" \
+	--TENCENTCLOUDWAF_INSTANCEID="your-instance-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

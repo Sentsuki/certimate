@@ -19,7 +19,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_GCORECDN_"
+	argsPrefix := "GCORECDN_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -31,10 +31,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./gcore_cdn_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_GCORECDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_GCORECDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_GCORECDN_APITOKEN="your-api-token" \
-	--CERTIMATE_SSLDEPLOYER_GCORECDN_RESOURCEID="your-cdn-resource-id"
+	--GCORECDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--GCORECDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--GCORECDN_APITOKEN="your-api-token" \
+	--GCORECDN_RESOURCEID="your-cdn-resource-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

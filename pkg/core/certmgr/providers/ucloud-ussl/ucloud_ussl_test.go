@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLMANAGER_UCLOUDUSSL_"
+	argsPrefix := "UCLOUDUSSL_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -32,10 +32,10 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./ucloud_ussl_test.go -args \
-	--CERTIMATE_SSLMANAGER_UCLOUDUSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLMANAGER_UCLOUDUSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLMANAGER_UCLOUDUSSL_PRIVATEKEY="your-private-key" \
-	--CERTIMATE_SSLMANAGER_UCLOUDUSSL_PUBLICKEY="your-public-key"
+	--UCLOUDUSSL_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--UCLOUDUSSL_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--UCLOUDUSSL_PRIVATEKEY="your-private-key" \
+	--UCLOUDUSSL_PUBLICKEY="your-public-key"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()

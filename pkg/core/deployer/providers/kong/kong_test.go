@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	argsPrefix := "CERTIMATE_SSLDEPLOYER_KONG_"
+	argsPrefix := "KONG_"
 
 	flag.StringVar(&fInputCertPath, argsPrefix+"INPUTCERTPATH", "", "")
 	flag.StringVar(&fInputKeyPath, argsPrefix+"INPUTKEYPATH", "", "")
@@ -33,11 +33,11 @@ func init() {
 Shell command to run this test:
 
 	go test -v ./kong_test.go -args \
-	--CERTIMATE_SSLDEPLOYER_KONG_INPUTCERTPATH="/path/to/your-input-cert.pem" \
-	--CERTIMATE_SSLDEPLOYER_KONG_INPUTKEYPATH="/path/to/your-input-key.pem" \
-	--CERTIMATE_SSLDEPLOYER_KONG_SERVERURL="http://127.0.0.1:9080" \
-	--CERTIMATE_SSLDEPLOYER_KONG_APITOKEN="your-admin-token" \
-	--CERTIMATE_SSLDEPLOYER_KONG_CERTIFICATEID="your-certificate-id"
+	--KONG_INPUTCERTPATH="/path/to/your-input-cert.pem" \
+	--KONG_INPUTKEYPATH="/path/to/your-input-key.pem" \
+	--KONG_SERVERURL="http://127.0.0.1:9080" \
+	--KONG_APITOKEN="your-admin-token" \
+	--KONG_CERTIFICATEID="your-certificate-id"
 */
 func TestDeploy(t *testing.T) {
 	flag.Parse()
