@@ -96,7 +96,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 	default:
 		{
-			// 遍历更新域名证书
+			// 遍历更新站点证书
 			var errs []error
 			for _, siteName := range d.config.SiteNames {
 				select {

@@ -166,7 +166,7 @@ const SettingsDiagnosticsLogs = ({ className, style }: { className?: string; sty
                   </a>
                   {hasMore && (
                     <>
-                      <Divider type="vertical" />
+                      <Divider orientation="vertical" />
                       <a onClick={handleLoadMoreClick}>
                         <span className="text-xs">{t("settings.diagnostics.logs.button.load_more.label")}</span>
                       </a>
@@ -281,7 +281,7 @@ const SettingsDiagnosticsCrons = ({ className, style }: { className?: string; st
               </div>
               <div className="flex items-center justify-end">
                 <Typography.Text type="secondary">{record.cron}</Typography.Text>
-                <Divider type="vertical" />
+                <Divider orientation="vertical" />
                 <Typography.Text type="secondary">
                   {t("settings.diagnostics.crons.props.next_trigger_time")}
                   {record.nextTriggerTime}

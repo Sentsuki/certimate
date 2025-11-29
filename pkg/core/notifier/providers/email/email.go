@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/wneessen/go-mail"
 
@@ -65,11 +66,12 @@ func (n *Notifier) Notify(ctx context.Context, subject string, message string) (
 		mail.WithSMTPAuth(mail.SMTPAuthAutoDiscover),
 		mail.WithUsername(n.config.Username),
 		mail.WithPassword(n.config.Password),
+		mail.WithTimeout(time.Second * 30),
 	}
 
 	if n.config.SmtpPort == 0 {
 		if n.config.SmtpTls {
-			clientOptions = append(clientOptions, mail.WithPort(mail.DefaultPortTLS))
+			clientOptions = append(clientOptions, mail.WithPort(mail.DefaultPortSSL))
 		} else {
 			clientOptions = append(clientOptions, mail.WithPort(mail.DefaultPort))
 		}
@@ -85,11 +87,12 @@ func (n *Notifier) Notify(ctx context.Context, subject string, message string) (
 			tlsConfig.ServerName = n.config.SmtpHost
 		}
 
-		mail.WithSSL()
-		mail.WithSSLPort(true)
-		mail.WithTLSConfig(tlsConfig)
+		clientOptions = append(clientOptions, mail.WithSSL())
+		clientOptions = append(clientOptions, mail.WithTLSConfig(tlsConfig))
+		clientOptions = append(clientOptions, mail.WithTLSPolicy(mail.TLSMandatory))
 	} else {
-		mail.WithTLSPolicy(mail.TLSOpportunistic)
+		clientOptions = append(clientOptions, mail.WithSSLPort(true))
+		clientOptions = append(clientOptions, mail.WithTLSPolicy(mail.TLSOpportunistic))
 	}
 
 	client, err := mail.NewClient(n.config.SmtpHost, clientOptions...)

@@ -48,6 +48,7 @@ const SettingsSSLProvider = () => {
     [CA_PROVIDERS.SECTIGO, "provider.sectigo", "sectigo.com", "/imgs/providers/sectigo.svg"],
     [CA_PROVIDERS.SSLCOM, "provider.sslcom", "ssl.com", "/imgs/providers/sslcom.svg"],
     [CA_PROVIDERS.ZEROSSL, "provider.zerossl", "zerossl.com", "/imgs/providers/zerossl.svg"],
+    [CA_PROVIDERS.LITESSL, "provider.litessl", "litessl.cn (freessl.cn)", "/imgs/providers/litessl.svg"],
     [CA_PROVIDERS.ACMECA, "provider.acmeca", "ACME v2 (RFC 8555)", "/imgs/providers/acmeca.svg"],
   ].map(([value, name, description, icon]) => {
     return {
@@ -70,6 +71,8 @@ const SettingsSSLProvider = () => {
         return <InternalSettingsFormProviderGlobalSignAtlas />;
       case CA_PROVIDERS.GOOGLETRUSTSERVICES:
         return <InternalSettingsFormProviderGoogleTrustServices />;
+      case CA_PROVIDERS.LITESSL:
+        return <InternalSettingsFormProviderLiteSSL />;
       case CA_PROVIDERS.SECTIGO:
         return <InternalSettingsFormProviderSectigo />;
       case CA_PROVIDERS.SSLCOM:
@@ -91,7 +94,7 @@ const SettingsSSLProvider = () => {
 
       message.success(t("common.text.operation_succeeded"));
     } catch (err) {
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     } finally {
       setFormPending(false);
     }
@@ -267,6 +270,14 @@ const InternalSettingsFormProviderGoogleTrustServices = () => {
   return (
     <InternalSharedForm provider={CA_PROVIDERS.GOOGLETRUSTSERVICES}>
       <InternalSharedFormEabFields i18nKey="googletrustservices" />
+    </InternalSharedForm>
+  );
+};
+
+const InternalSettingsFormProviderLiteSSL = () => {
+  return (
+    <InternalSharedForm provider={CA_PROVIDERS.LITESSL}>
+      <InternalSharedFormEabFields i18nKey="litessl" />
     </InternalSharedForm>
   );
 };

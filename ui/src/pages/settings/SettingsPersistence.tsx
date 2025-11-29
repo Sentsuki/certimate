@@ -39,7 +39,7 @@ const SettingsPersistence = () => {
 
       message.success(t("common.text.operation_succeeded"));
     } catch (err) {
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     }
   };
 
@@ -111,7 +111,7 @@ const SettingsPersistenceAlerting = ({ className, style }: { className?: string;
                 min={1}
                 max={365}
                 placeholder={t("settings.persistence.alerting.form.certificates_warning_days_before_expire.placeholder")}
-                addonAfter={t("settings.persistence.alerting.form.certificates_warning_days_before_expire.unit")}
+                suffix={t("settings.persistence.alerting.form.certificates_warning_days_before_expire.unit")}
                 onChange={handleInputChange}
               />
             </Form.Item>
@@ -182,7 +182,7 @@ const SettingsPersistenceDataRetention = ({ className, style }: { className?: st
                 min={0}
                 max={36500}
                 placeholder={t("settings.persistence.data_retention.form.certificates_retention_max_days.placeholder")}
-                addonAfter={t("settings.persistence.data_retention.form.certificates_retention_max_days.unit")}
+                suffix={t("settings.persistence.data_retention.form.certificates_retention_max_days.unit")}
                 onChange={handleInputChange}
               />
             </Form.Item>
@@ -198,7 +198,7 @@ const SettingsPersistenceDataRetention = ({ className, style }: { className?: st
                 min={0}
                 max={36500}
                 placeholder={t("settings.persistence.data_retention.form.workflow_runs_retention_max_days.placeholder")}
-                addonAfter={t("settings.persistence.data_retention.form.workflow_runs_retention_max_days.unit")}
+                suffix={t("settings.persistence.data_retention.form.workflow_runs_retention_max_days.unit")}
                 onChange={handleInputChange}
               />
             </Form.Item>

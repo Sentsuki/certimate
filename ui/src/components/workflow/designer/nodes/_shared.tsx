@@ -306,7 +306,7 @@ export const BaseNode = ({ className, style, children, description }: BaseNodePr
   return (
     <Popover
       classNames={{ root: "shadow-md" }}
-      styles={{ body: { padding: 0 } }}
+      styles={{ container: { padding: 0 } }}
       arrow={false}
       content={
         inputVisible ? null : (
@@ -397,7 +397,7 @@ export const BranchNode = ({ className, style, children, description }: BranchNo
   return (
     <Popover
       classNames={{ root: "shadow-md" }}
-      styles={{ body: { padding: 0 } }}
+      styles={{ container: { padding: 0 } }}
       arrow={false}
       content={
         inputVisible ? null : (

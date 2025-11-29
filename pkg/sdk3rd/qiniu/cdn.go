@@ -48,7 +48,7 @@ func (m *CdnManager) GetDomainList(ctx context.Context, marker string, limit int
 	}
 
 	resp := new(GetDomainListResponse)
-	if err := m.client.Call(ctx, resp, http.MethodGet, "domain?"+query.Encode(), nil); err != nil {
+	if err := m.client.Call(ctx, resp, http.MethodGet, urlf("domain?%s", query.Encode()), nil); err != nil {
 		return nil, err
 	}
 	return resp, nil

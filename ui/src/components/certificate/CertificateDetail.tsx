@@ -48,7 +48,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
             value={`${dayjs(data.validityNotBefore).format("YYYY-MM-DD HH:mm:ss")} ~ ${dayjs(data.validityNotAfter).format("YYYY-MM-DD HH:mm:ss")}`}
             variant="filled"
             placeholder=""
-            addonAfter={data.isRevoked ? <Tag color="error">{t("certificate.props.revoked")}</Tag> : <></>}
+            suffix={data.isRevoked ? <Tag color="error">{t("certificate.props.revoked")}</Tag> : <></>}
           />
         </Form.Item>
 
@@ -61,7 +61,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
         </Form.Item>
 
         <Form.Item label={t("certificate.props.certificate")}>
-          <div className="absolute -top-[6px] right-0 -translate-y-full">
+          <div className="absolute -top-1.5 right-0 -translate-y-full">
             <Tooltip title={t("common.button.copy")}>
               <CopyToClipboard
                 text={data.certificate}
@@ -77,7 +77,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
         </Form.Item>
 
         <Form.Item label={t("certificate.props.private_key")}>
-          <div className="absolute -top-[6px] right-0 -translate-y-full">
+          <div className="absolute -top-1.5 right-0 -translate-y-full">
             <Tooltip title={t("common.button.copy")}>
               <CopyToClipboard
                 text={data.privateKey}
@@ -116,7 +116,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
             ],
           }}
         >
-          <Button icon={<IconChevronDown size="1.25em" />} iconPosition="end" type="primary">
+          <Button icon={<IconChevronDown size="1.25em" />} iconPlacement="end" type="primary">
             {t("common.button.download")}
           </Button>
         </Dropdown>

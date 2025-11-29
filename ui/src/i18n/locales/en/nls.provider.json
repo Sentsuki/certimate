@@ -126,6 +126,7 @@
   "provider.letsencrypt": "Let's Encrypt",
   "provider.letsencryptstaging": "Let's Encrypt Staging Environment",
   "provider.linode": "Linode",
+  "provider.litessl": "LiteSSL",
   "provider.local": "Local host",
   "provider.mattermost": "Mattermost",
   "provider.namecheap": "Namecheap",

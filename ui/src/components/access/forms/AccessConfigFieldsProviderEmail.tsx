@@ -1,5 +1,5 @@
 import { getI18n, useTranslation } from "react-i18next";
-import { Form, Input, InputNumber, Switch } from "antd";
+import { Form, Input, InputNumber, Select, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -19,15 +19,7 @@ const AccessConfigFormFieldsProviderEmail = () => {
   const formInst = Form.useFormInstance();
   const initialValues = getInitialValues();
 
-  const fieldSmtpTLS = Form.useWatch<boolean>([parentNamePath, "smtpTls"], formInst);
-
-  const handleTlsSwitchChange = (checked: boolean) => {
-    const oldPort = formInst.getFieldValue([parentNamePath, "smtpPort"]);
-    const newPort = checked && (oldPort == null || oldPort === 25) ? 587 : !checked && (oldPort == null || oldPort === 587) ? 25 : oldPort;
-    if (newPort !== oldPort) {
-      formInst.setFieldValue([parentNamePath, "smtpPort"], newPort);
-    }
-  };
+  const fieldSmtpTls = Form.useWatch<boolean>([parentNamePath, "smtpTls"], formInst);
 
   return (
     <>
@@ -55,28 +47,28 @@ const AccessConfigFormFieldsProviderEmail = () => {
         </div>
       </div>
 
-      <div className="flex space-x-2">
-        <div className="w-1/2">
+      <div className="flex space-x-8">
+        <div className={fieldSmtpTls ? "w-1/2" : "w-3/5"}>
           <Form.Item name={[parentNamePath, "smtpTls"]} initialValue={initialValues.smtpTls} label={t("access.form.email_smtp_tls.label")} rules={[formRule]}>
-            <Switch onChange={handleTlsSwitchChange} />
+            <Select placeholder={t("access.form.email_smtp_tls.placeholder")}>
+              <Select.Option value={true}>{t("access.form.email_smtp_tls.option.true.label")}</Select.Option>
+              <Select.Option value={false}>{t("access.form.email_smtp_tls.option.false.label")}</Select.Option>
+            </Select>
           </Form.Item>
         </div>
 
-        <div className="w-1/2">
-          <Show when={fieldSmtpTLS}>
+        <Show when={fieldSmtpTls}>
+          <div className="w-1/2">
             <Form.Item
               name={[parentNamePath, "allowInsecureConnections"]}
               initialValue={initialValues.allowInsecureConnections}
               label={t("access.form.shared_allow_insecure_conns.label")}
               rules={[formRule]}
             >
-              <Switch
-                checkedChildren={t("access.form.shared_allow_insecure_conns.switch.on")}
-                unCheckedChildren={t("access.form.shared_allow_insecure_conns.switch.off")}
-              />
+              <Switch />
             </Form.Item>
-          </Show>
-        </div>
+          </div>
+        </Show>
       </div>
 
       <Form.Item name={[parentNamePath, "username"]} initialValue={initialValues.username} label={t("access.form.email_username.label")} rules={[formRule]}>

@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { getI18n, useTranslation } from "react-i18next";
 import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { IconPlus } from "@tabler/icons-react";
-import { type AnchorProps, Button, Divider, Flex, Form, type FormInstance, Select, Switch, Typography, theme } from "antd";
+import { type AnchorProps, Button, Divider, Form, type FormInstance, Select, Switch, Typography, theme } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -183,7 +183,7 @@ const BizDeployNodeConfigForm = ({ node, ...props }: BizDeployNodeConfigFormProp
             </Form.Item>
 
             <Form.Item className="relative" hidden={!showProviderAccess} label={t("workflow_node.deploy.form.provider_access.label")}>
-              <div className="absolute -top-[6px] right-0 -translate-y-full">
+              <div className="absolute -top-1.5 right-0 -translate-y-full">
                 <AccessEditDrawer
                   data={{ provider: deploymentProvidersMap.get(fieldProvider!)?.provider }}
                   mode="create"
@@ -224,16 +224,16 @@ const BizDeployNodeConfigForm = ({ node, ...props }: BizDeployNodeConfigFormProp
             </Divider>
 
             <Form.Item label={t("workflow_node.deploy.form.skip_on_last_succeeded.label")}>
-              <Flex align="center" gap={8} wrap="wrap">
-                <div>{t("workflow_node.deploy.form.skip_on_last_succeeded.prefix")}</div>
+              <span className="me-2 inline-block">{t("workflow_node.deploy.form.skip_on_last_succeeded.prefix")}</span>
+              <span className="inline-block">
                 <Form.Item name="skipOnLastSucceeded" noStyle rules={[formRule]}>
                   <Switch
                     checkedChildren={t("workflow_node.deploy.form.skip_on_last_succeeded.switch.on")}
                     unCheckedChildren={t("workflow_node.deploy.form.skip_on_last_succeeded.switch.off")}
                   />
                 </Form.Item>
-                <div>{t("workflow_node.deploy.form.skip_on_last_succeeded.suffix")}</div>
-              </Flex>
+              </span>
+              <span className="ms-2 inline-block">{t("workflow_node.deploy.form.skip_on_last_succeeded.suffix")}</span>
             </Form.Item>
           </div>
         </div>

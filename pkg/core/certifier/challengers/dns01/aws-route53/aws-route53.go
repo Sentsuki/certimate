@@ -13,7 +13,7 @@ type ChallengerConfig struct {
 	AccessKeyId           string `json:"accessKeyId"`
 	SecretAccessKey       string `json:"secretAccessKey"`
 	Region                string `json:"region"`
-	HostedZoneId          string `json:"hostedZoneId"`
+	HostedZoneId          string `json:"hostedZoneId,omitempty"`
 	DnsPropagationTimeout int    `json:"dnsPropagationTimeout,omitempty"`
 	DnsTTL                int    `json:"dnsTTL,omitempty"`
 }
@@ -27,7 +27,9 @@ func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
 	providerConfig.AccessKeyID = config.AccessKeyId
 	providerConfig.SecretAccessKey = config.SecretAccessKey
 	providerConfig.Region = config.Region
-	providerConfig.HostedZoneID = config.HostedZoneId
+	if config.HostedZoneId != "" {
+		providerConfig.HostedZoneID = config.HostedZoneId
+	}
 	if config.DnsPropagationTimeout != 0 {
 		providerConfig.PropagationTimeout = time.Duration(config.DnsPropagationTimeout) * time.Second
 	}

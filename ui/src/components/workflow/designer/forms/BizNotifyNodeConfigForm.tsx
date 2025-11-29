@@ -2,7 +2,7 @@
 import { getI18n, useTranslation } from "react-i18next";
 import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { IconPlus } from "@tabler/icons-react";
-import { type AnchorProps, Button, Divider, Flex, Form, type FormInstance, Input, Switch, Typography } from "antd";
+import { type AnchorProps, Button, Divider, Form, type FormInstance, Input, Switch, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -140,7 +140,7 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
             </Form.Item>
 
             <Form.Item label={t("workflow_node.notify.form.provider_access.label")}>
-              <div className="absolute -top-[6px] right-0 -translate-y-full">
+              <div className="absolute -top-1.5 right-0 -translate-y-full">
                 <AccessEditDrawer
                   data={{ provider: notificationProvidersMap.get(fieldProvider!)?.provider }}
                   mode="create"
@@ -181,16 +181,16 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
             </Divider>
 
             <Form.Item label={t("workflow_node.notify.form.skip_on_all_prev_skipped.label")}>
-              <Flex align="center" gap={8} wrap="wrap">
-                <div>{t("workflow_node.notify.form.skip_on_all_prev_skipped.prefix")}</div>
+              <span className="me-2 inline-block">{t("workflow_node.notify.form.skip_on_all_prev_skipped.prefix")}</span>
+              <span className="inline-block">
                 <Form.Item name="skipOnAllPrevSkipped" noStyle rules={[formRule]}>
                   <Switch
                     checkedChildren={t("workflow_node.notify.form.skip_on_all_prev_skipped.switch.on")}
                     unCheckedChildren={t("workflow_node.notify.form.skip_on_all_prev_skipped.switch.off")}
                   />
                 </Form.Item>
-                <div>{t("workflow_node.notify.form.skip_on_all_prev_skipped.suffix")}</div>
-              </Flex>
+              </span>
+              <span className="ms-2 inline-block">{t("workflow_node.notify.form.skip_on_all_prev_skipped.suffix")}</span>
             </Form.Item>
           </div>
         </div>

@@ -55,7 +55,7 @@ const WorkflowDetailDesign = () => {
       await workflowStore.orchestrate(graph);
     } catch (err) {
       console.error(err);
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     } finally {
       designerPending.current = false;
     }
@@ -72,7 +72,7 @@ const WorkflowDetailDesign = () => {
           message.success(t("common.text.operation_succeeded"));
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -94,7 +94,7 @@ const WorkflowDetailDesign = () => {
           message.success(t("common.text.operation_succeeded"));
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -116,7 +116,7 @@ const WorkflowDetailDesign = () => {
       } catch (err) {
         console.error(err);
         message.destroy(loadingKey);
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
       }
     });
   };

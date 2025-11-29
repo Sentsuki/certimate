@@ -76,6 +76,7 @@ export const ACCESS_PROVIDERS = Object.freeze({
   LETSENCRYPT: "letsencrypt",
   LETSENCRYPTSTAGING: "letsencryptstaging",
   LINODE: "linode",
+  LITESSL: "litessl",
   LOCAL: "local",
   MATTERMOST: "mattermost",
   NAMECHEAP: "namecheap",
@@ -229,6 +230,7 @@ export const accessProvidersMap: Map<AccessProvider["type"] | string, AccessProv
       [ACCESS_PROVIDERS.ACTALISSSL, "provider.actalisssl", "/imgs/providers/actalisssl.png", [ACCESS_USAGES.CA]],
       [ACCESS_PROVIDERS.GLOBALSIGNATLAS, "provider.globalsignatlas", "/imgs/providers/globalsignatlas.png", [ACCESS_USAGES.CA]],
       [ACCESS_PROVIDERS.GOOGLETRUSTSERVICES, "provider.googletrustservices", "/imgs/providers/google.svg", [ACCESS_USAGES.CA]],
+      [ACCESS_PROVIDERS.LITESSL, "provider.litessl", "/imgs/providers/litessl.svg", [ACCESS_USAGES.CA]],
       [ACCESS_PROVIDERS.SECTIGO, "provider.sectigo", "/imgs/providers/sectigo.svg", [ACCESS_USAGES.CA]],
       [ACCESS_PROVIDERS.SSLCOM, "provider.sslcom", "/imgs/providers/sslcom.svg", [ACCESS_USAGES.CA]],
       [ACCESS_PROVIDERS.ZEROSSL, "provider.zerossl", "/imgs/providers/zerossl.svg", [ACCESS_USAGES.CA]],
@@ -268,6 +270,7 @@ export const CA_PROVIDERS = Object.freeze({
   GOOGLETRUSTSERVICES: `${ACCESS_PROVIDERS.GOOGLETRUSTSERVICES}`,
   LETSENCRYPT: `${ACCESS_PROVIDERS.LETSENCRYPT}`,
   LETSENCRYPTSTAGING: `${ACCESS_PROVIDERS.LETSENCRYPTSTAGING}`,
+  LITESSL: `${ACCESS_PROVIDERS.LITESSL}`,
   SECTIGO: `${ACCESS_PROVIDERS.SECTIGO}`,
   SSLCOM: `${ACCESS_PROVIDERS.SSLCOM}`,
   ZEROSSL: `${ACCESS_PROVIDERS.ZEROSSL}`,
@@ -292,6 +295,7 @@ export const caProvidersMap: Map<CAProvider["type"] | string, CAProvider> = new 
       [CA_PROVIDERS.SECTIGO],
       [CA_PROVIDERS.SSLCOM],
       [CA_PROVIDERS.ZEROSSL],
+      [CA_PROVIDERS.LITESSL],
       [CA_PROVIDERS.ACMECA],
     ] satisfies Array<[CAProviderType, "builtin"] | [CAProviderType]>
   ).map(([type, builtin]) => [

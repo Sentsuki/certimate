@@ -98,7 +98,7 @@ export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, 
 
       setOpen(false);
     } catch (err) {
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
       throw err;
     } finally {
@@ -214,7 +214,7 @@ export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, 
           </div>
 
           <Show when={!!anchor}>
-            <div className="-mx-[2px] mt-3 text-sm font-normal">
+            <div className="-mx-0.5 mt-3 text-sm font-normal">
               <Anchor
                 affix={false}
                 getContainer={() => containerRef.current!}

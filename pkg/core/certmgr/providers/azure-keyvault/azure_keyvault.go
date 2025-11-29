@@ -81,7 +81,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/get-certificates/get-certificates
 	listCertificatesPager := c.sdkClient.NewListCertificatePropertiesPager(nil)
 	for listCertificatesPager.More() {
-		page, err := listCertificatesPager.NextPage(context.TODO())
+		page, err := listCertificatesPager.NextPage(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificates': %w", err)
 		}

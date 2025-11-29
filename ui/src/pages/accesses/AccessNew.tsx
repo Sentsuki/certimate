@@ -51,7 +51,7 @@ const AccessNew = () => {
 
       navigate(`/accesses?usage=${providerUsage}`, { replace: true });
     } catch (err) {
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
       throw err;
     } finally {

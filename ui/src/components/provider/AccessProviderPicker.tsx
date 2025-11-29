@@ -87,7 +87,7 @@ const AccessProviderPicker = ({
                 </Tooltip>
               </div>
               <Show when={showOptionTagAnyhow}>
-                <div className="origin-top scale-80 whitespace-nowrap" style={{ marginInlineEnd: "-8px" }}>
+                <div className="origin-top scale-80 whitespace-nowrap">
                   <Show when={showOptionTagForBuiltin && provider.builtin}>
                     <Tag>{t("access.props.provider.builtin")}</Tag>
                   </Show>

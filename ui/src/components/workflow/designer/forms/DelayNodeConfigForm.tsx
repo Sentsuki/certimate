@@ -45,7 +45,7 @@ const DelayNodeConfigForm = ({ node, ...props }: DelayNodeConfigFormProps) => {
               min={0}
               max={3600}
               placeholder={t("workflow_node.delay.form.wait.placeholder")}
-              addonAfter={t("workflow_node.delay.form.wait.unit")}
+              suffix={t("workflow_node.delay.form.wait.unit")}
             />
           </Form.Item>
         </div>

@@ -334,6 +334,10 @@ type AccessConfigForLinode struct {
 	AccessToken string `json:"accessToken"`
 }
 
+type AccessConfigForLiteSSL struct {
+	AccessConfigForACMEExternalAccountBinding
+}
+
 type AccessConfigForMattermost struct {
 	ServerUrl string `json:"serverUrl"`
 	Username  string `json:"username"`

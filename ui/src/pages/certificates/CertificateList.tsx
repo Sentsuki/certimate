@@ -251,7 +251,7 @@ const CertificateList = () => {
       });
     },
     {
-      refreshDeps: [filters, sorter, page, pageSize],
+      refreshDeps: [expiryThreshold, filters, sorter, page, pageSize],
       onBefore: async () => {
         setSearchParams((prev) => {
           if (filters["keyword"]) {
@@ -274,7 +274,10 @@ const CertificateList = () => {
 
         if (expiryThreshold === 0) {
           const settings = await getSettings(SETTINGS_NAMES.PERSISTENCE);
-          setExpiryThreshold(settings?.content?.certificatesWarningDaysBeforeExpire ?? 0);
+          const threshold = settings?.content?.certificatesWarningDaysBeforeExpire ?? 0;
+          if (threshold !== expiryThreshold) {
+            setExpiryThreshold(threshold);
+          }
         }
       },
       onSuccess: (res) => {
@@ -288,7 +291,7 @@ const CertificateList = () => {
         }
 
         console.error(err);
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },
@@ -341,7 +344,7 @@ const CertificateList = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -369,7 +372,7 @@ const CertificateList = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -401,7 +404,7 @@ const CertificateList = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });

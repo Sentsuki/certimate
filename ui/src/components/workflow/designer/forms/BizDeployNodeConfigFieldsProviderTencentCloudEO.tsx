@@ -1,5 +1,5 @@
 import { getI18n, useTranslation } from "react-i18next";
-import { Flex, Form, Input, Radio, Switch } from "antd";
+import { Form, Input, Radio, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -93,15 +93,15 @@ const BizDeployNodeConfigFieldsProviderTencentCloudEO = () => {
         label={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.label")}
         extra={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.help")}
       >
-        <Flex align="center" gap={8} wrap="wrap">
+        <span className="inline-block">
           <Form.Item name={[parentNamePath, "enableMultipleSSL"]} initialValue={initialValues.enableMultipleSSL} noStyle rules={[formRule]}>
             <Switch
               checkedChildren={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.switch.on")}
               unCheckedChildren={t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.switch.off")}
             />
           </Form.Item>
-          <div>{t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.switch.suffix")}</div>
-        </Flex>
+        </span>
+        <span className="ms-2 inline-block">{t("workflow_node.deploy.form.tencentcloud_eo_enable_multiple_ssl.switch.suffix")}</span>
       </Form.Item>
     </>
   );

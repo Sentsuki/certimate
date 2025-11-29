@@ -320,7 +320,7 @@ func (d *Deployer) deployToWAF3WithCNAME(ctx context.Context, cloudCertId string
 			RegionId:                       tea.String(d.config.Region),
 			InstanceId:                     tea.String(d.config.InstanceId),
 			CertId:                         tea.String(cloudCertId),
-			TLSVersion:                     tea.String("tlsv1"),
+			TLSVersion:                     tea.String("tlsv1.2"),
 			EnableTLSv3:                    tea.Bool(true),
 		}
 		if describeDefaultHttpsResp.Body != nil && describeDefaultHttpsResp.Body.DefaultHttps != nil {

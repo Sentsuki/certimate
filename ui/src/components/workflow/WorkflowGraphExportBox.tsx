@@ -118,7 +118,7 @@ const WorkflowGraphExportBox = ({ className, style, data }: WorkflowGraphExportB
       </Form.Item>
 
       <Form.Item label={t("workflow.detail.design.action.export.form.content.label")}>
-        <div className="absolute -top-[6px] right-0 -translate-y-full">
+        <div className="absolute -top-1.5 right-0 -translate-y-full">
           <Tooltip title={t("common.button.copy")}>
             <CopyToClipboard
               text={content!}

@@ -4,22 +4,7 @@ import { Link } from "react-router";
 import { type FlowNodeEntity } from "@flowgram.ai/fixed-layout-editor";
 import { IconChevronRight, IconCircleMinus, IconPlus } from "@tabler/icons-react";
 import { useControllableValue, useMount } from "ahooks";
-import {
-  type AnchorProps,
-  AutoComplete,
-  Button,
-  Divider,
-  Flex,
-  Form,
-  type FormInstance,
-  Input,
-  InputNumber,
-  Radio,
-  Select,
-  Space,
-  Switch,
-  Typography,
-} from "antd";
+import { type AnchorProps, AutoComplete, Button, Divider, Form, type FormInstance, Input, InputNumber, Radio, Select, Space, Switch, Typography } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
@@ -368,7 +353,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
                   : t("workflow_node.apply.form.provider_access.label")
             }
           >
-            <div className="absolute -top-[6px] right-0 -translate-y-full">
+            <div className="absolute -top-1.5 right-0 -translate-y-full">
               <AccessEditDrawer
                 mode="create"
                 trigger={
@@ -456,7 +441,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
           </Show>
 
           <Form.Item className="relative" label={t("workflow_node.apply.form.ca_provider.label")}>
-            <div className="absolute -top-[6px] right-0 -translate-y-full">
+            <div className="absolute -top-1.5 right-0 -translate-y-full">
               <Show when={!fieldCAProvider}>
                 <Link className="ant-typography" to="/settings/ssl-provider" target="_blank">
                   <Button size="small" type="link">
@@ -480,7 +465,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
           </Form.Item>
 
           <Form.Item label={t("workflow_node.apply.form.ca_provider_access.label")} hidden={!showCAProviderAccess}>
-            <div className="absolute -top-[6px] right-0 -translate-y-full">
+            <div className="absolute -top-1.5 right-0 -translate-y-full">
               <AccessEditDrawer
                 data={{ provider: caProvidersMap.get(fieldCAProvider!)?.provider }}
                 mode="create"
@@ -579,7 +564,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
               min={0}
               max={3600}
               placeholder={t("workflow_node.apply.form.dns_propagation_wait.placeholder")}
-              addonAfter={t("workflow_node.apply.form.dns_propagation_wait.unit")}
+              suffix={t("workflow_node.apply.form.dns_propagation_wait.unit")}
             />
           </Form.Item>
 
@@ -596,7 +581,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
               min={0}
               max={3600}
               placeholder={t("workflow_node.apply.form.dns_propagation_timeout.placeholder")}
-              addonAfter={t("workflow_node.apply.form.dns_propagation_timeout.unit")}
+              suffix={t("workflow_node.apply.form.dns_propagation_timeout.unit")}
             />
           </Form.Item>
 
@@ -614,7 +599,7 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
               min={0}
               max={86400}
               placeholder={t("workflow_node.apply.form.dns_ttl.placeholder")}
-              addonAfter={t("workflow_node.apply.form.dns_ttl.unit")}
+              suffix={t("workflow_node.apply.form.dns_ttl.unit")}
             />
           </Form.Item>
 
@@ -644,23 +629,20 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
             </Typography.Text>
           </Divider>
 
-          <Form.Item
-            label={t("workflow_node.apply.form.skip_before_expiry_days.label")}
-            tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.apply.form.skip_before_expiry_days.tooltip") }}></span>}
-          >
-            <Flex align="center" gap={8} wrap="wrap">
-              <div>{t("workflow_node.apply.form.skip_before_expiry_days.prefix")}</div>
+          <Form.Item label={t("workflow_node.apply.form.skip_before_expiry_days.label")}>
+            <span className="me-2 inline-block">{t("workflow_node.apply.form.skip_before_expiry_days.prefix")}</span>
+            <span className="inline-block">
               <Form.Item name="skipBeforeExpiryDays" noStyle rules={[formRule]}>
                 <InputNumber
                   className="w-24"
                   min={1}
                   max={365}
                   placeholder={t("workflow_node.apply.form.skip_before_expiry_days.placeholder")}
-                  addonAfter={t("workflow_node.apply.form.skip_before_expiry_days.unit")}
+                  suffix={t("workflow_node.apply.form.skip_before_expiry_days.unit")}
                 />
               </Form.Item>
-              <div>{t("workflow_node.apply.form.skip_before_expiry_days.suffix")}</div>
-            </Flex>
+            </span>
+            <span className="ms-2 inline-block">{t("workflow_node.apply.form.skip_before_expiry_days.suffix")}</span>
           </Form.Item>
         </div>
       </Form>

@@ -211,7 +211,7 @@ const WorkflowDetailRuns = () => {
         }
 
         console.error(err);
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },
@@ -274,7 +274,7 @@ const WorkflowDetailRuns = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -300,7 +300,7 @@ const WorkflowDetailRuns = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -334,7 +334,7 @@ const WorkflowDetailRuns = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });

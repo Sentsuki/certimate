@@ -338,7 +338,7 @@ const BizDeployNodeConfigFieldsProviderLocal = () => {
       </Form.Item>
 
       <Form.Item label={t("workflow_node.deploy.form.local_pre_command.label")}>
-        <div className="absolute -top-[6px] right-0 -translate-y-full">
+        <div className="absolute -top-1.5 right-0 -translate-y-full">
           <Dropdown
             menu={{
               items: ["sh_backup_files", "ps_backup_files"].map((key) => ({
@@ -367,7 +367,7 @@ const BizDeployNodeConfigFieldsProviderLocal = () => {
       </Form.Item>
 
       <Form.Item label={t("workflow_node.deploy.form.local_post_command.label")}>
-        <div className="absolute -top-[6px] right-0 -translate-y-full">
+        <div className="absolute -top-1.5 right-0 -translate-y-full">
           <Dropdown
             menu={{
               items: ["sh_reload_nginx", "ps_binding_iis", "ps_binding_netsh", "ps_binding_rdp"].map((key) => ({

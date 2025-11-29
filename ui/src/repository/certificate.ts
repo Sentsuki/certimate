@@ -65,7 +65,7 @@ export const listByWorkflowRunId = async (workflowRunId: string) => {
 
   const list = await pb.collection(COLLECTION_NAME_CERTIFICATE).getFullList<CertificateModel>({
     batch: 65535,
-    fields: [..._commonFields, ..._expandFields].join(","),
+    fields: [..._commonFields, ..._expandFields, "certificate", "privateKey"].join(","),
     filter: pb.filter("workflowRunRef={:workflowRunId}", { workflowRunId }),
     sort: "created",
     requestKey: null,

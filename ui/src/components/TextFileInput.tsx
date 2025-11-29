@@ -1,14 +1,14 @@
 ﻿import { type ChangeEvent, useContext, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { IconFileImport } from "@tabler/icons-react";
-import { Button, type ButtonProps, Input, type UploadProps } from "antd";
+import { Button, type ButtonProps, Input } from "antd";
 import DisabledContext from "antd/es/config-provider/DisabledContext";
 import { type TextAreaProps } from "antd/es/input/TextArea";
 
 import { readFileAsText } from "@/utils/file";
 
 export interface TextFileInputProps extends Omit<TextAreaProps, "onChange"> {
-  accept?: UploadProps["accept"];
+  accept?: string;
   uploadButtonProps?: Omit<ButtonProps, "disabled" | "onClick">;
   uploadText?: string;
   onChange?: (value: string) => void;

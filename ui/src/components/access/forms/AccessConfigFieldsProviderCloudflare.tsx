@@ -31,6 +31,7 @@ const AccessConfigFormFieldsProviderCloudflare = () => {
         name={[parentNamePath, "zoneApiToken"]}
         initialValue={initialValues.zoneApiToken}
         label={t("access.form.cloudflare_zone_api_token.label")}
+        extra={<span dangerouslySetInnerHTML={{ __html: t("access.form.cloudflare_zone_api_token.help") }}></span>}
         rules={[formRule]}
         tooltip={<span dangerouslySetInnerHTML={{ __html: t("access.form.cloudflare_zone_api_token.tooltip") }}></span>}
       >

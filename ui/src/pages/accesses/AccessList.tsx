@@ -43,7 +43,7 @@ const AccessList = () => {
       }
 
       console.error(err);
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     });
   });
 
@@ -324,7 +324,7 @@ const AccessList = () => {
           refreshData();
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -356,7 +356,7 @@ const AccessList = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });

@@ -140,7 +140,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		updateDistributionReq.DistributionConfig.ViewerCertificate.ACMCertificateArn = nil
 		updateDistributionReq.DistributionConfig.ViewerCertificate.IAMCertificateId = aws.String(upres.CertId)
 		if updateDistributionReq.DistributionConfig.ViewerCertificate.MinimumProtocolVersion == "" {
-			updateDistributionReq.DistributionConfig.ViewerCertificate.MinimumProtocolVersion = types.MinimumProtocolVersionTLSv1
+			updateDistributionReq.DistributionConfig.ViewerCertificate.MinimumProtocolVersion = types.MinimumProtocolVersionTLSv122018
 		}
 		if updateDistributionReq.DistributionConfig.ViewerCertificate.SSLSupportMethod == "" {
 			updateDistributionReq.DistributionConfig.ViewerCertificate.SSLSupportMethod = types.SSLSupportMethodSniOnly

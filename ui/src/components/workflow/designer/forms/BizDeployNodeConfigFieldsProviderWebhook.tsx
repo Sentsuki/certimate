@@ -54,7 +54,7 @@ const BizDeployNodeConfigFieldsProviderWebhook = () => {
           min={0}
           max={3600}
           placeholder={t("workflow_node.deploy.form.webhook_timeout.placeholder")}
-          addonAfter={t("workflow_node.deploy.form.webhook_timeout.unit")}
+          suffix={t("workflow_node.deploy.form.webhook_timeout.unit")}
         />
       </Form.Item>
     </>

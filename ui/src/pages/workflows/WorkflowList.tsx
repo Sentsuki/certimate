@@ -280,7 +280,7 @@ const WorkflowList = () => {
         }
 
         console.error(err);
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },
@@ -335,7 +335,7 @@ const WorkflowList = () => {
       }
     } catch (err) {
       console.error(err);
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     }
   };
 
@@ -346,7 +346,7 @@ const WorkflowList = () => {
       message.info(t("workflow.action.execute.prompt"));
     } catch (err) {
       console.error(err);
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     }
   };
 
@@ -371,7 +371,7 @@ const WorkflowList = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -397,7 +397,7 @@ const WorkflowList = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });
@@ -429,7 +429,7 @@ const WorkflowList = () => {
           }
         } catch (err) {
           console.error(err);
-          notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+          notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
         }
       },
     });

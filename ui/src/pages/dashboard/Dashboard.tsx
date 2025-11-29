@@ -40,7 +40,7 @@ const Dashboard = () => {
       </div>
 
       <div className="container">
-        <div className="my-[6px]">
+        <div className="my-1.5">
           <StatisticCards />
         </div>
 
@@ -147,7 +147,7 @@ const StatisticCards = ({ className, style }: { className?: string; style?: Reac
         }
 
         console.error(err);
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },
@@ -350,7 +350,7 @@ const WorkflowRunHistoryTable = ({ className, style }: { className?: string; sty
         }
 
         console.error(err);
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       },

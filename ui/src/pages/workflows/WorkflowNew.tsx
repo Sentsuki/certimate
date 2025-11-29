@@ -242,7 +242,7 @@ const WorkflowNew = () => {
       workflow = await saveWorkflow(workflow);
       navigate(`/workflows/${workflow.id}`, { replace: true });
     } catch (err) {
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
       throw err;
     } finally {
@@ -266,7 +266,7 @@ const WorkflowNew = () => {
         workflow = await saveWorkflow(workflow);
         navigate(`/workflows/${workflow.id}`, { replace: true });
       } catch (err) {
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       } finally {
@@ -283,7 +283,7 @@ const WorkflowNew = () => {
       </div>
 
       <div className="container">
-        <div className="my-[6px]">
+        <div className="my-1.5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             <Card className="size-full" styles={{ body: { padding: "1rem 1.5rem" } }} variant="borderless">
               <div className="flex flex-col gap-3">

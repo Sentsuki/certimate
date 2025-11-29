@@ -117,7 +117,7 @@ const DeploymentProviderPicker = ({
           }))}
           size="small"
           tabBarStyle={{ marginLeft: "-1rem" }}
-          tabPosition="left"
+          tabPlacement="start"
           onChange={(key) => setCategory(key)}
         />
 

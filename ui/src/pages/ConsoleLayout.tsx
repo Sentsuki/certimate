@@ -272,7 +272,7 @@ const SiderMenuDrawer = memo(({ trigger }: { trigger: React.ReactNode }) => {
         open={siderOpen}
         placement="left"
         styles={{
-          content: { paddingTop: themeToken.paddingSM, paddingBottom: themeToken.paddingSM },
+          section: { paddingTop: themeToken.paddingSM, paddingBottom: themeToken.paddingSM },
           body: { padding: 0 },
         }}
         onClose={() => setSiderOpen(false)}

@@ -282,6 +282,10 @@ func (client *WafClient) ModifyCloudResourceWithContext(ctx context.Context, tmp
 
 	query := map[string]interface{}{}
 
+	if !dara.IsNil(request.CloudResourceId) {
+		query["CloudResourceId"] = request.CloudResourceId
+	}
+
 	if !dara.IsNil(request.InstanceId) {
 		query["InstanceId"] = request.InstanceId
 	}

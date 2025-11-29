@@ -225,7 +225,7 @@ const AccessConfigFormFieldsProviderWebhook = ({ usage = "none" }: AccessConfigF
 
       <Show when={usage === "deployment"}>
         <Form.Item className="relative" label={t("access.form.webhook_data.label")} extra={t("access.form.webhook_data.help")}>
-          <div className="absolute -top-[6px] right-0 -translate-y-full">
+          <div className="absolute -top-1.5 right-0 -translate-y-full">
             <Dropdown
               menu={{
                 items: [
@@ -263,7 +263,7 @@ const AccessConfigFormFieldsProviderWebhook = ({ usage = "none" }: AccessConfigF
 
       <Show when={usage === "notification"}>
         <Form.Item className="relative" label={t("access.form.webhook_data.label")} extra={t("access.form.webhook_data.help")}>
-          <div className="absolute -top-[6px] right-0 -translate-y-full">
+          <div className="absolute -top-1.5 right-0 -translate-y-full">
             <Dropdown
               menu={{
                 items: ["bark", "ntfy", "gotify", "pushover", "pushplus", "serverchan3", "serverchanturbo", "common"].map((key) => ({
@@ -303,10 +303,7 @@ const AccessConfigFormFieldsProviderWebhook = ({ usage = "none" }: AccessConfigF
         label={t("access.form.shared_allow_insecure_conns.label")}
         rules={[formRule]}
       >
-        <Switch
-          checkedChildren={t("access.form.shared_allow_insecure_conns.switch.on")}
-          unCheckedChildren={t("access.form.shared_allow_insecure_conns.switch.off")}
-        />
+        <Switch />
       </Form.Item>
     </>
   );

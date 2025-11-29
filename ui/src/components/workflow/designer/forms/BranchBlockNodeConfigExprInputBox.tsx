@@ -248,7 +248,7 @@ const BranchBlockNodeConfigExprInputBox = forwardRef<BranchBlockNodeConfigExprIn
       }
     };
 
-    const handleFormChange = (_: undefined, values: ConditionFormValues) => {
+    const handleFormChange = (_: unknown, values: ConditionFormValues) => {
       setValue(formValuesToExpr(values));
     };
 

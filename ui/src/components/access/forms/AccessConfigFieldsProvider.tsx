@@ -61,6 +61,7 @@ import AccessConfigFieldsProviderKubernetes from "./AccessConfigFieldsProviderKu
 import AccessConfigFieldsProviderLarkBot from "./AccessConfigFieldsProviderLarkBot";
 import AccessConfigFieldsProviderLeCDN from "./AccessConfigFieldsProviderLeCDN";
 import AccessConfigFieldsProviderLinode from "./AccessConfigFieldsProviderLinode";
+import AccessConfigFieldsProviderLiteSSL from "./AccessConfigFieldsProviderLiteSSL";
 import AccessConfigFieldsProviderMattermost from "./AccessConfigFieldsProviderMattermost";
 import AccessConfigFieldsProviderNamecheap from "./AccessConfigFieldsProviderNamecheap";
 import AccessConfigFieldsProviderNameDotCom from "./AccessConfigFieldsProviderNameDotCom";
@@ -163,6 +164,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.LECDN]: AccessConfigFieldsProviderLeCDN,
   [ACCESS_PROVIDERS.INFOMANIAK]: AccessConfigFieldsProviderInfomaniak,
   [ACCESS_PROVIDERS.LINODE]: AccessConfigFieldsProviderLinode,
+  [ACCESS_PROVIDERS.LITESSL]: AccessConfigFieldsProviderLiteSSL,
   [ACCESS_PROVIDERS.MATTERMOST]: AccessConfigFieldsProviderMattermost,
   [ACCESS_PROVIDERS.NAMECHEAP]: AccessConfigFieldsProviderNamecheap,
   [ACCESS_PROVIDERS.NAMEDOTCOM]: AccessConfigFieldsProviderNameDotCom,

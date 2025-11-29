@@ -26,7 +26,7 @@ const WorkflowDetail = () => {
   useEffect(() => {
     Promise.try(() => workflowState.init(workflowId!)).catch((err) => {
       console.error(err);
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     });
 
     return () => {
@@ -102,7 +102,7 @@ const WorkflowDetail = () => {
       await workflowState.setEnabled(!workflow.enabled);
     } catch (err) {
       console.error(err);
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
     }
   };
 
@@ -205,7 +205,7 @@ const WorkflowDetailBaseName = () => {
     try {
       await workflowStore.setName(value);
     } catch (err) {
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
       throw err;
     }
@@ -283,7 +283,7 @@ const WorkflowDetailBaseDescription = () => {
     try {
       await workflowStore.setDescription(value);
     } catch (err) {
-      notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+      notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
       throw err;
     }

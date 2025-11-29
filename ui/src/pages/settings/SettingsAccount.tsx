@@ -60,7 +60,7 @@ const SettingsAccountUsername = ({ className, style }: { className?: string; sty
           navigate("/login");
         }, 500);
       } catch (err) {
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       }
@@ -163,7 +163,7 @@ const SettingsAccountPassword = ({ className, style }: { className?: string; sty
           navigate("/login");
         }, 500);
       } catch (err) {
-        notification.error({ message: t("common.text.request_error"), description: getErrMsg(err) });
+        notification.error({ title: t("common.text.request_error"), description: getErrMsg(err) });
 
         throw err;
       }
