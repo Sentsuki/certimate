@@ -33,6 +33,7 @@ import AccessConfigFieldsProviderDeSEC from "./AccessConfigFieldsProviderDeSEC";
 import AccessConfigFieldsProviderDigitalOcean from "./AccessConfigFieldsProviderDigitalOcean";
 import AccessConfigFieldsProviderDingTalkBot from "./AccessConfigFieldsProviderDingTalkBot";
 import AccessConfigFieldsProviderDiscordBot from "./AccessConfigFieldsProviderDiscordBot";
+import AccessConfigFieldsProviderDNSExit from "./AccessConfigFieldsProviderDNSExit";
 import AccessConfigFieldsProviderDNSLA from "./AccessConfigFieldsProviderDNSLA";
 import AccessConfigFieldsProviderDNSMadeEasy from "./AccessConfigFieldsProviderDNSMadeEasy";
 import AccessConfigFieldsProviderDogeCloud from "./AccessConfigFieldsProviderDogeCloud";
@@ -63,6 +64,7 @@ import AccessConfigFieldsProviderLeCDN from "./AccessConfigFieldsProviderLeCDN";
 import AccessConfigFieldsProviderLinode from "./AccessConfigFieldsProviderLinode";
 import AccessConfigFieldsProviderLiteSSL from "./AccessConfigFieldsProviderLiteSSL";
 import AccessConfigFieldsProviderMattermost from "./AccessConfigFieldsProviderMattermost";
+import AccessConfigFieldsProviderMohua from "./AccessConfigFieldsProviderMohua";
 import AccessConfigFieldsProviderNamecheap from "./AccessConfigFieldsProviderNamecheap";
 import AccessConfigFieldsProviderNameDotCom from "./AccessConfigFieldsProviderNameDotCom";
 import AccessConfigFieldsProviderNameSilo from "./AccessConfigFieldsProviderNameSilo";
@@ -136,6 +138,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.DIGITALOCEAN]: AccessConfigFieldsProviderDigitalOcean,
   [ACCESS_PROVIDERS.DINGTALKBOT]: AccessConfigFieldsProviderDingTalkBot,
   [ACCESS_PROVIDERS.DISCORDBOT]: AccessConfigFieldsProviderDiscordBot,
+  [ACCESS_PROVIDERS.DNSEXIT]: AccessConfigFieldsProviderDNSExit,
   [ACCESS_PROVIDERS.DNSLA]: AccessConfigFieldsProviderDNSLA,
   [ACCESS_PROVIDERS.DNSMADEEASY]: AccessConfigFieldsProviderDNSMadeEasy,
   [ACCESS_PROVIDERS.DOGECLOUD]: AccessConfigFieldsProviderDogeCloud,
@@ -166,6 +169,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.LINODE]: AccessConfigFieldsProviderLinode,
   [ACCESS_PROVIDERS.LITESSL]: AccessConfigFieldsProviderLiteSSL,
   [ACCESS_PROVIDERS.MATTERMOST]: AccessConfigFieldsProviderMattermost,
+  [ACCESS_PROVIDERS.MOHUA]: AccessConfigFieldsProviderMohua,
   [ACCESS_PROVIDERS.NAMECHEAP]: AccessConfigFieldsProviderNamecheap,
   [ACCESS_PROVIDERS.NAMEDOTCOM]: AccessConfigFieldsProviderNameDotCom,
   [ACCESS_PROVIDERS.NAMESILO]: AccessConfigFieldsProviderNameSilo,

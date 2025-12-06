@@ -183,6 +183,10 @@ type AccessConfigForDiscordBot struct {
 	ChannelId string `json:"channelId,omitempty"`
 }
 
+type AccessConfigForDNSExit struct {
+	ApiKey string `json:"apiKey"`
+}
+
 type AccessConfigForDNSLA struct {
 	ApiId     string `json:"apiId"`
 	ApiSecret string `json:"apiSecret"`
@@ -409,6 +413,11 @@ type AccessConfigForQingCloud struct {
 type AccessConfigForQiniu struct {
 	AccessKey string `json:"accessKey"`
 	SecretKey string `json:"secretKey"`
+}
+
+type AccessConfigForMohua struct {
+	Username    string `json:"username"`
+	ApiPassword string `json:"apiPassword"`
 }
 
 type AccessConfigForRainYun struct {
