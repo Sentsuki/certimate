@@ -4,6 +4,7 @@ import { ACCESS_PROVIDERS, type AccessProviderType } from "@/domain/provider";
 
 import AccessConfigFieldsProvider1Panel from "./AccessConfigFieldsProvider1Panel";
 import AccessConfigFieldsProvider35cn from "./AccessConfigFieldsProvider35cn";
+import AccessConfigFieldsProvider51DNScom from "./AccessConfigFieldsProvider51DNScom";
 import AccessConfigFieldsProviderACMECA from "./AccessConfigFieldsProviderACMECA";
 import AccessConfigFieldsProviderACMEDNS from "./AccessConfigFieldsProviderACMEDNS";
 import AccessConfigFieldsProviderACMEHttpReq from "./AccessConfigFieldsProviderACMEHttpReq";
@@ -28,6 +29,7 @@ import AccessConfigFieldsProviderCloudflare from "./AccessConfigFieldsProviderCl
 import AccessConfigFieldsProviderClouDNS from "./AccessConfigFieldsProviderClouDNS";
 import AccessConfigFieldsProviderCMCCCloud from "./AccessConfigFieldsProviderCMCCCloud";
 import AccessConfigFieldsProviderConstellix from "./AccessConfigFieldsProviderConstellix";
+import AccessConfigFieldsProviderCPanel from "./AccessConfigFieldsProviderCPanel";
 import AccessConfigFieldsProviderCTCCCloud from "./AccessConfigFieldsProviderCTCCCloud";
 import AccessConfigFieldsProviderDeSEC from "./AccessConfigFieldsProviderDeSEC";
 import AccessConfigFieldsProviderDigitalOcean from "./AccessConfigFieldsProviderDigitalOcean";
@@ -109,6 +111,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
     */
   [ACCESS_PROVIDERS["1PANEL"]]: AccessConfigFieldsProvider1Panel,
   [ACCESS_PROVIDERS["35CN"]]: AccessConfigFieldsProvider35cn,
+  [ACCESS_PROVIDERS["51DNSCOM"]]: AccessConfigFieldsProvider51DNScom,
   [ACCESS_PROVIDERS.ACMECA]: AccessConfigFieldsProviderACMECA,
   [ACCESS_PROVIDERS.ACMEDNS]: AccessConfigFieldsProviderACMEDNS,
   [ACCESS_PROVIDERS.ACMEHTTPREQ]: AccessConfigFieldsProviderACMEHttpReq,
@@ -133,6 +136,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.CLOUDNS]: AccessConfigFieldsProviderClouDNS,
   [ACCESS_PROVIDERS.CMCCCLOUD]: AccessConfigFieldsProviderCMCCCloud,
   [ACCESS_PROVIDERS.CONSTELLIX]: AccessConfigFieldsProviderConstellix,
+  [ACCESS_PROVIDERS.CPANEL]: AccessConfigFieldsProviderCPanel,
   [ACCESS_PROVIDERS.CTCCCLOUD]: AccessConfigFieldsProviderCTCCCloud,
   [ACCESS_PROVIDERS.DESEC]: AccessConfigFieldsProviderDeSEC,
   [ACCESS_PROVIDERS.DIGITALOCEAN]: AccessConfigFieldsProviderDigitalOcean,

@@ -32,7 +32,7 @@ type DeployerConfig struct {
 	// 部署资源类型。
 	ResourceType string `json:"resourceType"`
 	// 域名匹配模式。
-	// 零值时默认值 [WEBSITE_MATCH_PATTERN_EXACT]。
+	// 零值时默认值 [WEBSITE_MATCH_PATTERN_SPECIFIED]。
 	WebsiteMatchPattern string `json:"websiteMatchPattern,omitempty"`
 	// 网站 ID。
 	// 部署资源类型为 [RESOURCE_TYPE_WEBSITE]、且匹配模式非 [WEBSITE_MATCH_PATTERN_CERTSAN] 时必填。
@@ -66,6 +66,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		ApiVersion:               config.ApiVersion,
 		ApiKey:                   config.ApiKey,
 		AllowInsecureConnections: config.AllowInsecureConnections,
+		NodeName:                 config.NodeName,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("could not create certmgr: %w", err)
@@ -234,7 +235,7 @@ func (d *Deployer) getMatchedWebsiteIdsByCertificate(ctx context.Context, certPE
 					}
 
 					for _, domainInfo := range websiteGetResp.Data.Domains {
-						if domainInfo.SSL {
+						if domainInfo.SSL || certX509.VerifyHostname(domainInfo.Domain) == nil {
 							websiteIds = append(websiteIds, websiteItem.ID)
 							break
 						}
@@ -288,7 +289,7 @@ func (d *Deployer) getMatchedWebsiteIdsByCertificate(ctx context.Context, certPE
 					}
 
 					for _, domainInfo := range websiteGetResp.Data.Domains {
-						if domainInfo.SSL {
+						if domainInfo.SSL || certX509.VerifyHostname(domainInfo.Domain) == nil {
 							websiteIds = append(websiteIds, websiteItem.ID)
 							break
 						}
@@ -411,18 +412,15 @@ func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool, n
 		return client, nil
 	} else if apiVersion == sdkVersionV2 {
 		var client *onepanelsdk2.Client
+		var err error
+
 		if nodeName == "" {
-			temp, err := onepanelsdk2.NewClient(serverUrl, apiKey)
-			if err != nil {
-				return nil, err
-			}
-			client = temp
+			client, err = onepanelsdk2.NewClient(serverUrl, apiKey)
 		} else {
-			temp, err := onepanelsdk2.NewClientWithNode(serverUrl, apiKey, nodeName)
-			if err != nil {
-				return nil, err
-			}
-			client = temp
+			client, err = onepanelsdk2.NewClientWithNode(serverUrl, apiKey, nodeName)
+		}
+		if err != nil {
+			return nil, err
 		}
 
 		if skipTlsVerify {

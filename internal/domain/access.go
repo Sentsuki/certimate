@@ -27,6 +27,11 @@ type AccessConfigFor35cn struct {
 	ApiPassword string `json:"apiPassword"`
 }
 
+type AccessConfigFor51DNScom struct {
+	ApiKey    string `json:"apiKey"`
+	ApiSecret string `json:"apiSecret"`
+}
+
 type AccessConfigForACMEExternalAccountBinding struct {
 	EabKid     string `json:"eabKid,omitempty"`
 	EabHmacKey string `json:"eabHmacKey,omitempty"`
@@ -158,6 +163,13 @@ type AccessConfigForCMCCCloud struct {
 type AccessConfigForConstellix struct {
 	ApiKey    string `json:"apiKey"`
 	SecretKey string `json:"secretKey"`
+}
+
+type AccessConfigForCPanel struct {
+	ServerUrl                string `json:"serverUrl"`
+	Username                 string `json:"username"`
+	ApiToken                 string `json:"apiToken"`
+	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
 }
 
 type AccessConfigForCTCCCloud struct {

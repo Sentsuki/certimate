@@ -130,7 +130,7 @@ const CertificateList = () => {
                 }
               }}
             >
-              {record.expand?.workflowRef?.name ?? <span className="font-mono">{t(`#${workflowId}`)}</span>}
+              {record.expand?.workflowRef?.name ?? <span className="font-mono">{`#${workflowId}`}</span>}
             </Typography.Link>
           </div>
         );
@@ -462,7 +462,7 @@ const CertificateList = () => {
               ) : (
                 <Empty
                   className="py-24"
-                  title={t("certificate.nodata.title")}
+                  title={loadError ? t("common.text.nodata_failed") : t("certificate.nodata.title")}
                   description={loadError ? getErrMsg(loadError) : t("certificate.nodata.description")}
                   icon={<IconCertificate size={24} />}
                   extra={

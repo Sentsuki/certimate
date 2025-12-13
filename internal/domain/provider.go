@@ -11,6 +11,7 @@ NOTICE: If you add new constant, please keep ASCII order.
 const (
 	AccessProviderType1Panel              = AccessProviderType("1panel")
 	AccessProviderType35cn                = AccessProviderType("35cn")
+	AccessProviderType51DNScom            = AccessProviderType("51dnscom")
 	AccessProviderTypeACMECA              = AccessProviderType("acmeca")
 	AccessProviderTypeACMEDNS             = AccessProviderType("acmedns")
 	AccessProviderTypeACMEHttpReq         = AccessProviderType("acmehttpreq")
@@ -35,6 +36,7 @@ const (
 	AccessProviderTypeClouDNS             = AccessProviderType("cloudns")
 	AccessProviderTypeCMCCCloud           = AccessProviderType("cmcccloud")
 	AccessProviderTypeConstellix          = AccessProviderType("constellix")
+	AccessProviderTypeCPanel              = AccessProviderType("cpanel")
 	AccessProviderTypeCTCCCloud           = AccessProviderType("ctcccloud")
 	AccessProviderTypeCUCCCloud           = AccessProviderType("cucccloud") // 联通云（预留）
 	AccessProviderTypeDeSEC               = AccessProviderType("desec")
@@ -148,6 +150,7 @@ NOTICE: If you add new constant, please keep ASCII order.
 */
 const (
 	ACMEDns01ProviderType35cn              = ACMEDns01ProviderType(AccessProviderType35cn)
+	ACMEDns01ProviderType51DNScom          = ACMEDns01ProviderType(AccessProviderType51DNScom)
 	ACMEDns01ProviderTypeACMEDNS           = ACMEDns01ProviderType(AccessProviderTypeACMEDNS)
 	ACMEDns01ProviderTypeACMEHttpReq       = ACMEDns01ProviderType(AccessProviderTypeACMEHttpReq)
 	ACMEDns01ProviderTypeAkamai            = ACMEDns01ProviderType(AccessProviderTypeAkamai) // 兼容旧值，等同于 [ACMEDns01ProviderTypeAkamaiEdgeDNS]
@@ -169,6 +172,7 @@ const (
 	ACMEDns01ProviderTypeCMCCCloud         = ACMEDns01ProviderType(AccessProviderTypeCMCCCloud) // 兼容旧值，等同于 [ACMEDns01ProviderTypeCMCCCloudDNS]
 	ACMEDns01ProviderTypeCMCCCloudDNS      = ACMEDns01ProviderType(AccessProviderTypeCMCCCloud + "-dns")
 	ACMEDns01ProviderTypeConstellix        = ACMEDns01ProviderType(AccessProviderTypeConstellix)
+	ACMEDns01ProviderTypeCPanel            = ACMEDns01ProviderType(AccessProviderTypeCPanel)
 	ACMEDns01ProviderTypeCTCCCloud         = ACMEDns01ProviderType(AccessProviderTypeCTCCCloud) // 兼容旧值，等同于 [ACMEDns01ProviderTypeCTCCCloudSmartDNS]
 	ACMEDns01ProviderTypeCTCCCloudSmartDNS = ACMEDns01ProviderType(AccessProviderTypeCTCCCloud + "-smartdns")
 	ACMEDns01ProviderTypeDeSEC             = ACMEDns01ProviderType(AccessProviderTypeDeSEC)
@@ -283,6 +287,7 @@ const (
 	DeploymentProviderTypeBytePlusCDN           = DeploymentProviderType(AccessProviderTypeBytePlus + "-cdn")
 	DeploymentProviderTypeCacheFly              = DeploymentProviderType(AccessProviderTypeCacheFly)
 	DeploymentProviderTypeCdnfly                = DeploymentProviderType(AccessProviderTypeCdnfly)
+	DeploymentProviderTypeCPanelSite            = DeploymentProviderType(AccessProviderTypeCPanel + "-site")
 	DeploymentProviderTypeCTCCCloudAO           = DeploymentProviderType(AccessProviderTypeCTCCCloud + "-ao")
 	DeploymentProviderTypeCTCCCloudCDN          = DeploymentProviderType(AccessProviderTypeCTCCCloud + "-cdn")
 	DeploymentProviderTypeCTCCCloudCMS          = DeploymentProviderType(AccessProviderTypeCTCCCloud + "-cms")
