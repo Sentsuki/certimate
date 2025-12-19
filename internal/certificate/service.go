@@ -54,35 +54,60 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 		return nil, err
 	}
 
+	canonicalName := strings.Split(certificate.SubjectAltNames, ";")[0]
+	canonicalName = strings.ReplaceAll(canonicalName, "*", "_")
+
 	var buf bytes.Buffer
 	zipWriter := zip.NewWriter(&buf)
 	defer zipWriter.Close()
 
-	resp := &dtos.CertificateArchiveFileResp{
-		FileFormat: "zip",
-	}
-
+	var bytes []byte
 	switch strings.ToUpper(req.Format) {
 	case "", "PEM":
 		{
-			certWriter, err := zipWriter.Create("certbundle.pem")
+			serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certificate.Certificate)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to extract certs: %w", err)
 			}
 
-			_, err = certWriter.Write([]byte(certificate.Certificate))
+			certWriter, err := zipWriter.Create(fmt.Sprintf("%s.pem", canonicalName))
 			if err != nil {
 				return nil, err
+			} else {
+				_, err = certWriter.Write([]byte(certificate.Certificate))
+				if err != nil {
+					return nil, err
+				}
 			}
 
-			keyWriter, err := zipWriter.Create("privkey.pem")
+			serverCertWriter, err := zipWriter.Create(fmt.Sprintf("%s (server).pem", canonicalName))
 			if err != nil {
 				return nil, err
+			} else {
+				_, err = serverCertWriter.Write([]byte(serverCertPEM))
+				if err != nil {
+					return nil, err
+				}
 			}
 
-			_, err = keyWriter.Write([]byte(certificate.PrivateKey))
+			intermediaCertWriter, err := zipWriter.Create(fmt.Sprintf("%s (intermedia).pem", canonicalName))
 			if err != nil {
 				return nil, err
+			} else {
+				_, err = intermediaCertWriter.Write([]byte(intermediaCertPEM))
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			keyWriter, err := zipWriter.Create(fmt.Sprintf("%s.key", canonicalName))
+			if err != nil {
+				return nil, err
+			} else {
+				_, err = keyWriter.Write([]byte(certificate.PrivateKey))
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			err = zipWriter.Close()
@@ -90,8 +115,7 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 				return nil, err
 			}
 
-			resp.FileBytes = buf.Bytes()
-			return resp, nil
+			bytes = buf.Bytes()
 		}
 
 	case "PFX":
@@ -103,24 +127,24 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 				return nil, err
 			}
 
-			certWriter, err := zipWriter.Create("cert.pfx")
+			certWriter, err := zipWriter.Create(fmt.Sprintf("%s.pfx", canonicalName))
 			if err != nil {
 				return nil, err
-			}
-
-			_, err = certWriter.Write(certPFX)
-			if err != nil {
-				return nil, err
+			} else {
+				_, err = certWriter.Write(certPFX)
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			keyWriter, err := zipWriter.Create("pfx-password.txt")
 			if err != nil {
 				return nil, err
-			}
-
-			_, err = keyWriter.Write([]byte(pfxPassword))
-			if err != nil {
-				return nil, err
+			} else {
+				_, err = keyWriter.Write([]byte(pfxPassword))
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			err = zipWriter.Close()
@@ -128,8 +152,7 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 				return nil, err
 			}
 
-			resp.FileBytes = buf.Bytes()
-			return resp, nil
+			bytes = buf.Bytes()
 		}
 
 	case "JKS":
@@ -141,24 +164,24 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 				return nil, err
 			}
 
-			certWriter, err := zipWriter.Create("cert.jks")
+			certWriter, err := zipWriter.Create(fmt.Sprintf("%s.jks", canonicalName))
 			if err != nil {
 				return nil, err
-			}
-
-			_, err = certWriter.Write(certJKS)
-			if err != nil {
-				return nil, err
+			} else {
+				_, err = certWriter.Write(certJKS)
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			keyWriter, err := zipWriter.Create("jks-password.txt")
 			if err != nil {
 				return nil, err
-			}
-
-			_, err = keyWriter.Write([]byte(jksPassword))
-			if err != nil {
-				return nil, err
+			} else {
+				_, err = keyWriter.Write([]byte(jksPassword))
+				if err != nil {
+					return nil, err
+				}
 			}
 
 			err = zipWriter.Close()
@@ -166,13 +189,18 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 				return nil, err
 			}
 
-			resp.FileBytes = buf.Bytes()
-			return resp, nil
+			bytes = buf.Bytes()
 		}
 
 	default:
 		return nil, domain.ErrInvalidParams
 	}
+
+	resp := &dtos.CertificateArchiveFileResp{
+		FileFormat: "zip",
+		FileBytes:  bytes,
+	}
+	return resp, nil
 }
 
 func (s *CertificateService) RevokeCertificate(ctx context.Context, req *dtos.CertificateRevokeReq) (*dtos.CertificateRevokeResp, error) {

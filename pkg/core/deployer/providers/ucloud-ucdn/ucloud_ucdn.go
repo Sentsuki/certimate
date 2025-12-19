@@ -13,7 +13,7 @@ import (
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/ucloud-ussl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	usdkCdn "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ucdn"
+	ucloudsdk "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ucdn"
 )
 
 type DeployerConfig struct {
@@ -30,7 +30,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *usdkCdn.UCDNClient
+	sdkClient  *ucloudsdk.UCDNClient
 	sdkCertmgr certmgr.Provider
 }
 
@@ -41,7 +41,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
-	client, err := createSDKClient(config.PrivateKey, config.PublicKey)
+	client, err := createSDKClient(config.PrivateKey, config.PublicKey, config.ProjectId)
 	if err != nil {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
@@ -90,9 +90,6 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	// REF: https://docs.ucloud.cn/api/ucdn-api/get_ucdn_domain_config
 	getUcdnDomainConfigReq := d.sdkClient.NewGetUcdnDomainConfigRequest()
 	getUcdnDomainConfigReq.DomainId = []string{d.config.DomainId}
-	if d.config.ProjectId != "" {
-		getUcdnDomainConfigReq.SetProjectId(d.config.ProjectId)
-	}
 	getUcdnDomainConfigResp, err := d.sdkClient.GetUcdnDomainConfig(getUcdnDomainConfigReq)
 	d.logger.Debug("sdk request 'ucdn.GetUcdnDomainConfig'", slog.Any("request", getUcdnDomainConfigReq), slog.Any("response", getUcdnDomainConfigResp))
 	if err != nil {
@@ -112,9 +109,6 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	updateUcdnDomainHttpsConfigV2Req.CertId = ucloud.Int(certId)
 	updateUcdnDomainHttpsConfigV2Req.CertName = ucloud.String(upres.CertName)
 	updateUcdnDomainHttpsConfigV2Req.CertType = ucloud.String("ussl")
-	if d.config.ProjectId != "" {
-		updateUcdnDomainHttpsConfigV2Req.SetProjectId(d.config.ProjectId)
-	}
 	updateUcdnDomainHttpsConfigV2Resp, err := d.sdkClient.UpdateUcdnDomainHttpsConfigV2(updateUcdnDomainHttpsConfigV2Req)
 	d.logger.Debug("sdk request 'ucdn.UpdateUcdnDomainHttpsConfigV2'", slog.Any("request", updateUcdnDomainHttpsConfigV2Req), slog.Any("response", updateUcdnDomainHttpsConfigV2Resp))
 	if err != nil {
@@ -124,13 +118,21 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	return &deployer.DeployResult{}, nil
 }
 
-func createSDKClient(privateKey, publicKey string) (*usdkCdn.UCDNClient, error) {
+func createSDKClient(privateKey, publicKey, projectId string) (*ucloudsdk.UCDNClient, error) {
+	if privateKey == "" {
+		return nil, fmt.Errorf("ucloud: invalid private key")
+	}
+	if publicKey == "" {
+		return nil, fmt.Errorf("ucloud: invalid public key")
+	}
+
 	cfg := ucloud.NewConfig()
+	cfg.ProjectId = projectId
 
 	credential := auth.NewCredential()
 	credential.PrivateKey = privateKey
 	credential.PublicKey = publicKey
 
-	client := usdkCdn.NewClient(&cfg, &credential)
+	client := ucloudsdk.NewClient(&cfg, &credential)
 	return client, nil
 }

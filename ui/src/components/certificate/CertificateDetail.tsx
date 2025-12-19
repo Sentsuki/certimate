@@ -115,6 +115,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
               },
             ],
           }}
+          trigger={["click", "hover"]}
         >
           <Button icon={<IconChevronDown size="1.25em" />} iconPlacement="end" type="primary">
             {t("common.button.download")}

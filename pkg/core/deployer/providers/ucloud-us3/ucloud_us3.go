@@ -12,7 +12,7 @@ import (
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/ucloud-ussl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	usdkFile "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ufile"
+	ucloudsdk "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ufile"
 )
 
 type DeployerConfig struct {
@@ -33,7 +33,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *usdkFile.UFileClient
+	sdkClient  *ucloudsdk.UFileClient
 	sdkCertmgr certmgr.Provider
 }
 
@@ -44,7 +44,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
-	client, err := createSDKClient(config.PrivateKey, config.PublicKey, config.Region)
+	client, err := createSDKClient(config.PrivateKey, config.PublicKey, config.ProjectId, config.Region)
 	if err != nil {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
@@ -99,9 +99,6 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	addUFileSSLCertReq.Domain = ucloud.String(d.config.Domain)
 	addUFileSSLCertReq.USSLId = ucloud.String(upres.CertId)
 	addUFileSSLCertReq.CertificateName = ucloud.String(upres.CertName)
-	if d.config.ProjectId != "" {
-		addUFileSSLCertReq.SetProjectId(d.config.ProjectId)
-	}
 	addUFileSSLCertResp, err := d.sdkClient.AddUFileSSLCert(addUFileSSLCertReq)
 	d.logger.Debug("sdk request 'us3.AddUFileSSLCert'", slog.Any("request", addUFileSSLCertReq), slog.Any("response", addUFileSSLCertResp))
 	if err != nil {
@@ -111,14 +108,22 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	return &deployer.DeployResult{}, nil
 }
 
-func createSDKClient(privateKey, publicKey, region string) (*usdkFile.UFileClient, error) {
+func createSDKClient(privateKey, publicKey, projectId, region string) (*ucloudsdk.UFileClient, error) {
+	if privateKey == "" {
+		return nil, fmt.Errorf("ucloud: invalid private key")
+	}
+	if publicKey == "" {
+		return nil, fmt.Errorf("ucloud: invalid public key")
+	}
+
 	cfg := ucloud.NewConfig()
+	cfg.ProjectId = projectId
 	cfg.Region = region
 
 	credential := auth.NewCredential()
 	credential.PrivateKey = privateKey
 	credential.PublicKey = publicKey
 
-	client := usdkFile.NewClient(&cfg, &credential)
+	client := ucloudsdk.NewClient(&cfg, &credential)
 	return client, nil
 }

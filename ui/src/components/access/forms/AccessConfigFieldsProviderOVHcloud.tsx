@@ -29,7 +29,9 @@ const AccessConfigFormFieldsProviderOVHcloud = () => {
         <AutoComplete
           options={["ovh-eu", "ovh-us", "ovh-ca"].map((value) => ({ value }))}
           placeholder={t("access.form.ovhcloud_endpoint.placeholder")}
-          filterOption={(inputValue, option) => option!.value.toLowerCase().includes(inputValue.toLowerCase())}
+          showSearch={{
+            filterOption: (inputValue, option) => option!.value.toLowerCase().includes(inputValue.toLowerCase()),
+          }}
         />
       </Form.Item>
 

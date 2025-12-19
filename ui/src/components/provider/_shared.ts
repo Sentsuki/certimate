@@ -9,8 +9,7 @@ import { useAccessesStore } from "@/stores/access";
 
 type Provider = { type: string; name: string };
 
-export interface SharedSelectProps<T extends Provider>
-  extends Omit<SelectProps, "filterOption" | "filterSort" | "labelRender" | "options" | "optionFilterProp" | "optionLabelProp" | "optionRender"> {
+export interface SharedSelectProps<T extends Provider> extends Omit<SelectProps, "labelRender" | "options" | "optionLabelProp" | "optionRender"> {
   className?: string;
   style?: React.CSSProperties;
   onFilter?: (value: string, option: T) => boolean;

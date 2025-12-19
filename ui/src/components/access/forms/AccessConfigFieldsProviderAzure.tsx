@@ -57,7 +57,9 @@ const AccessConfigFormFieldsProviderAzure = () => {
         <AutoComplete
           options={["public", "azureusgovernment", "azurechina"].map((value) => ({ value }))}
           placeholder={t("access.form.azure_cloud_name.placeholder")}
-          filterOption={(inputValue, option) => option!.value.toLowerCase().includes(inputValue.toLowerCase())}
+          showSearch={{
+            filterOption: (inputValue, option) => option!.value.toLowerCase().includes(inputValue.toLowerCase()),
+          }}
         />
       </Form.Item>
     </>

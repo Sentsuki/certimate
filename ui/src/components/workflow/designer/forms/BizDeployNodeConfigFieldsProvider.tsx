@@ -83,7 +83,11 @@ import BizDeployNodeConfigFieldsProviderTencentCloudSSLDeploy from "./BizDeployN
 import BizDeployNodeConfigFieldsProviderTencentCloudSSLUpdate from "./BizDeployNodeConfigFieldsProviderTencentCloudSSLUpdate";
 import BizDeployNodeConfigFieldsProviderTencentCloudVOD from "./BizDeployNodeConfigFieldsProviderTencentCloudVOD";
 import BizDeployNodeConfigFieldsProviderTencentCloudWAF from "./BizDeployNodeConfigFieldsProviderTencentCloudWAF";
+import BizDeployNodeConfigFieldsProviderUCloudUALB from "./BizDeployNodeConfigFieldsProviderUCloudUALB";
 import BizDeployNodeConfigFieldsProviderUCloudUCDN from "./BizDeployNodeConfigFieldsProviderUCloudUCDN";
+import BizDeployNodeConfigFieldsProviderUCloudUCLB from "./BizDeployNodeConfigFieldsProviderUCloudUCLB";
+import BizDeployNodeConfigFieldsProviderUCloudUEWAF from "./BizDeployNodeConfigFieldsProviderUCloudUEWAF";
+import BizDeployNodeConfigFieldsProviderUCloudUPathX from "./BizDeployNodeConfigFieldsProviderUCloudUPathX";
 import BizDeployNodeConfigFieldsProviderUCloudUS3 from "./BizDeployNodeConfigFieldsProviderUCloudUS3";
 import BizDeployNodeConfigFieldsProviderUniCloudWebHost from "./BizDeployNodeConfigFieldsProviderUniCloudWebHost";
 import BizDeployNodeConfigFieldsProviderUpyunCDN from "./BizDeployNodeConfigFieldsProviderUpyunCDN";
@@ -96,6 +100,8 @@ import BizDeployNodeConfigFieldsProviderVolcEngineDCDN from "./BizDeployNodeConf
 import BizDeployNodeConfigFieldsProviderVolcEngineImageX from "./BizDeployNodeConfigFieldsProviderVolcEngineImageX";
 import BizDeployNodeConfigFieldsProviderVolcEngineLive from "./BizDeployNodeConfigFieldsProviderVolcEngineLive";
 import BizDeployNodeConfigFieldsProviderVolcEngineTOS from "./BizDeployNodeConfigFieldsProviderVolcEngineTOS";
+import BizDeployNodeConfigFieldsProviderVolcEngineVOD from "./BizDeployNodeConfigFieldsProviderVolcEngineVOD.tsx";
+import BizDeployNodeConfigFieldsProviderVolcEngineWAF from "./BizDeployNodeConfigFieldsProviderVolcEngineWAF.tsx";
 import BizDeployNodeConfigFieldsProviderWangsuCDN from "./BizDeployNodeConfigFieldsProviderWangsuCDN";
 import BizDeployNodeConfigFieldsProviderWangsuCDNPro from "./BizDeployNodeConfigFieldsProviderWangsuCDNPro";
 import BizDeployNodeConfigFieldsProviderWangsuCertificate from "./BizDeployNodeConfigFieldsProviderWangsuCertificate";
@@ -187,7 +193,11 @@ const providerComponentMap: Partial<Record<DeploymentProviderType, React.Compone
   [DEPLOYMENT_PROVIDERS.TENCENTCLOUD_SSL_UPDATE]: BizDeployNodeConfigFieldsProviderTencentCloudSSLUpdate,
   [DEPLOYMENT_PROVIDERS.TENCENTCLOUD_VOD]: BizDeployNodeConfigFieldsProviderTencentCloudVOD,
   [DEPLOYMENT_PROVIDERS.TENCENTCLOUD_WAF]: BizDeployNodeConfigFieldsProviderTencentCloudWAF,
+  [DEPLOYMENT_PROVIDERS.UCLOUD_UALB]: BizDeployNodeConfigFieldsProviderUCloudUALB,
   [DEPLOYMENT_PROVIDERS.UCLOUD_UCDN]: BizDeployNodeConfigFieldsProviderUCloudUCDN,
+  [DEPLOYMENT_PROVIDERS.UCLOUD_UCLB]: BizDeployNodeConfigFieldsProviderUCloudUCLB,
+  [DEPLOYMENT_PROVIDERS.UCLOUD_UEWAF]: BizDeployNodeConfigFieldsProviderUCloudUEWAF,
+  [DEPLOYMENT_PROVIDERS.UCLOUD_UPATHX]: BizDeployNodeConfigFieldsProviderUCloudUPathX,
   [DEPLOYMENT_PROVIDERS.UCLOUD_US3]: BizDeployNodeConfigFieldsProviderUCloudUS3,
   [DEPLOYMENT_PROVIDERS.UNICLOUD_WEBHOST]: BizDeployNodeConfigFieldsProviderUniCloudWebHost,
   [DEPLOYMENT_PROVIDERS.UPYUN_CDN]: BizDeployNodeConfigFieldsProviderUpyunCDN,
@@ -200,6 +210,8 @@ const providerComponentMap: Partial<Record<DeploymentProviderType, React.Compone
   [DEPLOYMENT_PROVIDERS.VOLCENGINE_IMAGEX]: BizDeployNodeConfigFieldsProviderVolcEngineImageX,
   [DEPLOYMENT_PROVIDERS.VOLCENGINE_LIVE]: BizDeployNodeConfigFieldsProviderVolcEngineLive,
   [DEPLOYMENT_PROVIDERS.VOLCENGINE_TOS]: BizDeployNodeConfigFieldsProviderVolcEngineTOS,
+  [DEPLOYMENT_PROVIDERS.VOLCENGINE_VOD]: BizDeployNodeConfigFieldsProviderVolcEngineVOD,
+  [DEPLOYMENT_PROVIDERS.VOLCENGINE_WAF]: BizDeployNodeConfigFieldsProviderVolcEngineWAF,
   [DEPLOYMENT_PROVIDERS.WANGSU_CDN]: BizDeployNodeConfigFieldsProviderWangsuCDN,
   [DEPLOYMENT_PROVIDERS.WANGSU_CDNPRO]: BizDeployNodeConfigFieldsProviderWangsuCDNPro,
   [DEPLOYMENT_PROVIDERS.WANGSU_CERTIFICATE]: BizDeployNodeConfigFieldsProviderWangsuCertificate,

@@ -6,7 +6,7 @@ import { powerShell } from "@codemirror/legacy-modes/mode/powershell";
 import { shell } from "@codemirror/legacy-modes/mode/shell";
 import { basicSetup } from "@uiw/codemirror-extensions-basic-setup";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
-import CodeMirror, { type ReactCodeMirrorProps, type ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import CodeMirror, { EditorView, type ReactCodeMirrorProps, type ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { useFocusWithin, useHover } from "ahooks";
 import { theme } from "antd";
 import DisabledContext from "antd/es/config-provider/DisabledContext";
@@ -14,13 +14,15 @@ import DisabledContext from "antd/es/config-provider/DisabledContext";
 import { useBrowserTheme } from "@/hooks";
 import { mergeCls } from "@/utils/css";
 
-export interface CodeInputProps extends Omit<ReactCodeMirrorProps, "extensions" | "lang" | "theme"> {
+export interface CodeTextInputProps extends Omit<ReactCodeMirrorProps, "extensions" | "lang" | "theme"> {
   disabled?: boolean;
   language?: string | string[];
+  lineNumbers?: boolean;
+  lineWrapping?: boolean;
   readOnly?: boolean;
 }
 
-const CodeInput = ({ className, style, disabled, language, readOnly, ...props }: CodeInputProps) => {
+const CodeTextInput = ({ className, style, disabled, language, lineNumbers = true, lineWrapping = true, readOnly, ...props }: CodeTextInputProps) => {
   const { token: themeToken } = theme.useToken();
 
   const { theme: browserTheme } = useBrowserTheme();
@@ -49,6 +51,10 @@ const CodeInput = ({ className, style, disabled, language, readOnly, ...props }:
       }),
     ];
 
+    if (lineWrapping) {
+      temp.push(EditorView.lineWrapping);
+    }
+
     const langs = Array.isArray(language) ? language : [language];
     langs.forEach((lang) => {
       switch (lang) {
@@ -68,7 +74,7 @@ const CodeInput = ({ className, style, disabled, language, readOnly, ...props }:
     });
 
     return temp;
-  }, [language]);
+  }, [language, lineWrapping]);
 
   return (
     <div
@@ -105,9 +111,10 @@ const CodeInput = ({ className, style, disabled, language, readOnly, ...props }:
         style={{ height: "100%" }}
         {...props}
         basicSetup={{
-          foldGutter: false,
-          dropCursor: false,
           allowMultipleSelections: false,
+          dropCursor: false,
+          foldGutter: false,
+          lineNumbers: lineNumbers,
           indentOnInput: false,
         }}
         extensions={cmExtensions}
@@ -118,4 +125,4 @@ const CodeInput = ({ className, style, disabled, language, readOnly, ...props }:
   );
 };
 
-export default CodeInput;
+export default CodeTextInput;

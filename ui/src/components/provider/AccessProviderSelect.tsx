@@ -84,12 +84,6 @@ const AccessProviderSelect = ({ showOptionTags, onFilter, ...props }: AccessProv
   return (
     <Select
       {...props}
-      filterOption={(inputValue, option) => {
-        if (!option) return false;
-
-        const value = inputValue.toLowerCase();
-        return option.value.toLowerCase().includes(value) || option.label.toLowerCase().includes(value);
-      }}
       labelRender={({ value }) => {
         if (value != null) {
           return renderOption(value as string);
@@ -98,9 +92,19 @@ const AccessProviderSelect = ({ showOptionTags, onFilter, ...props }: AccessProv
         return <span style={{ color: themeToken.colorTextPlaceholder }}>{props.placeholder}</span>;
       }}
       options={options}
-      optionFilterProp={void 0}
       optionLabelProp={void 0}
       optionRender={(option) => renderOption(option.data.value)}
+      showSearch={{
+        filterOption: (inputValue, option) => {
+          if (!option) return false;
+          if (!option.label) return false;
+          if (!option.value) return false;
+
+          const value = inputValue.toLowerCase();
+          return String(option.value).toLowerCase().includes(value) || String(option.label).toLowerCase().includes(value);
+        },
+        optionFilterProp: "label",
+      }}
     />
   );
 };
