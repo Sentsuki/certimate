@@ -21,6 +21,8 @@ func init() {
 			TenantId:              credentials.TenantId,
 			ClientId:              credentials.ClientId,
 			ClientSecret:          credentials.ClientSecret,
+			SubscriptionId:        credentials.SubscriptionId,
+			ResourceGroupName:     credentials.ResourceGroupName,
 			CloudName:             credentials.CloudName,
 			DnsPropagationTimeout: options.DnsPropagationTimeout,
 			DnsTTL:                options.DnsTTL,

@@ -14,20 +14,20 @@ type notifyService interface {
 	TestPush(ctx context.Context, req *dtos.NotifyTestPushReq) (*dtos.NotifyTestPushResp, error)
 }
 
-type NotifyHandler struct {
+type NotificationsHandler struct {
 	service notifyService
 }
 
-func NewNotifyHandler(router *router.RouterGroup[*core.RequestEvent], service notifyService) {
-	handler := &NotifyHandler{
+func NewNotificationsHandler(router *router.RouterGroup[*core.RequestEvent], service notifyService) {
+	handler := &NotificationsHandler{
 		service: service,
 	}
 
-	group := router.Group("/notify")
+	group := router.Group("/notifications")
 	group.POST("/test", handler.test)
 }
 
-func (handler *NotifyHandler) test(e *core.RequestEvent) error {
+func (handler *NotificationsHandler) test(e *core.RequestEvent) error {
 	req := &dtos.NotifyTestPushReq{}
 	if err := e.BindBody(req); err != nil {
 		return resp.Err(e, err)

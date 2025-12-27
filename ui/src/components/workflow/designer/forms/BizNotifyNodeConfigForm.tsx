@@ -53,8 +53,8 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
     initialValues: initialValues ?? getInitialValues(),
   });
 
-  const fieldProvider = Form.useWatch<string>("provider", { form: formInst, preserve: true });
-  const fieldProviderAccessId = Form.useWatch<string>("providerAccessId", { form: formInst, preserve: true });
+  const fieldProvider = Form.useWatch("provider", { form: formInst, preserve: true });
+  const fieldProviderAccessId = Form.useWatch("providerAccessId", { form: formInst, preserve: true });
 
   const renderNestedFieldProviderComponent = BizNotifyNodeConfigFieldsProvider.useComponent(fieldProvider, {});
 
@@ -242,8 +242,8 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
   return z.object({
     subject: z.string().nonempty(t("workflow_node.notify.form.subject.placeholder")),
     message: z.string().nonempty(t("workflow_node.notify.form.message.placeholder")),
-    provider: z.string(t("workflow_node.notify.form.provider.placeholder")).nonempty(t("workflow_node.notify.form.provider.placeholder")),
-    providerAccessId: z.string(t("workflow_node.notify.form.provider_access.placeholder")).nonempty(t("workflow_node.notify.form.provider_access.placeholder")),
+    provider: z.string().nonempty(t("workflow_node.notify.form.provider.placeholder")),
+    providerAccessId: z.string().nonempty(t("workflow_node.notify.form.provider_access.placeholder")),
     providerConfig: z.any().nullish(),
     skipOnAllPrevSkipped: z.boolean().nullish(),
   });

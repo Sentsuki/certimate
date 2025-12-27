@@ -92,7 +92,9 @@ export const defaultNodeConfigForBranchBlock = (): Partial<WorkflowNodeConfigFor
 };
 
 export type WorkflowNodeConfigForBizApply = {
+  identifier: "domain" | "ip";
   domains: string;
+  ipaddrs: string;
   contactEmail: string;
   challengeType: string;
   provider: string;
@@ -107,8 +109,10 @@ export type WorkflowNodeConfigForBizApply = {
   validityLifetime?: string;
   acmeProfile?: string;
   nameservers?: string;
+  dnsPropagationWait?: number;
   dnsPropagationTimeout?: number;
   dnsTTL?: number;
+  httpDelayWait?: number;
   disableFollowCNAME?: boolean;
   disableARI?: boolean;
   skipBeforeExpiryDays: number;
@@ -125,7 +129,6 @@ export const defaultNodeConfigForBizApply = (): Partial<WorkflowNodeConfigForBiz
 
 export type WorkflowNodeConfigForBizUpload = {
   source: string;
-  domains?: string;
   certificate: string;
   privateKey: string;
 };

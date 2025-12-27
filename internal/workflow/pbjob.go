@@ -13,7 +13,7 @@ import (
 	"github.com/certimate-go/certimate/internal/domain/dtos"
 )
 
-func addWorkflowJob(workflowSrv *WorkflowService, workflowId string, triggerCron string) error {
+func registerWorkflowJob(workflowSrv *WorkflowService, workflowId string, triggerCron string) error {
 	scheduler := app.GetScheduler()
 
 	jobId := fmt.Sprintf("workflow#%s", workflowId)

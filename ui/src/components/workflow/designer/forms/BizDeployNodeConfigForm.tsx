@@ -64,8 +64,8 @@ const BizDeployNodeConfigForm = ({ node, ...props }: BizDeployNodeConfigFormProp
     initialValues: initialValues ?? getInitialValues(),
   });
 
-  const fieldProvider = Form.useWatch<string>("provider", { form: formInst, preserve: true });
-  const fieldProviderAccessId = Form.useWatch<string>("providerAccessId", { form: formInst, preserve: true });
+  const fieldProvider = Form.useWatch("provider", { form: formInst, preserve: true });
+  const fieldProviderAccessId = Form.useWatch("providerAccessId", { form: formInst, preserve: true });
 
   const certificateOutputNodeIdOptions = useMemo(() => {
     return getAllPreviousNodes(node)
@@ -263,10 +263,8 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
 
   return z
     .object({
-      certificateOutputNodeId: z
-        .string(t("workflow_node.deploy.form.certificate_output_node_id.placeholder"))
-        .nonempty(t("workflow_node.deploy.form.certificate_output_node_id.placeholder")),
-      provider: z.string(t("workflow_node.deploy.form.provider.placeholder")).nonempty(t("workflow_node.deploy.form.provider.placeholder")),
+      certificateOutputNodeId: z.string().nonempty(t("workflow_node.deploy.form.certificate_output_node_id.placeholder")),
+      provider: z.string().nonempty(t("workflow_node.deploy.form.provider.placeholder")),
       providerAccessId: z.string().nullish(),
       providerConfig: z.any().nullish(),
       skipOnLastSucceeded: z.boolean().nullish(),

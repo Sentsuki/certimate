@@ -1,6 +1,6 @@
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
-import { IconChevronDown, IconClipboard, IconThumbUp } from "@tabler/icons-react";
+import { IconClipboard, IconDownload, IconThumbUp } from "@tabler/icons-react";
 import { App, Button, Dropdown, Form, Input, Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
@@ -117,7 +117,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
           }}
           trigger={["click", "hover"]}
         >
-          <Button icon={<IconChevronDown size="1.25em" />} iconPlacement="end" type="primary">
+          <Button icon={<IconDownload size="1.25em" />} type="primary">
             {t("common.button.download")}
           </Button>
         </Dropdown>

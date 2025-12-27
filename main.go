@@ -47,9 +47,9 @@ func main() {
 	app.RootCmd.AddCommand(cmd.NewWinscCommand(app))
 
 	app.OnServe().BindFunc(func(e *core.ServeEvent) error {
-		scheduler.Register()
-		workflow.Register()
-		routes.Register(e.Router)
+		scheduler.Setup()
+		workflow.Setup()
+		routes.SetupRouter(e.Router)
 		return e.Next()
 	})
 
@@ -69,7 +69,7 @@ func main() {
 	})
 
 	app.OnTerminate().BindFunc(func(e *core.TerminateEvent) error {
-		routes.Unregister()
+		workflow.Teardown()
 		return e.Next()
 	})
 

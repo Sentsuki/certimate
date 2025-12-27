@@ -4,7 +4,7 @@ import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
 import Show from "@/components/Show";
-import { validEmailAddress, validPortNumber } from "@/utils/validators";
+import { isEmail, isHostname, isPortNumber } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -127,8 +127,8 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
   const { t } = i18n;
 
   return z.object({
-    smtpHost: z.string().nonempty(t("access.form.email_smtp_host.placeholder")),
-    smtpPort: z.coerce.number().refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
+    smtpHost: z.string().refine((v) => isHostname(v), t("common.errmsg.host_invalid")),
+    smtpPort: z.coerce.number().refine((v) => isPortNumber(v), t("common.errmsg.port_invalid")),
     smtpTls: z.boolean().nullish(),
     username: z.string().nonempty(t("access.form.email_username.placeholder")),
     password: z.string().nonempty(t("access.form.email_password.placeholder")),
@@ -139,7 +139,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
       .nullish()
       .refine((v) => {
         if (!v) return true;
-        return validEmailAddress(v);
+        return isEmail(v);
       }, t("common.errmsg.email_invalid")),
     allowInsecureConnections: z.boolean().nullish(),
   });

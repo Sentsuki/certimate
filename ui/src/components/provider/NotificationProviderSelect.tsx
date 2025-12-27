@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Avatar, Select, Typography, theme } from "antd";
 
 import { type NotificationProvider, notificationProvidersMap } from "@/domain/provider";
+import { matchSearchOption } from "@/utils/search";
 
 import { type SharedSelectProps, useSelectDataSource } from "./_shared";
 
@@ -67,14 +68,7 @@ const NotificationProviderSelect = ({ showAvailability = false, onFilter, ...pro
       optionLabelProp={void 0}
       optionRender={(option) => renderOption(option.data.value as string)}
       showSearch={{
-        filterOption: (inputValue, option) => {
-          if (!option) return false;
-          if (!option.label) return false;
-          if (!option.value) return false;
-
-          const value = inputValue.toLowerCase();
-          return String(option.value).toLowerCase().includes(value) || String(option.label).toLowerCase().includes(value);
-        },
+        filterOption: (inputValue, option) => matchSearchOption(inputValue, option!),
       }}
     />
   );

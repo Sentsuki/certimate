@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	notifyTestSubject = "[Certimate] Notification Testing"
-	notifyTestMessage = "Welcome to use Certimate!"
+	testSubject = "[Certimate] Notification Testing"
+	testMessage = "Welcome to use Certimate!"
 )
 
 type NotifyService struct {
@@ -39,8 +39,8 @@ func (n *NotifyService) TestPush(ctx context.Context, req *dtos.NotifyTestPushRe
 		Provider:               req.Provider,
 		ProviderAccessConfig:   accessConfig,
 		ProviderExtendedConfig: make(map[string]any),
-		Subject:                notifyTestSubject,
-		Message:                notifyTestMessage,
+		Subject:                testSubject,
+		Message:                testMessage,
 	}
 	if _, err := notifier.SendNotification(ctx, notifyReq); err != nil {
 		return nil, err

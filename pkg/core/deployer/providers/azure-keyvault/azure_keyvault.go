@@ -6,14 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azcertificates"
-
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/azure-keyvault"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	azenv "github.com/certimate-go/certimate/pkg/sdk3rd/azure/env"
 )
 
 type DeployerConfig struct {
@@ -35,7 +30,6 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *azcertificates.Client
 	sdkCertmgr certmgr.Provider
 }
 
@@ -44,11 +38,6 @@ var _ deployer.Provider = (*Deployer)(nil)
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
 		return nil, errors.New("the configuration of the deployer provider is nil")
-	}
-
-	client, err := createSDKClient(config.TenantId, config.ClientId, config.ClientSecret, config.CloudName, config.KeyVaultName)
-	if err != nil {
-		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
 	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
@@ -65,7 +54,6 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	return &Deployer{
 		config:     config,
 		logger:     slog.Default(),
-		sdkClient:  client,
 		sdkCertmgr: pcertmgr,
 	}, nil
 }
@@ -100,32 +88,4 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	}
 
 	return &deployer.DeployResult{}, nil
-}
-
-func createSDKClient(tenantId, clientId, clientSecret, cloudName, keyvaultName string) (*azcertificates.Client, error) {
-	env, err := azenv.GetCloudEnvConfiguration(cloudName)
-	if err != nil {
-		return nil, err
-	}
-	clientOptions := azcore.ClientOptions{Cloud: env}
-
-	credential, err := azidentity.NewClientSecretCredential(tenantId, clientId, clientSecret,
-		&azidentity.ClientSecretCredentialOptions{ClientOptions: clientOptions})
-	if err != nil {
-		return nil, err
-	}
-
-	endpoint := fmt.Sprintf("https://%s.vault.azure.net", keyvaultName)
-	if azenv.IsUSGovernmentEnv(cloudName) {
-		endpoint = fmt.Sprintf("https://%s.vault.usgovcloudapi.net", keyvaultName)
-	} else if azenv.IsChinaEnv(cloudName) {
-		endpoint = fmt.Sprintf("https://%s.vault.azure.cn", keyvaultName)
-	}
-
-	client, err := azcertificates.NewClient(endpoint, credential, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
 }

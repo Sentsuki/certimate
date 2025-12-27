@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"context"
-
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/router"
@@ -22,7 +20,7 @@ var (
 	notifySvc      *notify.NotifyService
 )
 
-func Register(router *router.Router[*core.RequestEvent]) {
+func SetupRouter(router *router.Router[*core.RequestEvent]) {
 	accessRepo := repository.NewAccessRepository()
 	workflowRepo := repository.NewWorkflowRepository()
 	workflowRunRepo := repository.NewWorkflowRunRepository()
@@ -38,14 +36,8 @@ func Register(router *router.Router[*core.RequestEvent]) {
 
 	group := router.Group("/api")
 	group.Bind(apis.RequireSuperuserAuth())
-	handlers.NewCertificateHandler(group, certificateSvc)
-	handlers.NewWorkflowHandler(group, workflowSvc)
+	handlers.NewCertificatesHandler(group, certificateSvc)
+	handlers.NewWorkflowsHandler(group, workflowSvc)
 	handlers.NewStatisticsHandler(group, statisticsSvc)
-	handlers.NewNotifyHandler(group, notifySvc)
-}
-
-func Unregister() {
-	if workflowSvc != nil {
-		workflowSvc.Shutdown(context.Background())
-	}
+	handlers.NewNotificationsHandler(group, notifySvc)
 }

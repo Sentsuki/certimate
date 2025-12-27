@@ -3,7 +3,7 @@ import { Form, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
-import { validDomainName } from "@/utils/validators";
+import { isDomain } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -52,7 +52,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
 
   return z.object({
     bucket: z.string().nonempty(t("workflow_node.deploy.form.qiniu_kodo_domain.placeholder")),
-    domain: z.string().refine((v) => validDomainName(v), t("common.errmsg.domain_invalid")),
+    domain: z.string().refine((v) => isDomain(v), t("common.errmsg.domain_invalid")),
   });
 };
 

@@ -108,18 +108,14 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
     certificateId: z.string().nonempty(t("workflow_node.deploy.form.tencentcloud_sslupdate_certificate_id.placeholder")),
     resourceProducts: z.string().refine((v) => {
       if (!v) return false;
-      return String(v)
-        .split(MULTIPLE_INPUT_SEPARATOR)
-        .every((e) => !!e.trim());
+      return v.split(MULTIPLE_INPUT_SEPARATOR).every((e) => !!e.trim());
     }, t("workflow_node.deploy.form.tencentcloud_sslupdate_resource_products.placeholder")),
     resourceRegions: z
       .string()
       .nullish()
       .refine((v) => {
         if (!v) return true;
-        return String(v)
-          .split(MULTIPLE_INPUT_SEPARATOR)
-          .every((e) => !!e.trim());
+        return v.split(MULTIPLE_INPUT_SEPARATOR).every((e) => !!e.trim());
       }, t("workflow_node.deploy.form.tencentcloud_sslupdate_resource_regions.placeholder")),
     isReplaced: z.boolean().nullish(),
   });

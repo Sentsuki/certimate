@@ -19,12 +19,12 @@ type workflowService interface {
 	Shutdown(ctx context.Context)
 }
 
-type WorkflowHandler struct {
+type WorkflowsHandler struct {
 	service workflowService
 }
 
-func NewWorkflowHandler(router *router.RouterGroup[*core.RequestEvent], service workflowService) {
-	handler := &WorkflowHandler{
+func NewWorkflowsHandler(router *router.RouterGroup[*core.RequestEvent], service workflowService) {
+	handler := &WorkflowsHandler{
 		service: service,
 	}
 
@@ -34,7 +34,7 @@ func NewWorkflowHandler(router *router.RouterGroup[*core.RequestEvent], service 
 	group.POST("/{workflowId}/runs/{runId}/cancel", handler.cancelRun)
 }
 
-func (handler *WorkflowHandler) getStatistics(e *core.RequestEvent) error {
+func (handler *WorkflowsHandler) getStatistics(e *core.RequestEvent) error {
 	res, err := handler.service.GetStatistics(e.Request.Context())
 	if err != nil {
 		return resp.Err(e, err)
@@ -43,7 +43,7 @@ func (handler *WorkflowHandler) getStatistics(e *core.RequestEvent) error {
 	return resp.Ok(e, res)
 }
 
-func (handler *WorkflowHandler) startRun(e *core.RequestEvent) error {
+func (handler *WorkflowsHandler) startRun(e *core.RequestEvent) error {
 	req := &dtos.WorkflowStartRunReq{}
 	req.WorkflowId = e.Request.PathValue("workflowId")
 	if err := e.BindBody(req); err != nil {
@@ -61,7 +61,7 @@ func (handler *WorkflowHandler) startRun(e *core.RequestEvent) error {
 	return resp.Ok(e, res)
 }
 
-func (handler *WorkflowHandler) cancelRun(e *core.RequestEvent) error {
+func (handler *WorkflowsHandler) cancelRun(e *core.RequestEvent) error {
 	req := &dtos.WorkflowCancelRunReq{}
 	req.WorkflowId = e.Request.PathValue("workflowId")
 	req.RunId = e.Request.PathValue("runId")

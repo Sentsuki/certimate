@@ -35,6 +35,71 @@ func (client *WafClient) Init(config *openapiutil.Config) (_err error) {
 	return nil
 }
 
+func (client *WafClient) DescribeCloudResourceAccessPortDetailsWithContext(ctx context.Context, request *aliwaf.DescribeCloudResourceAccessPortDetailsRequest, runtime *dara.RuntimeOptions) (_result *aliwaf.DescribeCloudResourceAccessPortDetailsResponse, _err error) {
+	_err = request.Validate()
+	if _err != nil {
+		return _result, _err
+	}
+	query := map[string]interface{}{}
+	if !dara.IsNil(request.InstanceId) {
+		query["InstanceId"] = request.InstanceId
+	}
+
+	if !dara.IsNil(request.PageNumber) {
+		query["PageNumber"] = request.PageNumber
+	}
+
+	if !dara.IsNil(request.PageSize) {
+		query["PageSize"] = request.PageSize
+	}
+
+	if !dara.IsNil(request.Port) {
+		query["Port"] = request.Port
+	}
+
+	if !dara.IsNil(request.Protocol) {
+		query["Protocol"] = request.Protocol
+	}
+
+	if !dara.IsNil(request.RegionId) {
+		query["RegionId"] = request.RegionId
+	}
+
+	if !dara.IsNil(request.ResourceInstanceId) {
+		query["ResourceInstanceId"] = request.ResourceInstanceId
+	}
+
+	if !dara.IsNil(request.ResourceManagerResourceGroupId) {
+		query["ResourceManagerResourceGroupId"] = request.ResourceManagerResourceGroupId
+	}
+
+	if !dara.IsNil(request.ResourceProduct) {
+		query["ResourceProduct"] = request.ResourceProduct
+	}
+
+	req := &openapiutil.OpenApiRequest{
+		Query: openapiutil.Query(query),
+	}
+	params := &openapiutil.Params{
+		Action:      dara.String("DescribeCloudResourceAccessPortDetails"),
+		Version:     dara.String("2021-10-01"),
+		Protocol:    dara.String("HTTPS"),
+		Pathname:    dara.String("/"),
+		Method:      dara.String("POST"),
+		AuthType:    dara.String("AK"),
+		Style:       dara.String("RPC"),
+		ReqBodyType: dara.String("formData"),
+		BodyType:    dara.String("json"),
+	}
+	_result = &aliwaf.DescribeCloudResourceAccessPortDetailsResponse{}
+	_body, _err := client.CallApiWithCtx(ctx, params, req, runtime)
+	if _err != nil {
+		return _result, _err
+	}
+	_err = dara.Convert(_body, &_result)
+	return _result, _err
+}
+
 func (client *WafClient) DescribeDefaultHttpsWithContext(ctx context.Context, request *aliwaf.DescribeDefaultHttpsRequest, runtime *dara.RuntimeOptions) (_result *aliwaf.DescribeDefaultHttpsResponse, _err error) {
 	_err = request.Validate()
 	if _err != nil {
@@ -123,92 +188,6 @@ func (client *WafClient) DescribeDomainDetailWithContext(ctx context.Context, re
 	return _result, _err
 }
 
-func (client *WafClient) DescribeProductInstancesWithContext(ctx context.Context, request *aliwaf.DescribeProductInstancesRequest, runtime *dara.RuntimeOptions) (_result *aliwaf.DescribeProductInstancesResponse, _err error) {
-	_err = request.Validate()
-	if _err != nil {
-		return _result, _err
-	}
-	query := map[string]interface{}{}
-
-	if !dara.IsNil(request.InstanceId) {
-		query["InstanceId"] = request.InstanceId
-	}
-
-	if !dara.IsNil(request.OwnerUserId) {
-		query["OwnerUserId"] = request.OwnerUserId
-	}
-
-	if !dara.IsNil(request.PageNumber) {
-		query["PageNumber"] = request.PageNumber
-	}
-
-	if !dara.IsNil(request.PageSize) {
-		query["PageSize"] = request.PageSize
-	}
-
-	if !dara.IsNil(request.RegionId) {
-		query["RegionId"] = request.RegionId
-	}
-
-	if !dara.IsNil(request.ResourceInstanceAccessStatus) {
-		query["ResourceInstanceAccessStatus"] = request.ResourceInstanceAccessStatus
-	}
-
-	if !dara.IsNil(request.ResourceInstanceId) {
-		query["ResourceInstanceId"] = request.ResourceInstanceId
-	}
-
-	if !dara.IsNil(request.ResourceInstanceIp) {
-		query["ResourceInstanceIp"] = request.ResourceInstanceIp
-	}
-
-	if !dara.IsNil(request.ResourceInstanceName) {
-		query["ResourceInstanceName"] = request.ResourceInstanceName
-	}
-
-	if !dara.IsNil(request.ResourceIp) {
-		query["ResourceIp"] = request.ResourceIp
-	}
-
-	if !dara.IsNil(request.ResourceManagerResourceGroupId) {
-		query["ResourceManagerResourceGroupId"] = request.ResourceManagerResourceGroupId
-	}
-
-	if !dara.IsNil(request.ResourceName) {
-		query["ResourceName"] = request.ResourceName
-	}
-
-	if !dara.IsNil(request.ResourceProduct) {
-		query["ResourceProduct"] = request.ResourceProduct
-	}
-
-	if !dara.IsNil(request.ResourceRegionId) {
-		query["ResourceRegionId"] = request.ResourceRegionId
-	}
-
-	req := &openapiutil.OpenApiRequest{
-		Query: openapiutil.Query(query),
-	}
-	params := &openapiutil.Params{
-		Action:      dara.String("DescribeProductInstances"),
-		Version:     dara.String("2021-10-01"),
-		Protocol:    dara.String("HTTPS"),
-		Pathname:    dara.String("/"),
-		Method:      dara.String("POST"),
-		AuthType:    dara.String("AK"),
-		Style:       dara.String("RPC"),
-		ReqBodyType: dara.String("formData"),
-		BodyType:    dara.String("json"),
-	}
-	_result = &aliwaf.DescribeProductInstancesResponse{}
-	_body, _err := client.CallApiWithCtx(ctx, params, req, runtime)
-	if _err != nil {
-		return _result, _err
-	}
-	_err = dara.Convert(_body, &_result)
-	return _result, _err
-}
-
 func (client *WafClient) DescribeResourceInstanceCertsWithContext(ctx context.Context, request *aliwaf.DescribeResourceInstanceCertsRequest, runtime *dara.RuntimeOptions) (_result *aliwaf.DescribeResourceInstanceCertsResponse, _err error) {
 	_err = request.Validate()
 	if _err != nil {
@@ -263,24 +242,15 @@ func (client *WafClient) DescribeResourceInstanceCertsWithContext(ctx context.Co
 	return _result, _err
 }
 
-func (client *WafClient) ModifyCloudResourceWithContext(ctx context.Context, tmpReq *aliwaf.ModifyCloudResourceRequest, runtime *dara.RuntimeOptions) (_result *aliwaf.ModifyCloudResourceResponse, _err error) {
-	_err = tmpReq.Validate()
+func (client *WafClient) ModifyCloudResourceCertWithContext(ctx context.Context, request *aliwaf.ModifyCloudResourceCertRequest, runtime *dara.RuntimeOptions) (_result *aliwaf.ModifyCloudResourceCertResponse, _err error) {
+	_err = request.Validate()
 	if _err != nil {
 		return _result, _err
 	}
-
-	request := &aliwaf.ModifyCloudResourceShrinkRequest{}
-	openapiutil.Convert(tmpReq, request)
-
-	if !dara.IsNil(tmpReq.Listen) {
-		request.ListenShrink = openapiutil.ArrayToStringWithSpecifiedStyle(tmpReq.Listen, dara.String("Listen"), dara.String("json"))
-	}
-
-	if !dara.IsNil(tmpReq.Redirect) {
-		request.RedirectShrink = openapiutil.ArrayToStringWithSpecifiedStyle(tmpReq.Redirect, dara.String("Redirect"), dara.String("json"))
-	}
-
 	query := map[string]interface{}{}
+	if !dara.IsNil(request.Certificates) {
+		query["Certificates"] = request.Certificates
+	}
 
 	if !dara.IsNil(request.CloudResourceId) {
 		query["CloudResourceId"] = request.CloudResourceId
@@ -290,27 +260,27 @@ func (client *WafClient) ModifyCloudResourceWithContext(ctx context.Context, tmp
 		query["InstanceId"] = request.InstanceId
 	}
 
-	if !dara.IsNil(request.ListenShrink) {
-		query["Listen"] = request.ListenShrink
-	}
-
-	if !dara.IsNil(request.RedirectShrink) {
-		query["Redirect"] = request.RedirectShrink
+	if !dara.IsNil(request.Port) {
+		query["Port"] = request.Port
 	}
 
 	if !dara.IsNil(request.RegionId) {
 		query["RegionId"] = request.RegionId
 	}
 
-	if !dara.IsNil(request.ResourceManagerResourceGroupId) {
-		query["ResourceManagerResourceGroupId"] = request.ResourceManagerResourceGroupId
+	if !dara.IsNil(request.ResourceInstanceId) {
+		query["ResourceInstanceId"] = request.ResourceInstanceId
+	}
+
+	if !dara.IsNil(request.ResourceProduct) {
+		query["ResourceProduct"] = request.ResourceProduct
 	}
 
 	req := &openapiutil.OpenApiRequest{
 		Query: openapiutil.Query(query),
 	}
 	params := &openapiutil.Params{
-		Action:      dara.String("ModifyCloudResource"),
+		Action:      dara.String("ModifyCloudResourceCert"),
 		Version:     dara.String("2021-10-01"),
 		Protocol:    dara.String("HTTPS"),
 		Pathname:    dara.String("/"),
@@ -320,7 +290,7 @@ func (client *WafClient) ModifyCloudResourceWithContext(ctx context.Context, tmp
 		ReqBodyType: dara.String("formData"),
 		BodyType:    dara.String("json"),
 	}
-	_result = &aliwaf.ModifyCloudResourceResponse{}
+	_result = &aliwaf.ModifyCloudResourceCertResponse{}
 	_body, _err := client.CallApiWithCtx(ctx, params, req, runtime)
 	if _err != nil {
 		return _result, _err

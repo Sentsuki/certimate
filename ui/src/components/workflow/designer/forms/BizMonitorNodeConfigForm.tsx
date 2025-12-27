@@ -8,7 +8,7 @@ import { z } from "zod";
 import Tips from "@/components/Tips";
 import { type WorkflowNodeConfigForBizMonitor, defaultNodeConfigForBizMonitor } from "@/domain/workflow";
 import { useAntdForm } from "@/hooks";
-import { validDomainName, validIPv4Address, validIPv6Address, validPortNumber } from "@/utils/validators";
+import { isDomain, isHostname, isPortNumber } from "@/utils/validator";
 
 import { NodeFormContextProvider } from "./_context";
 import { NodeType } from "../nodes/typings";
@@ -90,19 +90,14 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
   const { t } = i18n;
 
   return z.object({
-    host: z.string(t("workflow_node.monitor.form.host.placeholder")).refine((v) => {
-      return validDomainName(v) || validIPv4Address(v) || validIPv6Address(v);
-    }, t("common.errmsg.host_invalid")),
-    port: z.coerce
-      .number()
-      .int(t("workflow_node.monitor.form.port.placeholder"))
-      .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
+    host: z.string().refine((v) => isHostname(v), t("common.errmsg.host_invalid")),
+    port: z.coerce.number().refine((v) => isPortNumber(v), t("common.errmsg.port_invalid")),
     domain: z
       .string()
       .nullish()
       .refine((v) => {
         if (!v) return true;
-        return validDomainName(v);
+        return isDomain(v);
       }, t("common.errmsg.domain_invalid")),
     requestPath: z.string().nullish(),
   });

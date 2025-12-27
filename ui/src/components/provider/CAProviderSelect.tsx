@@ -6,6 +6,7 @@ import { Avatar, Select, Typography, theme } from "antd";
 import { type CAProvider, caProvidersMap } from "@/domain/provider";
 import { useZustandShallowSelector } from "@/hooks";
 import { useSSLProviderSettingsStore } from "@/stores/settings";
+import { matchSearchOption } from "@/utils/search";
 
 import { type SharedSelectProps, useSelectDataSource } from "./_shared";
 
@@ -119,12 +120,7 @@ const CAProviderSelect = ({ showAvailability, showDefault, onFilter, ...props }:
         filterOption: (inputValue, option) => {
           if (option?.value === "") return true; // 始终显示系统默认项
 
-          if (!option) return false;
-          if (!option.label) return false;
-          if (!option.value) return false;
-
-          const value = inputValue.toLowerCase();
-          return String(option.value).toLowerCase().includes(value) || String(option.label).toLowerCase().includes(value);
+          return matchSearchOption(inputValue, option!);
         },
       }}
       value={value}

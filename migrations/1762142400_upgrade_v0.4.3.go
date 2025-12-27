@@ -8,8 +8,70 @@ import (
 
 func init() {
 	m.Register(func(app core.App) error {
-		tracer := NewTracer("v0.4.5")
+		if mr, _ := app.FindFirstRecordByFilter("_migrations", "file='1762142400_m0.4.3.go'"); mr != nil {
+			return nil
+		}
+
+		tracer := NewTracer("v0.4.3")
 		tracer.Printf("go ...")
+
+		// update collection `certificate`
+		//   - rename field `acmeRenewed` to `isRenewed`
+		//   - add field `isRevoked`
+		//   - add field `validityInterval`
+		{
+			collection, err := app.FindCollectionByNameOrId("4szxr9x43tpj6np")
+			if err != nil {
+				return err
+			}
+
+			if err := collection.Fields.AddMarshaledJSONAt(11, []byte(`{
+				"hidden": false,
+				"id": "number2453290051",
+				"max": null,
+				"min": null,
+				"name": "validityInterval",
+				"onlyInt": false,
+				"presentable": false,
+				"required": false,
+				"system": false,
+				"type": "number"
+			}`)); err != nil {
+				return err
+			}
+
+			if err := collection.Fields.AddMarshaledJSONAt(14, []byte(`{
+				"hidden": false,
+				"id": "bool810050391",
+				"name": "isRenewed",
+				"presentable": false,
+				"required": false,
+				"system": false,
+				"type": "bool"
+			}`)); err != nil {
+				return err
+			}
+
+			if err := collection.Fields.AddMarshaledJSONAt(15, []byte(`{
+				"hidden": false,
+				"id": "bool3680845581",
+				"name": "isRevoked",
+				"presentable": false,
+				"required": false,
+				"system": false,
+				"type": "bool"
+			}`)); err != nil {
+				return err
+			}
+
+			if err := app.Save(collection); err != nil {
+				return err
+			}
+
+			if _, err := app.DB().NewQuery("UPDATE certificate SET validityInterval = (STRFTIME('%s', validityNotAfter) - STRFTIME('%s', validityNotBefore))").Execute(); err != nil {
+				return err
+			}
+		}
 
 		// adapt to new workflow data structure
 		{
@@ -18,7 +80,7 @@ func init() {
 				_changed = false
 				_err = nil
 
-				if node.Type != "bizDeploy" {
+				if node.Type != "bizApply" {
 					return
 				}
 
@@ -28,68 +90,37 @@ func init() {
 
 				if _, ok := node.Data["config"]; ok {
 					nodeCfg := node.Data["config"].(map[string]any)
+					if nodeCfg["keySource"] == nil || nodeCfg["keySource"] == "" {
+						nodeCfg["keySource"] = "auto"
 
-					provider := nodeCfg["provider"]
-					switch provider {
-					case "aliyun-waf":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								providerCfg["serviceType"] = "cname"
-								nodeCfg["providerConfig"] = providerCfg
+						node.Data["config"] = nodeCfg
+						_changed = true
+						return
+					}
+				}
 
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
-							}
-						}
+				return
+			})
+			walker.Define(func(node *mWorkflowNode) (_changed bool, _err error) {
+				_changed = false
+				_err = nil
 
-					case "baishan-cdn":
-					case "ksyun-cdn":
-					case "rainyun-rcdn":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								if providerCfg["certificateId"] != nil && providerCfg["certificateId"].(string) != "" {
-									providerCfg["resourceType"] = "certificate"
-								} else {
-									providerCfg["resourceType"] = "domain"
-								}
-								nodeCfg["providerConfig"] = providerCfg
+				if node.Type != "bizUpload" {
+					return
+				}
 
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
-							}
-						}
+				if node.Data == nil {
+					return
+				}
 
-					case "tencentcloud-ssldeploy":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								providerCfg["resourceProduct"] = providerCfg["resourceType"]
-								delete(providerCfg, "resourceType")
-								nodeCfg["providerConfig"] = providerCfg
+				if _, ok := node.Data["config"]; ok {
+					nodeCfg := node.Data["config"].(map[string]any)
+					if nodeCfg["source"] == nil || nodeCfg["source"] == "" {
+						nodeCfg["source"] = "form"
 
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
-							}
-						}
-
-					case "tencentcloud-sslupdate":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								providerCfg["resourceProducts"] = providerCfg["resourceTypes"]
-								delete(providerCfg, "resourceTypes")
-								nodeCfg["providerConfig"] = providerCfg
-
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
-							}
-						}
+						node.Data["config"] = nodeCfg
+						_changed = true
+						return
 					}
 				}
 
@@ -166,14 +197,6 @@ func init() {
 						tracer.Printf("record #%s in collection '%s' updated", record.Id, collection.Name)
 					}
 				}
-
-				if _, err := app.DB().NewQuery("UPDATE workflow SET graphDraft = REPLACE(graphDraft, '\"matchPattern\"', '\"domainMatchPattern\"')").Execute(); err != nil {
-					return err
-				}
-
-				if _, err := app.DB().NewQuery("UPDATE workflow SET graphContent = REPLACE(graphContent, '\"matchPattern\"', '\"domainMatchPattern\"')").Execute(); err != nil {
-					return err
-				}
 			}
 
 			// update collection `workflow_run`
@@ -222,22 +245,6 @@ func init() {
 
 						tracer.Printf("record #%s in collection '%s' updated", record.Id, collection.Name)
 					}
-				}
-
-				if _, err := app.DB().NewQuery("UPDATE workflow_run SET graph = REPLACE(graph, '\"matchPattern\"', '\"domainMatchPattern\"')").Execute(); err != nil {
-					return err
-				}
-			}
-
-			// update collection `workflow_output`
-			//   - migrate field `nodeConfig`
-			{
-				if _, err := app.DB().NewQuery("UPDATE workflow_output SET nodeConfig = REPLACE(nodeConfig, '\"matchPattern\"', '\"domainMatchPattern\"')").Execute(); err != nil {
-					return err
-				}
-
-				if _, err := app.DB().NewQuery("UPDATE workflow_output SET nodeConfig = REPLACE(nodeConfig, '\"resourceType\"', '\"resourceProduct\"') WHERE nodeConfig LIKE '%\"provider\":\"tencentcloud-ssldeploy\"%' OR nodeConfig LIKE '%\"provider\":\"tencentcloud-sslupdate\"%'").Execute(); err != nil {
-					return err
 				}
 			}
 		}

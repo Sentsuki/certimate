@@ -30,11 +30,13 @@ func GetApp() core.App {
 			}
 
 			settings := pb.Settings()
-			settings.Batch.Enabled = true
-			settings.Batch.MaxRequests = 1000
-			settings.Batch.Timeout = 30
-			if err := pb.Save(settings); err != nil {
-				return err
+			if !settings.Batch.Enabled {
+				settings.Batch.Enabled = true
+				settings.Batch.MaxRequests = 1000
+				settings.Batch.Timeout = 30
+				if err := pb.Save(settings); err != nil {
+					return err
+				}
 			}
 
 			return nil

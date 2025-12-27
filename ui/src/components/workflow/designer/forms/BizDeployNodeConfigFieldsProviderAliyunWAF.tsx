@@ -4,7 +4,8 @@ import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
 import Show from "@/components/Show";
-import { validDomainName, validPortNumber } from "@/utils/validators";
+import { matchSearchOption } from "@/utils/search";
+import { isDomain, isPortNumber } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -84,7 +85,9 @@ const BizDeployNodeConfigFieldsProviderAliyunWAF = () => {
           <AutoComplete
             options={["ecs", "clb4", "clb7", "nlb"].map((value) => ({ value }))}
             placeholder={t("workflow_node.deploy.form.aliyun_waf_resource_product.placeholder")}
-            filterOption={(inputValue, option) => option!.value.toLowerCase().includes(inputValue.toLowerCase())}
+            showSearch={{
+              filterOption: (inputValue, option) => matchSearchOption(inputValue, option!),
+            }}
           />
         </Form.Item>
 
@@ -147,7 +150,8 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
         .string()
         .nullish()
         .refine((v) => {
-          return !v || validDomainName(v!, { allowWildcard: true });
+          if (!v) return true;
+          return isDomain(v, { allowWildcard: true });
         }, t("common.errmsg.domain_invalid")),
     })
     .superRefine((values, ctx) => {
@@ -170,7 +174,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
               });
             }
 
-            if (!validPortNumber(values.resourcePort!)) {
+            if (!isPortNumber(values.resourcePort!)) {
               ctx.addIssue({
                 code: "custom",
                 message: t("workflow_node.deploy.form.aliyun_waf_resource_port.placeholder"),

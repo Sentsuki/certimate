@@ -13,6 +13,7 @@
   "common.button.reload": "重新加载",
   "common.button.reset": "重置",
   "common.button.save": "保存更改",
+  "common.button.save_and_continue": "保存并继续",
   "common.button.submit": "提交",
   "common.button.view": "查看",
 
@@ -25,6 +26,7 @@
   "common.text.operation_succeeded": "操作成功",
   "common.text.operation_failed": "操作失败",
   "common.text.request_error": "请求错误",
+  "common.text.saved": "已保存",
   "common.text.saving": "保存中 ……",
   "common.text.search": "搜索 ……",
 

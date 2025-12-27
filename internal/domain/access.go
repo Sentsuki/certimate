@@ -87,10 +87,12 @@ type AccessConfigForAWS struct {
 }
 
 type AccessConfigForAzure struct {
-	TenantId     string `json:"tenantId"`
-	ClientId     string `json:"clientId"`
-	ClientSecret string `json:"clientSecret"`
-	CloudName    string `json:"cloudName,omitempty"`
+	TenantId          string `json:"tenantId"`
+	ClientId          string `json:"clientId"`
+	ClientSecret      string `json:"clientSecret"`
+	SubscriptionId    string `json:"subscriptionId,omitempty"`
+	ResourceGroupName string `json:"resourceGroupName,omitempty"`
+	CloudName         string `json:"cloudName,omitempty"`
 }
 
 type AccessConfigForBaiduCloud struct {

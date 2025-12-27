@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"os"
 	"runtime"
 	"runtime/debug"
-	"strconv"
 	"sync"
 	"time"
 
@@ -20,19 +18,15 @@ import (
 	"github.com/certimate-go/certimate/internal/repository"
 	"github.com/certimate-go/certimate/internal/workflow/engine"
 	"github.com/certimate-go/certimate/pkg/logging"
+	xenv "github.com/certimate-go/certimate/pkg/utils/env"
 )
 
-var maxWorkers = 1
+var envMaxWorkers = 1
 
 func init() {
-	envMaxWorkers := os.Getenv("CERTIMATE_WORKFLOW_MAX_WORKERS")
-	if n, _ := strconv.Atoi(envMaxWorkers); n > 0 {
-		maxWorkers = n
-	} else {
-		maxWorkers = runtime.GOMAXPROCS(0)
-		if maxWorkers == 0 {
-			maxWorkers = max(1, runtime.NumCPU())
-		}
+	envMaxWorkers = xenv.GetOrDefaultInt("CERTIMATE_WORKFLOW_MAX_WORKERS", runtime.GOMAXPROCS(0))
+	if envMaxWorkers <= 0 {
+		envMaxWorkers = max(1, runtime.NumCPU())
 	}
 }
 
@@ -372,7 +366,7 @@ func (wd *workflowDispatcher) tryNextAsync() {
 
 func newWorkflowDispatcher() WorkflowDispatcher {
 	return &workflowDispatcher{
-		concurrency: maxWorkers,
+		concurrency: envMaxWorkers,
 
 		pendingRunQueue: make([]string, 0),
 		processingTasks: make(map[string]*taskInfo),

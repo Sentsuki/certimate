@@ -44,7 +44,7 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 		return nil, errors.New("the configuration of the certmgr provider is nil")
 	}
 
-	client, err := createSDKClient(config.TenantId, config.ClientId, config.ClientSecret, config.CloudName, config.KeyVaultName)
+	client, err := createSDKClient(config.CloudName, config.TenantId, config.ClientId, config.ClientSecret, config.KeyVaultName)
 	if err != nil {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
@@ -72,14 +72,12 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}
 
 	// 生成 Azure 业务参数
-	const TAG_CERTCN = "certimate/cert-cn"
-	const TAG_CERTSN = "certimate/cert-sn"
 	certCN := certX509.Subject.CommonName
 	certSN := certX509.SerialNumber.Text(16)
 
 	// 获取证书列表，避免重复上传
 	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/get-certificates/get-certificates
-	listCertificatesPager := c.sdkClient.NewListCertificatePropertiesPager(nil)
+	listCertificatesPager := c.sdkClient.NewListCertificatePropertiesPager(&azcertificates.ListCertificatePropertiesOptions{})
 	for listCertificatesPager.More() {
 		page, err := listCertificatesPager.NextPage(ctx)
 		if err != nil {
@@ -99,14 +97,14 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 			}
 
 			// 对比 Tag 中的通用名称
-			if v, ok := certItem.Tags[TAG_CERTCN]; !ok || v == nil {
+			if v, ok := certItem.Tags[kvTagCertCN]; !ok || v == nil {
 				continue
 			} else if *v != certCN {
 				continue
 			}
 
 			// 对比 Tag 中的序列号
-			if v, ok := certItem.Tags[TAG_CERTSN]; !ok || v == nil {
+			if v, ok := certItem.Tags[kvTagCertSN]; !ok || v == nil {
 				continue
 			} else if *v != certSN {
 				continue
@@ -153,8 +151,8 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 			},
 		},
 		Tags: map[string]*string{
-			TAG_CERTCN: to.Ptr(certCN),
-			TAG_CERTSN: to.Ptr(certSN),
+			kvTagCertCN: to.Ptr(certCN),
+			kvTagCertSN: to.Ptr(certSN),
 		},
 	}
 	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, certName, importCertificateParams, nil)
@@ -208,8 +206,8 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 			},
 		},
 		Tags: map[string]*string{
-			"certimate/cert-cn": to.Ptr(certX509.Subject.CommonName),
-			"certimate/cert-sn": to.Ptr(certX509.SerialNumber.Text(16)),
+			kvTagCertCN: to.Ptr(certX509.Subject.CommonName),
+			kvTagCertSN: to.Ptr(certX509.SerialNumber.Text(16)),
 		},
 	}
 	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, certIdOrName, importCertificateParams, nil)
@@ -221,13 +219,18 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 	return &certmgr.OperateResult{}, nil
 }
 
-func createSDKClient(tenantId, clientId, clientSecret, cloudName, keyvaultName string) (*azcertificates.Client, error) {
+const (
+	kvTagCertCN = "certimate/cert-cn"
+	kvTagCertSN = "certimate/cert-sn"
+)
+
+func createSDKClient(cloudName, tenantId, clientId, clientSecret, keyvaultName string) (*azcertificates.Client, error) {
 	env, err := azenv.GetCloudEnvConfiguration(cloudName)
 	if err != nil {
 		return nil, err
 	}
-	clientOptions := azcore.ClientOptions{Cloud: env}
 
+	clientOptions := azcore.ClientOptions{Cloud: env}
 	credential, err := azidentity.NewClientSecretCredential(tenantId, clientId, clientSecret,
 		&azidentity.ClientSecretCredentialOptions{ClientOptions: clientOptions})
 	if err != nil {

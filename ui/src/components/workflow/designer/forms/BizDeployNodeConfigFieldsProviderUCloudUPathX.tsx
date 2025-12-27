@@ -3,7 +3,7 @@ import { Form, Input } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
-import { validPortNumber } from "@/utils/validators";
+import { isPortNumber } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -54,7 +54,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
 
   return z.object({
     acceleratorId: z.string().nonempty(t("workflow_node.deploy.form.ucloud_upathx_accelerator_id.placeholder")),
-    listenerPort: z.coerce.number().refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
+    listenerPort: z.coerce.number().refine((v) => isPortNumber(v), t("common.errmsg.port_invalid")),
   });
 };
 

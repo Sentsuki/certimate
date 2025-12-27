@@ -54,7 +54,7 @@ func (s *WorkflowService) InitSchedule(ctx context.Context) error {
 
 		var errs []error
 		for _, workflow := range workflows {
-			if err := addWorkflowJob(s, workflow.Id, workflow.TriggerCron); err != nil {
+			if err := registerWorkflowJob(s, workflow.Id, workflow.TriggerCron); err != nil {
 				errs = append(errs, err)
 			}
 		}

@@ -6,6 +6,7 @@ import { type SelectProps } from "antd";
 
 import { useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
+import { matchSearchString } from "@/utils/search";
 
 type Provider = { type: string; name: string };
 
@@ -123,8 +124,7 @@ export const usePickerDataSource = <T extends Provider>({
       })
       .filter((provider) => {
         if (keyword) {
-          const value = keyword.toLowerCase();
-          return provider.type.toLowerCase().includes(value) || t(provider.name).toLowerCase().includes(value);
+          return matchSearchString(keyword, provider.type) || matchSearchString(keyword, t(provider.name));
         }
 
         return true;

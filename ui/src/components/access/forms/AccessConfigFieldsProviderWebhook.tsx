@@ -7,6 +7,7 @@ import { z } from "zod";
 import CodeTextInput from "@/components/CodeTextInput";
 import Show from "@/components/Show";
 import Tips from "@/components/Tips";
+import { isJsonObject } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -362,13 +363,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
       .nullish()
       .refine((v) => {
         if (!v) return true;
-
-        try {
-          const obj = JSON.parse(v);
-          return typeof obj === "object" && !Array.isArray(obj);
-        } catch {
-          return false;
-        }
+        return isJsonObject(v);
       }, t("access.form.webhook_data.errmsg.json_invalid")),
     allowInsecureConnections: z.boolean().nullish(),
   });

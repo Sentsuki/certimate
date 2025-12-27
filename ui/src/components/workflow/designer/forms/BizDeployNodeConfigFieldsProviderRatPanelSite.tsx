@@ -56,9 +56,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
       .refine(
         (v) => {
           if (!v) return false;
-          return String(v)
-            .split(MULTIPLE_INPUT_SEPARATOR)
-            .every((s) => !!s.trim());
+          return v.split(MULTIPLE_INPUT_SEPARATOR).every((s) => !!s.trim());
         },
         { error: t("workflow_node.deploy.form.ratpanel_site_names.placeholder") }
       ),

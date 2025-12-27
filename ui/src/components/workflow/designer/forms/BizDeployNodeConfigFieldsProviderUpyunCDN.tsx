@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import Show from "@/components/Show";
 import Tips from "@/components/Tips";
-import { validDomainName } from "@/utils/validators";
+import { isDomain } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -89,7 +89,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
           case DOMAIN_MATCH_PATTERN_EXACT:
           case DOMAIN_MATCH_PATTERN_WILDCARD:
             {
-              if (!validDomainName(values.domain!, { allowWildcard: true })) {
+              if (!isDomain(values.domain!, { allowWildcard: true })) {
                 ctx.addIssue({
                   code: "custom",
                   message: t("common.errmsg.domain_invalid"),

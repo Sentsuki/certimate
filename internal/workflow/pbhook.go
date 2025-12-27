@@ -8,10 +8,9 @@ import (
 
 	"github.com/certimate-go/certimate/internal/app"
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/internal/repository"
 )
 
-func Register() {
+func registerWorkflowRecordEvents() {
 	pb := app.GetApp()
 	pb.OnRecordCreateRequest(domain.CollectionNameWorkflow).BindFunc(func(e *core.RecordRequestEvent) error {
 		if err := e.Next(); err != nil {
@@ -66,8 +65,7 @@ func onWorkflowRecordCreateOrUpdate(_ context.Context, record *core.Record) erro
 	}
 
 	// 反之，重新添加定时任务
-	workflowSrv := NewWorkflowService(repository.NewWorkflowRepository(), repository.NewWorkflowRunRepository(), repository.NewSettingsRepository())
-	if err := addWorkflowJob(workflowSrv, record.Id, triggerCron); err != nil {
+	if err := registerWorkflowJob(thisSvcInst(), record.Id, triggerCron); err != nil {
 		return err
 	}
 

@@ -4,6 +4,7 @@ import { Avatar, Select, Tag, Typography, theme } from "antd";
 
 import Show from "@/components/Show";
 import { ACCESS_USAGES, type AccessProvider, type AccessUsageType, accessProvidersMap } from "@/domain/provider";
+import { matchSearchOption } from "@/utils/search";
 
 import { type SharedSelectProps } from "./_shared";
 
@@ -95,14 +96,7 @@ const AccessProviderSelect = ({ showOptionTags, onFilter, ...props }: AccessProv
       optionLabelProp={void 0}
       optionRender={(option) => renderOption(option.data.value)}
       showSearch={{
-        filterOption: (inputValue, option) => {
-          if (!option) return false;
-          if (!option.label) return false;
-          if (!option.value) return false;
-
-          const value = inputValue.toLowerCase();
-          return String(option.value).toLowerCase().includes(value) || String(option.label).toLowerCase().includes(value);
-        },
+        filterOption: (inputValue, option) => matchSearchOption(inputValue, option!),
         optionFilterProp: "label",
       }}
     />

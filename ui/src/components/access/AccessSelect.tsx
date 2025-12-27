@@ -6,6 +6,7 @@ import { type AccessModel } from "@/domain/access";
 import { accessProvidersMap } from "@/domain/provider";
 import { useZustandShallowSelector } from "@/hooks";
 import { useAccessesStore } from "@/stores/access";
+import { matchSearchOption } from "@/utils/search";
 
 export interface AccessTypeSelectProps extends Omit<SelectProps, "labelRender" | "loading" | "options" | "optionLabelProp" | "optionRender"> {
   onFilter?: (value: string, option: AccessModel) => boolean;
@@ -56,12 +57,7 @@ const AccessSelect = ({ onFilter, ...props }: AccessTypeSelectProps) => {
     <Select
       {...props}
       showSearch={{
-        filterOption: (inputValue, option) => {
-          if (!option) return false;
-
-          const value = inputValue.toLowerCase();
-          return option.label.toLowerCase().includes(value);
-        },
+        filterOption: (inputValue, option) => matchSearchOption(inputValue, option!),
         optionFilterProp: "label",
       }}
       labelRender={({ value }) => {

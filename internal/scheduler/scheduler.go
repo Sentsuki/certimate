@@ -9,7 +9,7 @@ import (
 	"github.com/certimate-go/certimate/internal/workflow"
 )
 
-func Register() {
+func Setup() {
 	workflowRepo := repository.NewWorkflowRepository()
 	workflowRunRepo := repository.NewWorkflowRunRepository()
 	acmeAccountRepo := repository.NewACMEAccountRepository()

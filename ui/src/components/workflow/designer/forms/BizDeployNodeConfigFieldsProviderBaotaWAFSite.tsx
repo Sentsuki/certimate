@@ -4,7 +4,7 @@ import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
 import MultipleSplitValueInput from "@/components/MultipleSplitValueInput";
-import { validPortNumber } from "@/utils/validators";
+import { isPortNumber } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -68,16 +68,11 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
       .refine(
         (v) => {
           if (!v) return false;
-          return String(v)
-            .split(MULTIPLE_INPUT_SEPARATOR)
-            .every((s) => !!s.trim());
+          return v.split(MULTIPLE_INPUT_SEPARATOR).every((s) => !!s.trim());
         },
         { error: t("workflow_node.deploy.form.baotawaf_site_names.placeholder") }
       ),
-    sitePort: z.coerce
-      .number()
-      .int(t("workflow_node.deploy.form.baotawaf_site_port.placeholder"))
-      .refine((v) => validPortNumber(v), t("common.errmsg.port_invalid")),
+    sitePort: z.coerce.number().refine((v) => isPortNumber(v), t("common.errmsg.port_invalid")),
   });
 };
 

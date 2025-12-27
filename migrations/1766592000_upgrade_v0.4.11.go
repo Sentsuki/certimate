@@ -1,6 +1,8 @@
 package migrations
 
 import (
+	"net"
+
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/pocketbase/pocketbase/core"
 	m "github.com/pocketbase/pocketbase/migrations"
@@ -8,7 +10,7 @@ import (
 
 func init() {
 	m.Register(func(app core.App) error {
-		tracer := NewTracer("v0.4.6")
+		tracer := NewTracer("v0.4.11")
 		tracer.Printf("go ...")
 
 		// adapt to new workflow data structure
@@ -18,7 +20,7 @@ func init() {
 				_changed = false
 				_err = nil
 
-				if node.Type != "bizDeploy" {
+				if node.Type != "bizApply" {
 					return
 				}
 
@@ -29,106 +31,44 @@ func init() {
 				if _, ok := node.Data["config"]; ok {
 					nodeCfg := node.Data["config"].(map[string]any)
 
-					provider := nodeCfg["provider"]
-					switch provider {
-					case "1panel-site":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								if providerCfg["websiteId"] != nil && providerCfg["websiteId"].(string) != "" {
-									providerCfg["websiteMatchPattern"] = "specified"
-									nodeCfg["providerConfig"] = providerCfg
-
-									node.Data["config"] = nodeCfg
-									_changed = true
-									return
-								}
+					if nodeCfg["identifier"] == nil {
+						if nodeCfg["domains"] != nil && nodeCfg["domains"].(string) != "" {
+							if ip := net.ParseIP(nodeCfg["domains"].(string)); ip != nil {
+								nodeCfg["identifier"] = "ip"
+							} else {
+								nodeCfg["identifier"] = "domain"
 							}
-						}
-
-					case "baotapanel-site":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								if providerCfg["siteType"] == nil || providerCfg["siteType"].(string) == "other" {
-									providerCfg["siteType"] = "any"
-									nodeCfg["providerConfig"] = providerCfg
-
-									node.Data["config"] = nodeCfg
-									_changed = true
-								}
-								if providerCfg["siteNames"] == nil || providerCfg["siteNames"].(string) == "" {
-									providerCfg["siteNames"] = providerCfg["siteName"]
-									delete(providerCfg, "siteName")
-									nodeCfg["providerConfig"] = providerCfg
-
-									node.Data["config"] = nodeCfg
-									_changed = true
-								}
-
-								if _changed {
-									return
-								}
-							}
-						}
-
-					case "baotapanelgo-site":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								if providerCfg["siteNames"] == nil || providerCfg["siteNames"].(string) == "" {
-									providerCfg["siteType"] = "php"
-									providerCfg["siteNames"] = providerCfg["siteName"]
-									delete(providerCfg, "siteName")
-									nodeCfg["providerConfig"] = providerCfg
-
-									node.Data["config"] = nodeCfg
-									_changed = true
-									return
-								}
-							}
-						}
-
-					case "baotawaf-site":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								if providerCfg["siteNames"] == nil || providerCfg["siteNames"].(string) == "" {
-									providerCfg["siteNames"] = providerCfg["siteName"]
-									delete(providerCfg, "siteName")
-									nodeCfg["providerConfig"] = providerCfg
-
-									node.Data["config"] = nodeCfg
-									_changed = true
-									return
-								}
-							}
-						}
-
-					case "ratpanel-site":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								if providerCfg["siteNames"] == nil || providerCfg["siteNames"].(string) == "" {
-									providerCfg["siteNames"] = providerCfg["siteName"]
-									delete(providerCfg, "siteName")
-									nodeCfg["providerConfig"] = providerCfg
-
-									node.Data["config"] = nodeCfg
-									_changed = true
-									return
-								}
-							}
-						}
-
-					case "safeline":
-						{
-							nodeCfg["provider"] = "safeline-site"
 
 							node.Data["config"] = nodeCfg
 							_changed = true
 							return
 						}
+					}
+				}
+
+				return
+			})
+			walker.Define(func(node *mWorkflowNode) (_changed bool, _err error) {
+				_changed = false
+				_err = nil
+
+				if node.Type != "bizUpload" {
+					return
+				}
+
+				if node.Data == nil {
+					return
+				}
+
+				if _, ok := node.Data["config"]; ok {
+					nodeCfg := node.Data["config"].(map[string]any)
+
+					if nodeCfg["domains"] != nil {
+						delete(nodeCfg, "domains")
+
+						node.Data["config"] = nodeCfg
+						_changed = true
+						return
 					}
 				}
 
@@ -255,17 +195,21 @@ func init() {
 					}
 				}
 			}
+		}
 
-			// update collection `workflow_output`
-			//   - migrate field `nodeConfig`
-			{
-				if _, err := app.DB().NewQuery("UPDATE workflow_output SET nodeConfig = REPLACE(nodeConfig, '\"provider\":\"safeline\"', '\"provider\":\"safeline-site\"') WHERE nodeConfig LIKE '%\"provider\":\"safeline\"%'").Execute(); err != nil {
-					return err
-				}
-
-				if _, err := app.DB().NewQuery("UPDATE workflow_output SET nodeConfig = REPLACE(nodeConfig, '\"siteName\":', '\"siteNames\":')").Execute(); err != nil {
-					return err
-				}
+		// clean old migrations
+		{
+			migrations := []string{
+				"1757476800_m0.4.0_migrate.go",
+				"1757476801_m0.4.0_initialize.go",
+				"1760486400_m0.4.1.go",
+				"1762142400_m0.4.3.go",
+				"1762516800_m0.4.4.go",
+				"1763373600_m0.4.5.go",
+				"1763640000_m0.4.6.go",
+			}
+			for _, name := range migrations {
+				app.DB().NewQuery("DELETE FROM _migrations WHERE file='" + name + "'").Execute()
 			}
 		}
 
