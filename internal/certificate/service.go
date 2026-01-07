@@ -37,7 +37,6 @@ func NewCertificateService(
 }
 
 func (s *CertificateService) InitSchedule(ctx context.Context) error {
-	// 每日清理过期证书
 	app.GetScheduler().MustAdd("cleanupCertificateExpired", "0 0 * * *", func() {
 		s.cleanupExpiredCertificates(context.Background())
 	})
@@ -209,9 +208,6 @@ func (s *CertificateService) RevokeCertificate(ctx context.Context, req *dtos.Ce
 	if certificate.ACMEAcctUrl == "" || certificate.ACMECertUrl == "" {
 		return nil, fmt.Errorf("could not revoke a certificate which is not issued in Certimate")
 	}
-	// if certificate.ValidityNotAfter.Before(time.Now()) {
-	// 	return nil, fmt.Errorf("could not revoke a certificate which is expired")
-	// }
 	if certificate.IsRevoked {
 		return nil, fmt.Errorf("could not revoke a certificate which is already revoked")
 	}

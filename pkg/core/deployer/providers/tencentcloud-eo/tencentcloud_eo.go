@@ -20,7 +20,7 @@ import (
 	"github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-eo/internal"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
-	xcryptokey "github.com/certimate-go/certimate/pkg/utils/crypto/key"
+	xcertkey "github.com/certimate-go/certimate/pkg/utils/cert/key"
 )
 
 type DeployerConfig struct {
@@ -199,7 +199,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				return nil, fmt.Errorf("failed to parse private key: %w", err)
 			}
 
-			privkeyAlg, _, _ := xcryptokey.GetPrivateKeyAlgorithm(privkey)
+			privkeyAlg, _, _ := xcertkey.GetPrivateKeyAlgorithm(privkey)
 			privkeyAlgStr := ""
 			switch privkeyAlg {
 			case x509.RSA:

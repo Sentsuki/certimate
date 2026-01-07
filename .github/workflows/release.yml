@@ -29,7 +29,6 @@ jobs:
 
       - name: Build UI
         run: |
-          echo "VITE_APP_VERSION=$VERSION" > ./ui/.env
           npm --prefix=./ui ci
           npm --prefix=./ui run build
 

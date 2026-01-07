@@ -23,11 +23,12 @@ import (
 )
 
 type ObtainCertificateRequest struct {
-	DomainOrIPs      []string
-	PrivateKeyType   certcrypto.KeyType
-	PrivateKeyPEM    string
-	ValidityNotAfter time.Time
-	NoCommonName     bool
+	DomainOrIPs       []string
+	PrivateKeyType    certcrypto.KeyType
+	PrivateKeyPEM     string
+	ValidityNotBefore time.Time
+	ValidityNotAfter  time.Time
+	NoCommonName      bool
 
 	// 提供商相关
 	ChallengeType          string
@@ -169,6 +170,7 @@ func (c *ACMEClient) sendObtainCertificateRequest(request *ObtainCertificateRequ
 		Bundle:         true,
 		PreferredChain: request.PreferredChain,
 		Profile:        request.ACMEProfile,
+		NotBefore:      request.ValidityNotBefore,
 		NotAfter:       request.ValidityNotAfter,
 		ReplacesCertID: lo.If(request.ARIReplacesAcctUrl == c.account.ACMEAcctUrl, request.ARIReplacesCertId).Else(""),
 	}

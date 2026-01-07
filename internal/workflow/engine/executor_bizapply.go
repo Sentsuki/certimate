@@ -22,7 +22,7 @@ import (
 	"github.com/certimate-go/certimate/internal/repository"
 	"github.com/certimate-go/certimate/internal/tools/mproc"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xcryptokey "github.com/certimate-go/certimate/pkg/utils/crypto/key"
+	xcertkey "github.com/certimate-go/certimate/pkg/utils/cert/key"
 	xenv "github.com/certimate-go/certimate/pkg/utils/env"
 )
 
@@ -72,12 +72,13 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 		return execRes, err
 	} else {
 		if lastOutput != nil {
-			ne.logger.Info(fmt.Sprintf("found last run #%s", lastOutput.RunId))
+			ne.logger.Info(fmt.Sprintf("found last workrun #%s record", lastOutput.RunId))
 		}
 
 		if lastCertificate != nil {
 			ne.setOuputsOfResult(execCtx, execRes, lastCertificate, false)
 			ne.setVariablesOfResult(execCtx, execRes, lastCertificate)
+			ne.logger.Info(fmt.Sprintf("found last certificate #%s record", lastCertificate.Id))
 		}
 	}
 
@@ -85,16 +86,16 @@ func (ne *bizApplyNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 	if skippable, reason := ne.checkCanSkip(execCtx, lastOutput, lastCertificate); skippable {
 		ne.logger.Info(fmt.Sprintf("skip this application, because %s", reason))
 
-		execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyNodeSkipped, true, "boolean")
+		execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyNodeSkipped, true, stateValTypeBoolean)
 		return execRes, nil
 	} else {
 		if reason != "" {
 			ne.logger.Info(fmt.Sprintf("re-apply, because %s", reason))
 		} else {
-			ne.logger.Info("no found last issued certificate, begin to apply")
+			ne.logger.Info("no found last requested certificate, begin to apply")
 		}
 
-		execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyNodeSkipped, false, "boolean")
+		execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyNodeSkipped, false, stateValTypeBoolean)
 	}
 
 	// 申请证书
@@ -215,10 +216,10 @@ func (ne *bizApplyNodeExecutor) checkCanSkip(execCtx *NodeExecutionContext, last
 		expirationTime := time.Until(lastCertificate.ValidityNotAfter)
 		daysLeft := int(math.Floor(expirationTime.Hours() / 24))
 		if expirationTime > renewalInterval {
-			return true, fmt.Sprintf("the last issued certificate #%s expires in %d day(s), next renewal will be in %d day(s)", lastCertificate.Id, daysLeft, thisNodeCfg.SkipBeforeExpiryDays)
+			return true, fmt.Sprintf("the last requested certificate expires in %d day(s), next renewal will be in %d day(s)", daysLeft, thisNodeCfg.SkipBeforeExpiryDays)
 		}
 
-		return false, fmt.Sprintf("the last issued certificate #%s expires in %d day(s)", lastCertificate.Id, daysLeft)
+		return false, fmt.Sprintf("the last requested certificate expires in %d day(s), the renewal window period has been reached", daysLeft)
 	}
 
 	return false, ""
@@ -243,7 +244,7 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 			if err != nil {
 				return nil, fmt.Errorf("could not parse custom private key: %w", err)
 			} else {
-				privkeyAlg, privkeySize, _ := xcryptokey.GetPrivateKeyAlgorithm(privkey)
+				privkeyAlg, privkeySize, _ := xcertkey.GetPrivateKeyAlgorithm(privkey)
 				switch privkeyAlg {
 				case x509.RSA:
 					if nodeCfg.KeyAlgorithm != fmt.Sprintf("RSA%d", privkeySize) {
@@ -411,7 +412,7 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 	// 初始化 ACME 客户端
 	legolog.Logger = certacme.NewLegoLogger(app.GetLogger())
 	legoClient, err := certacme.NewACMEClientWithAccount(legoUser, func(c *lego.Config) error {
-		c.UserAgent = "certimate"
+		c.UserAgent = app.AppUserAgent
 		c.Certificate.KeyType = legoKeyType
 		c.Certificate.DisableCommonName = obtainReq.NoCommonName
 		return nil
@@ -436,9 +437,9 @@ func (ne *bizApplyNodeExecutor) setOuputsOfResult(execCtx *NodeExecutionContext,
 		key := "certificate"
 		value := fmt.Sprintf("%s#%s", domain.CollectionNameCertificate, certificate.Id)
 		if persistent {
-			execRes.AddOutputWithPersistent(stateIOTypeRef, key, value, "string")
+			execRes.AddOutputWithPersistent(stateIOTypeRef, key, value, stateValTypeString)
 		} else {
-			execRes.AddOutput(stateIOTypeRef, key, value, "string")
+			execRes.AddOutput(stateIOTypeRef, key, value, stateValTypeString)
 		}
 	}
 }
@@ -462,24 +463,24 @@ func (ne *bizApplyNodeExecutor) setVariablesOfResult(execCtx *NodeExecutionConte
 		vValidity = certificate.ValidityNotAfter.After(time.Now())
 	}
 
-	execRes.AddVariable(stateVarKeyCertificateDomain, vCommonName, "string")
-	execRes.AddVariable(stateVarKeyCertificateDomains, vSubjectAltNames, "string")
-	execRes.AddVariable(stateVarKeyCertificateCommonName, vCommonName, "string")
-	execRes.AddVariable(stateVarKeyCertificateSubjectAltNames, vSubjectAltNames, "string")
-	execRes.AddVariable(stateVarKeyCertificateNotBefore, vNotBefore, "datetime")
-	execRes.AddVariable(stateVarKeyCertificateNotAfter, vNotAfter, "datetime")
-	execRes.AddVariable(stateVarKeyCertificateHoursLeft, vHoursLeft, "number")
-	execRes.AddVariable(stateVarKeyCertificateDaysLeft, vDaysLeft, "number")
-	execRes.AddVariable(stateVarKeyCertificateValidity, vValidity, "boolean")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateDomain, vCommonName, "string")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateDomains, vSubjectAltNames, "string")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateCommonName, vCommonName, "string")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateSubjectAltNames, vSubjectAltNames, "string")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateNotBefore, vNotBefore, "datetime")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateNotAfter, vNotAfter, "datetime")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateHoursLeft, vHoursLeft, "number")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateDaysLeft, vDaysLeft, "number")
-	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateValidity, vValidity, "boolean")
+	execRes.AddVariable(stateVarKeyCertificateDomain, vCommonName, stateValTypeString)
+	execRes.AddVariable(stateVarKeyCertificateDomains, vSubjectAltNames, stateValTypeString)
+	execRes.AddVariable(stateVarKeyCertificateCommonName, vCommonName, stateValTypeString)
+	execRes.AddVariable(stateVarKeyCertificateSubjectAltNames, vSubjectAltNames, stateValTypeString)
+	execRes.AddVariable(stateVarKeyCertificateNotBefore, vNotBefore, stateValTypeDateTime)
+	execRes.AddVariable(stateVarKeyCertificateNotAfter, vNotAfter, stateValTypeDateTime)
+	execRes.AddVariable(stateVarKeyCertificateHoursLeft, vHoursLeft, stateValTypeNumber)
+	execRes.AddVariable(stateVarKeyCertificateDaysLeft, vDaysLeft, stateValTypeNumber)
+	execRes.AddVariable(stateVarKeyCertificateValidity, vValidity, stateValTypeBoolean)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateDomain, vCommonName, stateValTypeString)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateDomains, vSubjectAltNames, stateValTypeString)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateCommonName, vCommonName, stateValTypeString)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateSubjectAltNames, vSubjectAltNames, stateValTypeString)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateNotBefore, vNotBefore, stateValTypeDateTime)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateNotAfter, vNotAfter, stateValTypeDateTime)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateHoursLeft, vHoursLeft, stateValTypeNumber)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateDaysLeft, vDaysLeft, stateValTypeNumber)
+	execRes.AddVariableWithScope(execCtx.Node.Id, stateVarKeyCertificateValidity, vValidity, stateValTypeBoolean)
 }
 
 func newBizApplyNodeExecutor() NodeExecutor {

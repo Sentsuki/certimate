@@ -86,6 +86,14 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 }
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+	// 上传证书
+	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload certificate file: %w", err)
+	} else {
+		d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
+	}
+
 	// 获取待部署的域名列表
 	var domains []string
 	switch d.config.DomainMatchPattern {
@@ -157,7 +165,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 			case <-ctx.Done():
 				return nil, ctx.Err()
 			default:
-				if err := d.updateDomainCertificate(ctx, domain, certPEM, privkeyPEM); err != nil {
+				certId, _ := strconv.ParseInt(upres.CertId, 10, 64)
+				certName := upres.CertName
+				if err := d.updateDomainCertificate(ctx, domain, certId, certName); err != nil {
 					errs = append(errs, err)
 				}
 			}
@@ -214,14 +224,13 @@ func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
 	return domains, nil
 }
 
-func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, cloudCertId, cloudCertName string) error {
+func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, cloudCertId int64, cloudCertName string) error {
 	// 设置域名证书
 	// REF: https://help.aliyun.com/zh/vod/developer-reference/api-vod-2017-03-21-setvoddomainsslcertificate
-	certId, _ := strconv.ParseInt(cloudCertId, 10, 64)
 	setVodDomainSSLCertificateReq := &alivod.SetVodDomainSSLCertificateRequest{
 		DomainName: tea.String(domain),
 		CertType:   tea.String("cas"),
-		CertId:     tea.Int64(certId),
+		CertId:     tea.Int64(cloudCertId),
 		CertName:   tea.String(cloudCertName),
 		CertRegion: lo.
 			If(d.config.Region == "" || strings.HasPrefix(d.config.Region, "cn-"), tea.String("cn-hangzhou")).

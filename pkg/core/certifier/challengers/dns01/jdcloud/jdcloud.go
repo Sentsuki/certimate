@@ -23,7 +23,7 @@ func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
 
 	regionId := config.RegionId
 	if regionId == "" {
-		// 京东云的 SDK 要求必须传一个区域，实际上 DNS-01 流程里用不到，但不传会报错
+		// 京东云的 SDK 要求必须传一个区域，实际上 DNS 服务用不到，但不传会报错
 		regionId = "cn-north-1"
 	}
 

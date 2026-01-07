@@ -39,6 +39,7 @@ import AccessConfigFieldsProviderDNSExit from "./AccessConfigFieldsProviderDNSEx
 import AccessConfigFieldsProviderDNSLA from "./AccessConfigFieldsProviderDNSLA";
 import AccessConfigFieldsProviderDNSMadeEasy from "./AccessConfigFieldsProviderDNSMadeEasy";
 import AccessConfigFieldsProviderDogeCloud from "./AccessConfigFieldsProviderDogeCloud";
+import AccessConfigFieldsProviderDokploy from "./AccessConfigFieldsProviderDokploy";
 import AccessConfigFieldsProviderDuckDNS from "./AccessConfigFieldsProviderDuckDNS";
 import AccessConfigFieldsProviderDynu from "./AccessConfigFieldsProviderDynu";
 import AccessConfigFieldsProviderDynv6 from "./AccessConfigFieldsProviderDynv6";
@@ -72,6 +73,7 @@ import AccessConfigFieldsProviderNameDotCom from "./AccessConfigFieldsProviderNa
 import AccessConfigFieldsProviderNameSilo from "./AccessConfigFieldsProviderNameSilo";
 import AccessConfigFieldsProviderNetcup from "./AccessConfigFieldsProviderNetcup";
 import AccessConfigFieldsProviderNetlify from "./AccessConfigFieldsProviderNetlify";
+import AccessConfigFieldsProviderNginxProxyManager from "./AccessConfigFieldsProviderNginxProxyManager";
 import AccessConfigFieldsProviderNS1 from "./AccessConfigFieldsProviderNS1";
 import AccessConfigFieldsProviderOVHcloud from "./AccessConfigFieldsProviderOVHcloud";
 import AccessConfigFieldsProviderPorkbun from "./AccessConfigFieldsProviderPorkbun";
@@ -82,6 +84,7 @@ import AccessConfigFieldsProviderQiniu from "./AccessConfigFieldsProviderQiniu";
 import AccessConfigFieldsProviderRainYun from "./AccessConfigFieldsProviderRainYun";
 import AccessConfigFieldsProviderRatPanel from "./AccessConfigFieldsProviderRatPanel";
 import AccessConfigFieldsProviderRFC2136 from "./AccessConfigFieldsProviderRFC2136";
+import AccessConfigFieldsProviderS3 from "./AccessConfigFieldsProviderS3";
 import AccessConfigFieldsProviderSafeLine from "./AccessConfigFieldsProviderSafeLine";
 import AccessConfigFieldsProviderSectigo from "./AccessConfigFieldsProviderSectigo";
 import AccessConfigFieldsProviderSlackBot from "./AccessConfigFieldsProviderSlackBot";
@@ -145,6 +148,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.DNSEXIT]: AccessConfigFieldsProviderDNSExit,
   [ACCESS_PROVIDERS.DNSLA]: AccessConfigFieldsProviderDNSLA,
   [ACCESS_PROVIDERS.DNSMADEEASY]: AccessConfigFieldsProviderDNSMadeEasy,
+  [ACCESS_PROVIDERS.DOKPLOY]: AccessConfigFieldsProviderDokploy,
   [ACCESS_PROVIDERS.DOGECLOUD]: AccessConfigFieldsProviderDogeCloud,
   [ACCESS_PROVIDERS.DUCKDNS]: AccessConfigFieldsProviderDuckDNS,
   [ACCESS_PROVIDERS.DYNU]: AccessConfigFieldsProviderDynu,
@@ -179,6 +183,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.NAMESILO]: AccessConfigFieldsProviderNameSilo,
   [ACCESS_PROVIDERS.NETCUP]: AccessConfigFieldsProviderNetcup,
   [ACCESS_PROVIDERS.NETLIFY]: AccessConfigFieldsProviderNetlify,
+  [ACCESS_PROVIDERS.NGINXPROXYMANAGER]: AccessConfigFieldsProviderNginxProxyManager,
   [ACCESS_PROVIDERS.NS1]: AccessConfigFieldsProviderNS1,
   [ACCESS_PROVIDERS.OVHCLOUD]: AccessConfigFieldsProviderOVHcloud,
   [ACCESS_PROVIDERS.PORKBUN]: AccessConfigFieldsProviderPorkbun,
@@ -189,6 +194,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.RAINYUN]: AccessConfigFieldsProviderRainYun,
   [ACCESS_PROVIDERS.RATPANEL]: AccessConfigFieldsProviderRatPanel,
   [ACCESS_PROVIDERS.RFC2136]: AccessConfigFieldsProviderRFC2136,
+  [ACCESS_PROVIDERS.S3]: AccessConfigFieldsProviderS3,
   [ACCESS_PROVIDERS.SAFELINE]: AccessConfigFieldsProviderSafeLine,
   [ACCESS_PROVIDERS.SECTIGO]: AccessConfigFieldsProviderSectigo,
   [ACCESS_PROVIDERS.SLACKBOT]: AccessConfigFieldsProviderSlackBot,

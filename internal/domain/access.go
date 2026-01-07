@@ -216,6 +216,12 @@ type AccessConfigForDogeCloud struct {
 	SecretKey string `json:"secretKey"`
 }
 
+type AccessConfigForDokploy struct {
+	ServerUrl                string `json:"serverUrl"`
+	ApiKey                   string `json:"apiKey"`
+	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
+}
+
 type AccessConfigForDuckDNS struct {
 	Token string `json:"token"`
 }
@@ -363,6 +369,11 @@ type AccessConfigForMattermost struct {
 	ChannelId string `json:"channelId,omitempty"`
 }
 
+type AccessConfigForMohua struct {
+	Username    string `json:"username"`
+	ApiPassword string `json:"apiPassword"`
+}
+
 type AccessConfigForNamecheap struct {
 	Username string `json:"username"`
 	ApiKey   string `json:"apiKey"`
@@ -385,6 +396,15 @@ type AccessConfigForNetcup struct {
 
 type AccessConfigForNetlify struct {
 	ApiToken string `json:"apiToken"`
+}
+
+type AccessConfigForNginxProxyManager struct {
+	ServerUrl                string `json:"serverUrl"`
+	AuthMethod               string `json:"authMethod"`
+	Username                 string `json:"username,omitempty"`
+	Password                 string `json:"password,omitempty"`
+	ApiToken                 string `json:"apiToken,omitempty"`
+	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
 }
 
 type AccessConfigForNS1 struct {
@@ -429,11 +449,6 @@ type AccessConfigForQiniu struct {
 	SecretKey string `json:"secretKey"`
 }
 
-type AccessConfigForMohua struct {
-	Username    string `json:"username"`
-	ApiPassword string `json:"apiPassword"`
-}
-
 type AccessConfigForRainYun struct {
 	ApiKey string `json:"apiKey"`
 }
@@ -451,6 +466,15 @@ type AccessConfigForRFC2136 struct {
 	TsigAlgorithm string `json:"tsigAlgorithm,omitempty"`
 	TsigKey       string `json:"tsigKey,omitempty"`
 	TsigSecret    string `json:"tsigSecret,omitempty"`
+}
+
+type AccessConfigForS3 struct {
+	Endpoint                 string `json:"endpoint"`
+	AccessKey                string `json:"accessKey"`
+	SecretKey                string `json:"secretKey"`
+	SignatureVersion         string `json:"signatureVersion,omitempty"`
+	UsePathStyle             bool   `json:"usePathStyle,omitempty"`
+	AllowInsecureConnections bool   `json:"allowInsecureConnections,omitempty"`
 }
 
 type AccessConfigForSafeLine struct {
