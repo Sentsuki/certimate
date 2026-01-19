@@ -9,13 +9,13 @@ import (
 )
 
 type GetDomainListRequest struct {
-	PageNumber   *int32  `json:"page_number,omitempty" url:"page_number,omitempty"`
-	PageSize     *int32  `json:"page_size,omitempty" url:"page_size,omitempty"`
+	PageNumber   *int32  `json:"page_number,omitempty"   url:"page_number,omitempty"`
+	PageSize     *int32  `json:"page_size,omitempty"     url:"page_size,omitempty"`
 	DomainStatus *string `json:"domain_status,omitempty" url:"domain_status,omitempty"`
 }
 
 type GetDomainListResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data []*struct {
 		List        []*DomainRecord `json:"list"`

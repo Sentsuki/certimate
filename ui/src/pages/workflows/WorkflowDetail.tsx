@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { IconEdit, IconHistory, IconPlayerPlay, IconRobot } from "@tabler/icons-react";
 import { useSize } from "ahooks";
-import { App, Button, Input, type InputRef, Segmented, Skeleton } from "antd";
+import { App, Button, Input, type InputRef, Segmented, Skeleton, Spin } from "antd";
 
 import { startRun as startWorkflowRun } from "@/api/workflows";
 import Show from "@/components/Show";
@@ -214,7 +214,7 @@ const WorkflowDetailBaseName = () => {
   return (
     <div className="group/input relative flex items-center gap-1">
       <h1 className={mergeCls("break-all", { invisible: editing })}>
-        <Show when={initialized} fallback={"\u00A0"}>
+        <Show when={initialized} fallback={<Spin />}>
           {workflow.name || t("workflow.detail.baseinfo.name.placeholder")}
         </Show>
       </h1>

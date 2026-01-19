@@ -7,7 +7,7 @@ import (
 )
 
 type SslCenterGetResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *SslDetail `json:"data,omitempty"`
 }

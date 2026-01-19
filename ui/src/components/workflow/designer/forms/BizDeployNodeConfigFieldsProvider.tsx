@@ -34,6 +34,7 @@ import BizDeployNodeConfigFieldsProviderBaotaPanelConsole from "./BizDeployNodeC
 import BizDeployNodeConfigFieldsProviderBaotaPanelGo from "./BizDeployNodeConfigFieldsProviderBaotaPanelGo.tsx";
 import BizDeployNodeConfigFieldsProviderBaotaPanelGoConsole from "./BizDeployNodeConfigFieldsProviderBaotaPanelGoConsole";
 import BizDeployNodeConfigFieldsProviderBaotaWAF from "./BizDeployNodeConfigFieldsProviderBaotaWAF.tsx";
+import BizDeployNodeConfigFieldsProviderBaotaWAFConsole from "./BizDeployNodeConfigFieldsProviderBaotaWAFConsole.tsx";
 import BizDeployNodeConfigFieldsProviderBunnyCDN from "./BizDeployNodeConfigFieldsProviderBunnyCDN";
 import BizDeployNodeConfigFieldsProviderBytePlusCDN from "./BizDeployNodeConfigFieldsProviderBytePlusCDN";
 import BizDeployNodeConfigFieldsProviderCdnfly from "./BizDeployNodeConfigFieldsProviderCdnfly";
@@ -70,8 +71,10 @@ import BizDeployNodeConfigFieldsProviderQiniuKodo from "./BizDeployNodeConfigFie
 import BizDeployNodeConfigFieldsProviderQiniuPili from "./BizDeployNodeConfigFieldsProviderQiniuPili";
 import BizDeployNodeConfigFieldsProviderRainYunRCDN from "./BizDeployNodeConfigFieldsProviderRainYunRCDN";
 import BizDeployNodeConfigFieldsProviderRatPanel from "./BizDeployNodeConfigFieldsProviderRatPanel.tsx";
+import BizDeployNodeConfigFieldsProviderS3 from "./BizDeployNodeConfigFieldsProviderS3";
 import BizDeployNodeConfigFieldsProviderSafeLine from "./BizDeployNodeConfigFieldsProviderSafeLine.tsx";
 import BizDeployNodeConfigFieldsProviderSSH from "./BizDeployNodeConfigFieldsProviderSSH";
+import BizDeployNodeConfigFieldsProviderSynologyDSM from "./BizDeployNodeConfigFieldsProviderSynologyDSM";
 import BizDeployNodeConfigFieldsProviderTencentCloudCDN from "./BizDeployNodeConfigFieldsProviderTencentCloudCDN";
 import BizDeployNodeConfigFieldsProviderTencentCloudCLB from "./BizDeployNodeConfigFieldsProviderTencentCloudCLB";
 import BizDeployNodeConfigFieldsProviderTencentCloudCOS from "./BizDeployNodeConfigFieldsProviderTencentCloudCOS";
@@ -146,6 +149,7 @@ const providerComponentMap: Partial<Record<DeploymentProviderType, React.Compone
   [DEPLOYMENT_PROVIDERS.BAOTAPANELGO_CONSOLE]: BizDeployNodeConfigFieldsProviderBaotaPanelGoConsole,
   [DEPLOYMENT_PROVIDERS.BAOTAPANELGO]: BizDeployNodeConfigFieldsProviderBaotaPanelGo,
   [DEPLOYMENT_PROVIDERS.BAOTAWAF]: BizDeployNodeConfigFieldsProviderBaotaWAF,
+  [DEPLOYMENT_PROVIDERS.BAOTAWAF_CONSOLE]: BizDeployNodeConfigFieldsProviderBaotaWAFConsole,
   [DEPLOYMENT_PROVIDERS.BUNNY_CDN]: BizDeployNodeConfigFieldsProviderBunnyCDN,
   [DEPLOYMENT_PROVIDERS.BYTEPLUS_CDN]: BizDeployNodeConfigFieldsProviderBytePlusCDN,
   [DEPLOYMENT_PROVIDERS.CDNFLY]: BizDeployNodeConfigFieldsProviderCdnfly,
@@ -182,8 +186,10 @@ const providerComponentMap: Partial<Record<DeploymentProviderType, React.Compone
   [DEPLOYMENT_PROVIDERS.QINIU_PILI]: BizDeployNodeConfigFieldsProviderQiniuPili,
   [DEPLOYMENT_PROVIDERS.RAINYUN_RCDN]: BizDeployNodeConfigFieldsProviderRainYunRCDN,
   [DEPLOYMENT_PROVIDERS.RATPANEL]: BizDeployNodeConfigFieldsProviderRatPanel,
+  [DEPLOYMENT_PROVIDERS.S3]: BizDeployNodeConfigFieldsProviderS3,
   [DEPLOYMENT_PROVIDERS.SAFELINE]: BizDeployNodeConfigFieldsProviderSafeLine,
   [DEPLOYMENT_PROVIDERS.SSH]: BizDeployNodeConfigFieldsProviderSSH,
+  [DEPLOYMENT_PROVIDERS.SYNOLOGYDSM]: BizDeployNodeConfigFieldsProviderSynologyDSM,
   [DEPLOYMENT_PROVIDERS.TENCENTCLOUD_CDN]: BizDeployNodeConfigFieldsProviderTencentCloudCDN,
   [DEPLOYMENT_PROVIDERS.TENCENTCLOUD_CLB]: BizDeployNodeConfigFieldsProviderTencentCloudCLB,
   [DEPLOYMENT_PROVIDERS.TENCENTCLOUD_COS]: BizDeployNodeConfigFieldsProviderTencentCloudCOS,

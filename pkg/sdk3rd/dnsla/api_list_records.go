@@ -8,18 +8,18 @@ import (
 )
 
 type ListRecordsRequest struct {
-	DomainId  *string `json:"domainId,omitempty" url:"domainId,omitempty"`
-	GroupId   *string `json:"groupId,omitempty" url:"groupId,omitempty"`
-	LineId    *string `json:"lineId,omitempty" url:"lineId,omitempty"`
-	Type      *int32  `json:"type,omitempty" url:"type,omitempty"`
-	Host      *string `json:"host,omitempty" url:"host,omitempty"`
-	Data      *string `json:"data,omitempty" url:"data,omitempty"`
+	DomainId  *string `json:"domainId,omitempty"  url:"domainId,omitempty"`
+	GroupId   *string `json:"groupId,omitempty"   url:"groupId,omitempty"`
+	LineId    *string `json:"lineId,omitempty"    url:"lineId,omitempty"`
+	Type      *int32  `json:"type,omitempty"      url:"type,omitempty"`
+	Host      *string `json:"host,omitempty"      url:"host,omitempty"`
+	Data      *string `json:"data,omitempty"      url:"data,omitempty"`
 	PageIndex *int32  `json:"pageIndex,omitempty" url:"pageIndex,omitempty"`
-	PageSize  *int32  `json:"pageSize,omitempty" url:"pageSize,omitempty"`
+	PageSize  *int32  `json:"pageSize,omitempty"  url:"pageSize,omitempty"`
 }
 
 type ListRecordsResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	Data *struct {
 		Total   int32        `json:"total"`
 		Results []*DnsRecord `json:"results"`

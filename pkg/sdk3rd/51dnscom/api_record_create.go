@@ -17,7 +17,7 @@ type RecordCreateRequest struct {
 }
 
 type RecordCreateResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *DNSRecord `json:"data"`
 }

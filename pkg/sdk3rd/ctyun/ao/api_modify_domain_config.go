@@ -15,7 +15,7 @@ type ModifyDomainConfigRequest struct {
 }
 
 type ModifyDomainConfigResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) ModifyDomainConfig(req *ModifyDomainConfigRequest) (*ModifyDomainConfigResponse, error) {

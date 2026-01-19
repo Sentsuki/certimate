@@ -8,17 +8,17 @@ import (
 )
 
 type ListListenersRequest struct {
-	ClientToken     *string `json:"clientToken,omitempty" url:"clientToken,omitempty"`
-	RegionID        *string `json:"regionID,omitempty" url:"regionID,omitempty"`
-	ProjectID       *string `json:"projectID,omitempty" url:"projectID,omitempty"`
-	IDs             *string `json:"IDs,omitempty" url:"IDs,omitempty"`
-	Name            *string `json:"name,omitempty" url:"name,omitempty"`
-	LoadBalancerID  *string `json:"loadBalancerID,omitempty" url:"loadBalancerID,omitempty"`
+	ClientToken     *string `json:"clientToken,omitempty"     url:"clientToken,omitempty"`
+	RegionID        *string `json:"regionID,omitempty"        url:"regionID,omitempty"`
+	ProjectID       *string `json:"projectID,omitempty"       url:"projectID,omitempty"`
+	IDs             *string `json:"IDs,omitempty"             url:"IDs,omitempty"`
+	Name            *string `json:"name,omitempty"            url:"name,omitempty"`
+	LoadBalancerID  *string `json:"loadBalancerID,omitempty"  url:"loadBalancerID,omitempty"`
 	AccessControlID *string `json:"accessControlID,omitempty" url:"accessControlID,omitempty"`
 }
 
 type ListListenersResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj []*ListenerRecord `json:"returnObj,omitempty"`
 }

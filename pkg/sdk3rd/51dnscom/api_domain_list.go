@@ -12,7 +12,7 @@ type DomainListRequest struct {
 }
 
 type DomainListResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *struct {
 		Data      []*DomainRecord `json:"data"`

@@ -27,7 +27,7 @@ type CreateRecordRequestRecordValue struct {
 }
 
 type CreateRecordResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	DomainName     *string                       `json:"domain_name,omitempty"`
 	DomainRecordId *int64                        `json:"domain_record_id,omitempty"`
 	ViewId         *int64                        `json:"view_id,omitempty"`

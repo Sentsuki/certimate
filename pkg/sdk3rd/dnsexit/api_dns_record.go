@@ -13,7 +13,7 @@ type DnsRecordRequest struct {
 }
 
 type DnsRecordResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Details []string `json:"details,omitempty"`
 }

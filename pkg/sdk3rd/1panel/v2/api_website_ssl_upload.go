@@ -16,7 +16,7 @@ type WebsiteSSLUploadRequest struct {
 }
 
 type WebsiteSSLUploadResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) WebsiteSSLUpload(req *WebsiteSSLUploadRequest) (*WebsiteSSLUploadResponse, error) {

@@ -1,14 +1,14 @@
 package btwaf
 
-type apiResponse interface {
-	GetCode() int32
+type sdkResponse interface {
+	GetCode() int
 }
 
-type apiResponseBase struct {
-	Code *int32 `json:"code,omitempty"`
+type sdkResponseBase struct {
+	Code *int `json:"code,omitempty"`
 }
 
-func (r *apiResponseBase) GetCode() int32 {
+func (r *sdkResponseBase) GetCode() int {
 	if r.Code == nil {
 		return 0
 	}
@@ -16,7 +16,7 @@ func (r *apiResponseBase) GetCode() int32 {
 	return *r.Code
 }
 
-var _ apiResponse = (*apiResponseBase)(nil)
+var _ sdkResponse = (*sdkResponseBase)(nil)
 
 type SiteRecord struct {
 	SiteId      string   `json:"site_id"`

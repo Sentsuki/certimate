@@ -18,7 +18,7 @@ type UpdateRecordRequest struct {
 }
 
 type UpdateRecordResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) UpdateRecord(req *UpdateRecordRequest) (*UpdateRecordResponse, error) {

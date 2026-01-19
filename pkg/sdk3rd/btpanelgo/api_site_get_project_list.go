@@ -14,7 +14,7 @@ type SiteGetProjectListRequest struct {
 }
 
 type SiteGetProjectListResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	Data []*SiteData `json:"data,omitempty"`
 	Page *PageData   `json:"page,omitempty"`
 }

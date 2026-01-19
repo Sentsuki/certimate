@@ -12,7 +12,7 @@ type WebsiteSSLSearchRequest struct {
 }
 
 type WebsiteSSLSearchResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *struct {
 		Items []*struct {

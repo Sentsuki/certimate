@@ -107,6 +107,7 @@ export const ACCESS_PROVIDERS = Object.freeze({
   SPACESHIP: "spaceship",
   SSH: "ssh",
   SSLCOM: "sslcom",
+  SYNOLOGYDSM: "synologydsm",
   TECHNITIUMDNS: "technitiumdns",
   TELEGRAMBOT: "telegrambot",
   TENCENTCLOUD: "tencentcloud",
@@ -193,6 +194,7 @@ export const accessProvidersMap: Map<AccessProvider["type"] | string, AccessProv
       [ACCESS_PROVIDERS.PROXMOXVE, "provider.proxmoxve", "/imgs/providers/proxmoxve.svg", [ACCESS_USAGES.HOSTING]],
       [ACCESS_PROVIDERS.RATPANEL, "provider.ratpanel", "/imgs/providers/ratpanel.png", [ACCESS_USAGES.HOSTING]],
       [ACCESS_PROVIDERS.SAFELINE, "provider.safeline", "/imgs/providers/safeline.svg", [ACCESS_USAGES.HOSTING]],
+      [ACCESS_PROVIDERS.SYNOLOGYDSM, "provider.synologydsm", "/imgs/providers/synologydsm.png", [ACCESS_USAGES.HOSTING]],
 
       [ACCESS_PROVIDERS.AKAMAI, "provider.akamai", "/imgs/providers/akamai.svg", [ACCESS_USAGES.DNS]],
       [ACCESS_PROVIDERS.ARVANCLOUD, "provider.arvancloud", "/imgs/providers/arvancloud.svg", [ACCESS_USAGES.DNS]],
@@ -476,8 +478,8 @@ export const acmeDns01ProvidersMap: Map<ACMEDns01Provider["type"] | string, ACME
       [ACME_DNS01_PROVIDERS.CPANEL, "provider.cpanel"],
       [ACME_DNS01_PROVIDERS.POWERDNS, "provider.powerdns"],
       [ACME_DNS01_PROVIDERS.TECHNITIUMDNS, "provider.technitiumdns"],
-      [ACME_DNS01_PROVIDERS.RFC2136, "provider.rfc2136"],
       [ACME_DNS01_PROVIDERS.ACMEDNS, "provider.acmedns"],
+      [ACME_DNS01_PROVIDERS.RFC2136, "provider.rfc2136"],
       [ACME_DNS01_PROVIDERS.ACMEHTTPREQ, "provider.acmehttpreq"],
     ] satisfies Array<[ACMEDns01ProviderType, string]>
   ).map(([type, name]) => [
@@ -613,8 +615,10 @@ export const DEPLOYMENT_PROVIDERS = Object.freeze({
   RAINYUN_RCDN: `${ACCESS_PROVIDERS.RAINYUN}-rcdn`,
   RATPANEL: `${ACCESS_PROVIDERS.RATPANEL}`,
   RATPANEL_CONSOLE: `${ACCESS_PROVIDERS.RATPANEL}-console`,
+  S3: `${ACCESS_PROVIDERS.S3}`,
   SAFELINE: `${ACCESS_PROVIDERS.SAFELINE}`,
   SSH: `${ACCESS_PROVIDERS.SSH}`,
+  SYNOLOGYDSM: `${ACCESS_PROVIDERS.SYNOLOGYDSM}`,
   TENCENTCLOUD_CDN: `${ACCESS_PROVIDERS.TENCENTCLOUD}-cdn`,
   TENCENTCLOUD_CLB: `${ACCESS_PROVIDERS.TENCENTCLOUD}-clb`,
   TENCENTCLOUD_COS: `${ACCESS_PROVIDERS.TENCENTCLOUD}-cos`,
@@ -687,6 +691,7 @@ export const deploymentProvidersMap: Map<DeploymentProvider["type"] | string, De
       [DEPLOYMENT_PROVIDERS.SSH, "provider.ssh", DEPLOYMENT_CATEGORIES.OTHER],
       [DEPLOYMENT_PROVIDERS.WEBHOOK, "provider.webhook", DEPLOYMENT_CATEGORIES.OTHER],
       [DEPLOYMENT_PROVIDERS.KUBERNETES_SECRET, "provider.kubernetes_secret", DEPLOYMENT_CATEGORIES.OTHER],
+      [DEPLOYMENT_PROVIDERS.S3, "provider.s3_upload", DEPLOYMENT_CATEGORIES.STORAGE],
       [DEPLOYMENT_PROVIDERS.ALIYUN_OSS, "provider.aliyun_oss", DEPLOYMENT_CATEGORIES.STORAGE],
       [DEPLOYMENT_PROVIDERS.ALIYUN_CDN, "provider.aliyun_cdn", DEPLOYMENT_CATEGORIES.CDN],
       [DEPLOYMENT_PROVIDERS.ALIYUN_DCDN, "provider.aliyun_dcdn", DEPLOYMENT_CATEGORIES.CDN],
@@ -796,6 +801,7 @@ export const deploymentProvidersMap: Map<DeploymentProvider["type"] | string, De
       [DEPLOYMENT_PROVIDERS.DOKPLOY, "provider.dokploy", DEPLOYMENT_CATEGORIES.WEBSITE],
       [DEPLOYMENT_PROVIDERS.NGINXPROXYMANAGER, "provider.nginxproxymanager", DEPLOYMENT_CATEGORIES.WEBSITE],
       [DEPLOYMENT_PROVIDERS.PROXMOXVE, "provider.proxmoxve", DEPLOYMENT_CATEGORIES.OTHER],
+      [DEPLOYMENT_PROVIDERS.SYNOLOGYDSM, "provider.synologydsm", DEPLOYMENT_CATEGORIES.OTHER],
     ] satisfies Array<[DeploymentProviderType, string, DeploymentCategoryType, "builtin"] | [DeploymentProviderType, string, DeploymentCategoryType]>
   ).map(([type, name, category, builtin]) => [
     type,

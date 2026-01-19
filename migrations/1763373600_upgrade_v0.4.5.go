@@ -1,9 +1,10 @@
 package migrations
 
 import (
-	"github.com/go-viper/mapstructure/v2"
 	"github.com/pocketbase/pocketbase/core"
 	m "github.com/pocketbase/pocketbase/migrations"
+
+	snaps "github.com/certimate-go/certimate/migrations/snaps/v0.4"
 )
 
 func init() {
@@ -17,8 +18,8 @@ func init() {
 
 		// adapt to new workflow data structure
 		{
-			walker := &mWorkflowGraphWalker{}
-			walker.Define(func(node *mWorkflowNode) (_changed bool, _err error) {
+			walker := &snaps.WorkflowGraphWalker{}
+			walker.Define(func(node *snaps.WorkflowNode) (_changed bool, _err error) {
 				_changed = false
 				_err = nil
 
@@ -26,73 +27,58 @@ func init() {
 					return
 				}
 
-				if node.Data == nil {
-					return
-				}
+				nodeCfg := node.Data.Config
 
-				if _, ok := node.Data["config"]; ok {
-					nodeCfg := node.Data["config"].(map[string]any)
+				switch nodeCfg["provider"] {
+				case "aliyun-waf":
+					{
+						if providerCfg, ok := nodeCfg["providerConfig"].(map[string]any); ok {
+							providerCfg["serviceType"] = "cname"
+							nodeCfg["providerConfig"] = providerCfg
 
-					provider := nodeCfg["provider"]
-					switch provider {
-					case "aliyun-waf":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								providerCfg["serviceType"] = "cname"
-								nodeCfg["providerConfig"] = providerCfg
-
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
-							}
+							_changed = true
+							return
 						}
+					}
 
-					case "baishan-cdn":
-					case "ksyun-cdn":
-					case "rainyun-rcdn":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								if providerCfg["certificateId"] != nil && providerCfg["certificateId"].(string) != "" {
-									providerCfg["resourceType"] = "certificate"
-								} else {
-									providerCfg["resourceType"] = "domain"
-								}
-								nodeCfg["providerConfig"] = providerCfg
-
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
+				case "baishan-cdn":
+				case "ksyun-cdn":
+				case "rainyun-rcdn":
+					{
+						if providerCfg, ok := nodeCfg["providerConfig"].(map[string]any); ok {
+							if providerCfg["certificateId"] != nil && providerCfg["certificateId"].(string) != "" {
+								providerCfg["resourceType"] = "certificate"
+							} else {
+								providerCfg["resourceType"] = "domain"
 							}
+							nodeCfg["providerConfig"] = providerCfg
+
+							_changed = true
+							return
 						}
+					}
 
-					case "tencentcloud-ssldeploy":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								providerCfg["resourceProduct"] = providerCfg["resourceType"]
-								delete(providerCfg, "resourceType")
-								nodeCfg["providerConfig"] = providerCfg
+				case "tencentcloud-ssldeploy":
+					{
+						if providerCfg, ok := nodeCfg["providerConfig"].(map[string]any); ok {
+							providerCfg["resourceProduct"] = providerCfg["resourceType"]
+							delete(providerCfg, "resourceType")
+							nodeCfg["providerConfig"] = providerCfg
 
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
-							}
+							_changed = true
+							return
 						}
+					}
 
-					case "tencentcloud-sslupdate":
-						{
-							if nodeCfg["providerConfig"] != nil {
-								providerCfg := nodeCfg["providerConfig"].(map[string]any)
-								providerCfg["resourceProducts"] = providerCfg["resourceTypes"]
-								delete(providerCfg, "resourceTypes")
-								nodeCfg["providerConfig"] = providerCfg
+				case "tencentcloud-sslupdate":
+					{
+						if providerCfg, ok := nodeCfg["providerConfig"].(map[string]any); ok {
+							providerCfg["resourceProducts"] = providerCfg["resourceTypes"]
+							delete(providerCfg, "resourceTypes")
+							nodeCfg["providerConfig"] = providerCfg
 
-								node.Data["config"] = nodeCfg
-								_changed = true
-								return
-							}
+							_changed = true
+							return
 						}
 					}
 				}
@@ -116,50 +102,16 @@ func init() {
 				for _, record := range records {
 					changed := false
 
-					if record.GetRaw("graphDraft") != nil {
-						graph := make(map[string]any)
-						if err := record.UnmarshalJSONField("graphDraft", &graph); err != nil {
-							return err
-						}
-
-						if _, ok := graph["nodes"]; ok {
-							nodes := make([]*mWorkflowNode, 0)
-							if err := mapstructure.Decode(graph["nodes"], &nodes); err != nil {
-								return err
-							}
-
-							nodesChanged, err := walker.Visit(nodes)
-							if err != nil {
-								return err
-							} else if nodesChanged {
-								graph["nodes"] = nodes
-								record.Set("graphDraft", graph)
-								changed = true
-							}
-						}
+					if ret, err := walker.Migrate(record, "graphDraft"); err != nil {
+						return err
+					} else {
+						changed = changed || ret
 					}
 
-					if record.GetRaw("graphContent") != nil {
-						graph := make(map[string]any)
-						if err := record.UnmarshalJSONField("graphContent", &graph); err != nil {
-							return err
-						}
-
-						if _, ok := graph["nodes"]; ok {
-							nodes := make([]*mWorkflowNode, 0)
-							if err := mapstructure.Decode(graph["nodes"], &nodes); err != nil {
-								return err
-							}
-
-							nodesChanged, err := walker.Visit(nodes)
-							if err != nil {
-								return err
-							} else if nodesChanged {
-								graph["nodes"] = nodes
-								record.Set("graphContent", graph)
-								changed = true
-							}
-						}
+					if ret, err := walker.Migrate(record, "graphContent"); err != nil {
+						return err
+					} else {
+						changed = changed || ret
 					}
 
 					if changed {
@@ -196,27 +148,10 @@ func init() {
 				for _, record := range records {
 					changed := false
 
-					if record.GetRaw("graph") != nil {
-						graph := make(map[string]any)
-						if err := record.UnmarshalJSONField("graph", &graph); err != nil {
-							return err
-						}
-
-						if _, ok := graph["nodes"]; ok {
-							nodes := make([]*mWorkflowNode, 0)
-							if err := mapstructure.Decode(graph["nodes"], &nodes); err != nil {
-								return err
-							}
-
-							nodesChanged, err := walker.Visit(nodes)
-							if err != nil {
-								return err
-							} else if nodesChanged {
-								graph["nodes"] = nodes
-								record.Set("graph", graph)
-								changed = true
-							}
-						}
+					if ret, err := walker.Migrate(record, "graph"); err != nil {
+						return err
+					} else {
+						changed = changed || ret
 					}
 
 					if changed {

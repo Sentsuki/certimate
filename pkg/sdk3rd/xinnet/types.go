@@ -1,18 +1,17 @@
 package xinnet
 
-type apiResponse interface {
+type sdkResponse interface {
 	GetCode() string
 	GetMessage() string
-	GetRequestId() string
 }
 
-type apiResponseBase struct {
+type sdkResponseBase struct {
 	Code      *string `json:"code,omitempty"`
 	Message   *string `json:"message,omitempty"`
 	RequestId *string `json:"requestId,omitempty"`
 }
 
-func (r *apiResponseBase) GetCode() string {
+func (r *sdkResponseBase) GetCode() string {
 	if r.Code == nil {
 		return ""
 	}
@@ -20,7 +19,7 @@ func (r *apiResponseBase) GetCode() string {
 	return *r.Code
 }
 
-func (r *apiResponseBase) GetMessage() string {
+func (r *sdkResponseBase) GetMessage() string {
 	if r.Message == nil {
 		return ""
 	}
@@ -28,12 +27,4 @@ func (r *apiResponseBase) GetMessage() string {
 	return *r.Message
 }
 
-func (r *apiResponseBase) GetRequestId() string {
-	if r.RequestId == nil {
-		return ""
-	}
-
-	return *r.RequestId
-}
-
-var _ apiResponse = (*apiResponseBase)(nil)
+var _ sdkResponse = (*sdkResponseBase)(nil)

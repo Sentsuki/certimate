@@ -13,7 +13,7 @@ type UploadDomainCertificateRequest struct {
 }
 
 type UploadDomainCertificateResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *DomainCertificate `json:"data,omitempty"`
 }

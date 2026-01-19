@@ -98,7 +98,6 @@ const BizNotifyNodeConfigForm = ({ node, ...props }: BizNotifyNodeConfigFormProp
       <Form {...formProps} clearOnDestroy={true} form={formInst} layout="vertical" preserve={false} scrollToFirstError>
         <Show when={!fieldProvider}>
           <NotificationProviderPicker
-            autoFocus
             placeholder={t("workflow_node.notify.form.provider.search.placeholder")}
             showAvailability
             showSearch

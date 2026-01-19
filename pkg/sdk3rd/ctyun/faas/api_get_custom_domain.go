@@ -10,13 +10,13 @@ import (
 )
 
 type GetCustomDomainRequest struct {
-	RegionId   *string `json:"-" url:"-"`
+	RegionId   *string `json:"-"                    url:"-"`
 	DomainName *string `json:"domainName,omitempty" url:"-"`
 	CnameCheck *bool   `json:"cnameCheck,omitempty" url:"cnameCheck,omitempty"`
 }
 
 type GetCustomDomainResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj *CustomDomainRecord `json:"returnObj,omitempty"`
 }

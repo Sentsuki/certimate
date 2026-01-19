@@ -15,7 +15,7 @@ type SettingsSSLUpdateRequest struct {
 }
 
 type SettingsSSLUpdateResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) SettingsSSLUpdate(req *SettingsSSLUpdateRequest) (*SettingsSSLUpdateResponse, error) {

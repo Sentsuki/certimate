@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useMount } from "ahooks";
 import { App, Button, Flex, Form } from "antd";
 
 import AccessForm, { type AccessFormUsages } from "@/components/access/AccessForm";
-import AccessProviderPicker from "@/components/provider/AccessProviderPicker";
+import AccessProviderPicker, { type AccessProviderPickerInstance } from "@/components/provider/AccessProviderPicker";
 import Show from "@/components/Show";
 import { type AccessModel } from "@/domain/access";
 import { ACCESS_USAGES } from "@/domain/provider";
@@ -24,6 +25,13 @@ const AccessNew = () => {
 
   const providerUsage = useMemo(() => searchParams.get("usage") as AccessFormUsages, [searchParams]);
   const providerFilter = AccessForm.useProviderFilterByUsage(providerUsage);
+
+  const providerPickerRef = useRef<AccessProviderPickerInstance>(null);
+  useMount(() => {
+    setTimeout(() => {
+      providerPickerRef.current?.inputRef?.focus();
+    }, 1);
+  });
 
   const [formInst] = Form.useForm();
   const [formPending, setFormPending] = useState(false);
@@ -73,7 +81,7 @@ const AccessNew = () => {
       <div className="container">
         <Show when={!fieldProvider}>
           <AccessProviderPicker
-            autoFocus
+            ref={providerPickerRef}
             gap="large"
             placeholder={t("access.form.provider.search.placeholder")}
             showOptionTags={

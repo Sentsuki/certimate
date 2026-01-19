@@ -17,7 +17,7 @@ type UpdateCertificateRequest struct {
 }
 
 type UpdateCertificateResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) UpdateCertificate(certId int64, req *UpdateCertificateRequest) (*UpdateCertificateResponse, error) {

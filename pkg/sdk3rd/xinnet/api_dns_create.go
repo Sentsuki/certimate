@@ -16,7 +16,7 @@ type DnsCreateRequest struct {
 }
 
 type DnsCreateResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	Data *int64 `json:"data,omitempty"`
 }
 

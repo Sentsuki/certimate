@@ -88,7 +88,7 @@ func (c *Client) doRequest(req *resty.Request) (*resty.Response, error) {
 	return resp, nil
 }
 
-func (c *Client) doRequestWithResult(req *resty.Request, res apiResponse) (*resty.Response, error) {
+func (c *Client) doRequestWithResult(req *resty.Request, res sdkResponse) (*resty.Response, error) {
 	if req == nil {
 		return nil, fmt.Errorf("sdkerr: nil request")
 	}
@@ -105,7 +105,7 @@ func (c *Client) doRequestWithResult(req *resty.Request, res apiResponse) (*rest
 		if err := json.Unmarshal(resp.Body(), &res); err != nil {
 			return resp, fmt.Errorf("sdkerr: failed to unmarshal response: %w (resp: %s)", err, resp.String())
 		} else {
-			tresp := &apiResponseBase{}
+			tresp := &sdkResponseBase{}
 			if err := json.Unmarshal(resp.Body(), &tresp); err != nil {
 				return resp, fmt.Errorf("sdkerr: failed to unmarshal response: %w (resp: %s)", err, resp.String())
 			} else if tdata := tresp.GetData(); tdata == nil {
@@ -137,9 +137,9 @@ func (c *Client) ensureCookieExists() error {
 	}
 
 	type signinResponse struct {
-		apiResponseBase
+		sdkResponseBase
 		Data *struct {
-			apiResponseBaseData
+			sdkResponseBaseData
 			Result bool `json:"result"`
 		} `json:"data,omitempty"`
 	}

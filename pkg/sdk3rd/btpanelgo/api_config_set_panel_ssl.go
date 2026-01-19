@@ -12,7 +12,7 @@ type ConfigSetPanelSSLRequest struct {
 }
 
 type ConfigSetPanelSSLResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) ConfigSetPanelSSL(req *ConfigSetPanelSSLRequest) (*ConfigSetPanelSSLResponse, error) {

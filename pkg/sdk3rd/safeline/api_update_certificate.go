@@ -12,7 +12,7 @@ type UpdateCertificateRequest struct {
 }
 
 type UpdateCertificateResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) UpdateCertificate(req *UpdateCertificateRequest) (*UpdateCertificateResponse, error) {

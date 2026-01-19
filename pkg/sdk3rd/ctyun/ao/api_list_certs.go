@@ -8,13 +8,13 @@ import (
 )
 
 type ListCertsRequest struct {
-	Page      *int32 `json:"page,omitempty" url:"page,omitempty"`
-	PerPage   *int32 `json:"per_page,omitempty" url:"per_page,omitempty"`
+	Page      *int32 `json:"page,omitempty"       url:"page,omitempty"`
+	PerPage   *int32 `json:"per_page,omitempty"   url:"per_page,omitempty"`
 	UsageMode *int32 `json:"usage_mode,omitempty" url:"usage_mode,omitempty"`
 }
 
 type ListCertsResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj *struct {
 		Results      []*CertRecord `json:"result,omitempty"`

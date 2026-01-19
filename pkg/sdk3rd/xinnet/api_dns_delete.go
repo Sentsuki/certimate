@@ -10,7 +10,7 @@ type DnsDeleteRequest struct {
 }
 
 type DnsDeleteResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) DnsDelete(req *DnsDeleteRequest) (*DnsDeleteResponse, error) {

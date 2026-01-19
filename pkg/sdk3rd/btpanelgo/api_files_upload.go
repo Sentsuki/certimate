@@ -15,7 +15,7 @@ type FilesUploadRequest struct {
 }
 
 type FilesUploadResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) FilesUpload(req *FilesUploadRequest) (*FilesUploadResponse, error) {

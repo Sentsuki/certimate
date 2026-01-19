@@ -12,7 +12,7 @@ type SiteSetSitePFXSSLRequest struct {
 }
 
 type SiteSetSitePFXSSLResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) SiteSetSitePFXSSL(req *SiteSetSitePFXSSLRequest) (*SiteSetSitePFXSSLResponse, error) {

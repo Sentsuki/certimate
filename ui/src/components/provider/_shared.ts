@@ -68,7 +68,6 @@ export const useSelectDataSource = <T extends Provider>({
 export interface SharedPickerProps<T extends Provider> {
   className?: string;
   style?: React.CSSProperties;
-  autoFocus?: boolean;
   gap?: number | "small" | "middle" | "large";
   placeholder?: string;
   showSearch?: boolean;

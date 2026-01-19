@@ -1,13 +1,13 @@
 package baishan
 
-type apiResponse interface {
+type sdkResponse interface {
 	GetStatus() int
 	GetMessages() []string
 	GetWarnings() []string
 	GetErrors() []string
 }
 
-type apiResponseBase struct {
+type sdkResponseBase struct {
 	Metadata struct {
 		Transformed int `json:"transformed,omitempty"`
 	} `json:"metadata"`
@@ -17,20 +17,20 @@ type apiResponseBase struct {
 	Errors   []string `json:"errors,omitempty"`
 }
 
-func (r *apiResponseBase) GetStatus() int {
+func (r *sdkResponseBase) GetStatus() int {
 	return r.Status
 }
 
-func (r *apiResponseBase) GetMessages() []string {
+func (r *sdkResponseBase) GetMessages() []string {
 	return r.Messages
 }
 
-func (r *apiResponseBase) GetWarnings() []string {
+func (r *sdkResponseBase) GetWarnings() []string {
 	return r.Warnings
 }
 
-func (r *apiResponseBase) GetErrors() []string {
+func (r *sdkResponseBase) GetErrors() []string {
 	return r.Errors
 }
 
-var _ apiResponse = (*apiResponseBase)(nil)
+var _ sdkResponse = (*sdkResponseBase)(nil)

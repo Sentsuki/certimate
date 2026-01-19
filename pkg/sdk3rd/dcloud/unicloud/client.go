@@ -183,7 +183,7 @@ func (c *Client) invokeServerless(endpoint, clientSecret, appId, spaceId, target
 	return resp, nil
 }
 
-func (c *Client) invokeServerlessWithResult(endpoint, clientSecret, appId, spaceId, target, method, action string, params, data interface{}, result apiResponse) error {
+func (c *Client) invokeServerlessWithResult(endpoint, clientSecret, appId, spaceId, target, method, action string, params, data interface{}, result sdkResponse) error {
 	resp, err := c.invokeServerless(endpoint, clientSecret, appId, spaceId, target, method, action, params, data)
 	if err != nil {
 		if resp != nil {
@@ -231,7 +231,7 @@ func (c *Client) sendRequest(method string, path string, params interface{}) (*r
 	return resp, nil
 }
 
-func (c *Client) sendRequestWithResult(method string, path string, params interface{}, result apiResponse) error {
+func (c *Client) sendRequestWithResult(method string, path string, params interface{}, result sdkResponse) error {
 	resp, err := c.sendRequest(method, path, params)
 	if err != nil {
 		if resp != nil {
@@ -268,7 +268,7 @@ func (c *Client) ensureServerlessJwtTokenExists() error {
 	}
 
 	type loginResponse struct {
-		apiResponseBase
+		sdkResponseBase
 		Data *struct {
 			Code     int32  `json:"errCode"`
 			UID      string `json:"uid"`
@@ -307,7 +307,7 @@ func (c *Client) ensureApiUserTokenExists() error {
 	}
 
 	type getUserTokenResponse struct {
-		apiResponseBase
+		sdkResponseBase
 		Data *struct {
 			Code int32 `json:"code"`
 			Data *struct {

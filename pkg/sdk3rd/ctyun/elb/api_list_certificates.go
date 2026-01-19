@@ -9,14 +9,14 @@ import (
 
 type ListCertificatesRequest struct {
 	ClientToken *string `json:"clientToken,omitempty" url:"clientToken,omitempty"`
-	RegionID    *string `json:"regionID,omitempty" url:"regionID,omitempty"`
-	IDs         *string `json:"IDs,omitempty" url:"IDs,omitempty"`
-	Name        *string `json:"name,omitempty" url:"name,omitempty"`
-	Type        *string `json:"type,omitempty" url:"type,omitempty"`
+	RegionID    *string `json:"regionID,omitempty"    url:"regionID,omitempty"`
+	IDs         *string `json:"IDs,omitempty"         url:"IDs,omitempty"`
+	Name        *string `json:"name,omitempty"        url:"name,omitempty"`
+	Type        *string `json:"type,omitempty"        url:"type,omitempty"`
 }
 
 type ListCertificatesResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj []*CertificateRecord `json:"returnObj,omitempty"`
 }

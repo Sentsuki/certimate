@@ -8,16 +8,16 @@ import (
 )
 
 type QueryDomainsRequest struct {
-	Page        *int32  `json:"page,omitempty" url:"page,omitempty"`
-	PageSize    *int32  `json:"page_size,omitempty" url:"page_size,omitempty"`
-	Domain      *string `json:"domain,omitempty" url:"domain,omitempty"`
+	Page        *int32  `json:"page,omitempty"         url:"page,omitempty"`
+	PageSize    *int32  `json:"page_size,omitempty"    url:"page_size,omitempty"`
+	Domain      *string `json:"domain,omitempty"       url:"domain,omitempty"`
 	ProductCode *string `json:"product_code,omitempty" url:"product_code,omitempty"`
-	Status      *int32  `json:"status,omitempty" url:"status,omitempty"`
-	AreaScope   *int32  `json:"area_scope,omitempty" url:"area_scope,omitempty"`
+	Status      *int32  `json:"status,omitempty"       url:"status,omitempty"`
+	AreaScope   *int32  `json:"area_scope,omitempty"   url:"area_scope,omitempty"`
 }
 
 type QueryDomainsResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj *struct {
 		Results   []*DomainRecord `json:"result,omitempty"`

@@ -144,7 +144,7 @@ func (c *Client) doRequestWithResult(req *resty.Request, res interface{}) (*rest
 	}
 
 	if len(resp.Body()) != 0 {
-		var errRes *apiResponseBase
+		var errRes *sdkResponseBase
 		if err := json.Unmarshal(resp.Body(), &errRes); err == nil {
 			if terror := errRes.GetError(); terror != "" {
 				return resp, fmt.Errorf("sdkerr: error='%s'", terror)
@@ -177,7 +177,7 @@ func (c *Client) ensureJwtTokenExists() error {
 	}
 
 	type tokensResponse struct {
-		apiResponseBase
+		sdkResponseBase
 		Token   string `json:"token"`
 		Expires string `json:"expires"`
 	}

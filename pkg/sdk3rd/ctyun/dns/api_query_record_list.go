@@ -8,16 +8,16 @@ import (
 )
 
 type QueryRecordListRequest struct {
-	Domain   *string `json:"domain,omitempty" url:"domain,omitempty"`
-	Host     *string `json:"host,omitempty" url:"host,omitempty"`
-	Type     *string `json:"type,omitempty" url:"type,omitempty"`
+	Domain   *string `json:"domain,omitempty"   url:"domain,omitempty"`
+	Host     *string `json:"host,omitempty"     url:"host,omitempty"`
+	Type     *string `json:"type,omitempty"     url:"type,omitempty"`
 	LineCode *string `json:"lineCode,omitempty" url:"lineCode,omitempty"`
-	Value    *string `json:"value,omitempty" url:"value,omitempty"`
-	State    *int32  `json:"state,omitempty" url:"state,omitempty"`
+	Value    *string `json:"value,omitempty"    url:"value,omitempty"`
+	State    *int32  `json:"state,omitempty"    url:"state,omitempty"`
 }
 
 type QueryRecordListResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj *struct {
 		Records []*DnsRecord `json:"records,omitempty"`

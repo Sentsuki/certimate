@@ -12,7 +12,7 @@ type GetSiteListRequest struct {
 }
 
 type GetSiteListResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Result *struct {
 		List  []*SiteRecord `json:"list"`

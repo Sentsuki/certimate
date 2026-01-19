@@ -11,7 +11,7 @@ type RecordRemoveRequest struct {
 }
 
 type RecordRemoveResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) RecordRemove(req *RecordRemoveRequest) (*RecordRemoveResponse, error) {

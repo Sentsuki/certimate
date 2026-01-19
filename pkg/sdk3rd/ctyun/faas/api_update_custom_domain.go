@@ -17,7 +17,7 @@ type UpdateCustomDomainRequest struct {
 }
 
 type UpdateCustomDomainResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj *CustomDomainRecord `json:"returnObj,omitempty"`
 }

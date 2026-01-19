@@ -15,7 +15,7 @@ type SSLInstallSSLRequest struct {
 }
 
 type SSLInstallSSLResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *struct {
 		User                    string   `json:"user"`

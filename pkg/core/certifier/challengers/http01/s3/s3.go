@@ -4,17 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/go-acme/lego/v4/challenge/http01"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/samber/lo"
 
+	"github.com/certimate-go/certimate/internal/tools/s3"
 	"github.com/certimate-go/certimate/pkg/core/certifier"
-	xhttp "github.com/certimate-go/certimate/pkg/utils/http"
-	xtls "github.com/certimate-go/certimate/pkg/utils/tls"
 )
 
 type ChallengerConfig struct {
@@ -43,47 +38,17 @@ func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
 		return nil, errors.New("the configuration of the acme challenge provider is nil")
 	}
 
-	var clientCred *credentials.Credentials
-	switch config.SignatureVersion {
-	case "", "v4":
-		clientCred = credentials.NewStaticV4(config.AccessKey, config.SecretKey, "")
-	case "v2":
-		clientCred = credentials.NewStaticV2(config.AccessKey, config.SecretKey, "")
-	default:
-		return nil, fmt.Errorf("unsupported s3 signature version: '%s'", config.SignatureVersion)
-	}
-
-	var clientOpts *minio.Options
-	clientOpts = &minio.Options{
-		Creds:        clientCred,
-		Region:       config.Region,
-		BucketLookup: lo.If(config.UsePathStyle, minio.BucketLookupPath).Else(minio.BucketLookupDNS),
-	}
-
-	var endpoint string
-	if config.Endpoint != "" {
-		reScheme := regexp.MustCompile("^([^:]+)://")
-		if reScheme.MatchString(config.Endpoint) {
-			temp := strings.Split(config.Endpoint, "://")
-			scheme := temp[0]
-			endpoint = temp[1]
-			clientOpts.Secure = strings.EqualFold(scheme, "https")
-		} else {
-			endpoint = config.Endpoint
-			clientOpts.Secure = true
-		}
-	}
-
-	if clientOpts.Secure && config.AllowInsecureConnections {
-		transport := xhttp.NewDefaultTransport()
-		transport.DisableKeepAlives = true
-		transport.TLSClientConfig = xtls.NewInsecureConfig()
-		clientOpts.Transport = transport
-	}
-
-	client, err := minio.New(endpoint, clientOpts)
+	client, err := s3.NewClient(&s3.Config{
+		Endpoint:         config.Endpoint,
+		AccessKey:        config.AccessKey,
+		SecretKey:        config.SecretKey,
+		SignatureVersion: config.SignatureVersion,
+		UsePathStyle:     config.UsePathStyle,
+		Region:           config.Region,
+		SkipTlsVerify:    config.AllowInsecureConnections,
+	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("s3: failed to create s3 client: %w", err)
 	}
 
 	provider := &provider{client: client, bucket: config.Bucket}
@@ -91,18 +56,13 @@ func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
 }
 
 type provider struct {
-	client *minio.Client
+	client *s3.Client
 	bucket string
 }
 
 func (p *provider) Present(domain, token, keyAuth string) error {
 	objectKey := strings.Trim(http01.ChallengePath(token), "/")
-	putOpts := minio.PutObjectOptions{
-		DisableMultipart: true,
-	}
-	reader := strings.NewReader(keyAuth)
-	_, err := p.client.PutObject(context.Background(), p.bucket, objectKey, reader, reader.Size(), putOpts)
-	if err != nil {
+	if err := p.client.PutObjectString(context.Background(), p.bucket, objectKey, keyAuth); err != nil {
 		return fmt.Errorf("s3: failed to upload token to s3: %w", err)
 	}
 
@@ -111,9 +71,7 @@ func (p *provider) Present(domain, token, keyAuth string) error {
 
 func (p *provider) CleanUp(domain, token, keyAuth string) error {
 	objectKey := strings.Trim(http01.ChallengePath(token), "/")
-	removeOpts := minio.RemoveObjectOptions{}
-	err := p.client.RemoveObject(context.Background(), p.bucket, objectKey, removeOpts)
-	if err != nil {
+	if err := p.client.RemoveObject(context.Background(), p.bucket, objectKey); err != nil {
 		return fmt.Errorf("s3: could not remove file in s3 bucket after HTTP challenge: %w", err)
 	}
 

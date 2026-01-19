@@ -110,7 +110,7 @@ func (c *Client) doRequest(req *resty.Request) (*resty.Response, error) {
 	return resp, nil
 }
 
-func (c *Client) doRequestWithResult(req *resty.Request, res apiResponse) (*resty.Response, error) {
+func (c *Client) doRequestWithResult(req *resty.Request, res sdkResponse) (*resty.Response, error) {
 	if req == nil {
 		return nil, fmt.Errorf("sdkerr: nil request")
 	}
@@ -155,7 +155,7 @@ func (c *Client) ensureAccessTokenExists() error {
 	}
 
 	type getAPIAccessTokenResponse struct {
-		apiResponseBase
+		sdkResponseBase
 		Data *struct {
 			Token     string `json:"token"`
 			ExpiresAt int64  `json:"expiresAt"`

@@ -19,7 +19,7 @@ type WebsiteHttpsPostRequest struct {
 }
 
 type WebsiteHttpsPostResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) WebsiteHttpsPost(websiteId int64, req *WebsiteHttpsPostRequest) (*WebsiteHttpsPostResponse, error) {

@@ -8,7 +8,7 @@ import (
 type PanelGetConfigRequest struct{}
 
 type PanelGetConfigResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Paths *struct {
 		Panel string `json:"panel,omitempty"`

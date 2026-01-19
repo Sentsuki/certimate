@@ -14,7 +14,7 @@ type WebsiteGetRequest struct {
 }
 
 type WebsiteGetResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *struct {
 		ID            int64  `json:"id"`

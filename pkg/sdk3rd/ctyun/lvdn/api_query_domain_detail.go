@@ -8,12 +8,12 @@ import (
 )
 
 type QueryDomainDetailRequest struct {
-	Domain      *string `json:"domain,omitempty" url:"domain,omitempty"`
+	Domain      *string `json:"domain,omitempty"       url:"domain,omitempty"`
 	ProductCode *string `json:"product_code,omitempty" url:"product_code,omitempty"`
 }
 
 type QueryDomainDetailResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj *DomainDetail `json:"returnObj,omitempty"`
 }

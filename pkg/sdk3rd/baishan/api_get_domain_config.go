@@ -7,11 +7,11 @@ import (
 
 type GetDomainConfigRequest struct {
 	Domains *string   `json:"domains,omitempty" url:"domains,omitempty"`
-	Config  *[]string `json:"config,omitempty" url:"config,omitempty"`
+	Config  *[]string `json:"config,omitempty"  url:"config,omitempty"`
 }
 
 type GetDomainConfigResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data []*struct {
 		Domain string        `json:"domain"`

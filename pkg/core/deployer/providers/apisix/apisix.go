@@ -7,12 +7,11 @@ import (
 	"fmt"
 	"log/slog"
 
-	apisix "github.com/holubovskyi/apisix-client-go"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/deployer"
+	apisixsdk "github.com/certimate-go/certimate/pkg/sdk3rd/apisix"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
-	xhttp "github.com/certimate-go/certimate/pkg/utils/http"
 )
 
 type DeployerConfig struct {
@@ -32,7 +31,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config    *DeployerConfig
 	logger    *slog.Logger
-	sdkClient *apisix.ApiClient
+	sdkClient *apisixsdk.Client
 }
 
 var _ deployer.Provider = (*Deployer)(nil)
@@ -90,40 +89,31 @@ func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM 
 
 	// 更新 SSL 证书
 	// REF: https://apisix.apache.org/zh/docs/apisix/admin-api/#ssl
-	updateSSLCertificateReq := &apisix.SSLCertificate{
+	sslUpdateReq := &apisixsdk.SslUpdateRequest{
 		ID:          lo.ToPtr(d.config.CertificateId),
 		Certificate: lo.ToPtr(certPEM),
 		PrivateKey:  lo.ToPtr(privkeyPEM),
 		SNIs:        lo.ToPtr(certX509.DNSNames),
 		Type:        lo.ToPtr("server"),
-		Status:      lo.ToPtr(int64(1)),
+		Status:      lo.ToPtr(int32(1)),
 	}
-	updateSSLCertificateResp, err := d.sdkClient.UpdateSslCertificate(d.config.CertificateId, *updateSSLCertificateReq)
-	d.logger.Debug("sdk request 'apisix.UpdateSslCertificate'", slog.Any("request", updateSSLCertificateReq), slog.Any("response", updateSSLCertificateResp))
+	sslUpdateResp, err := d.sdkClient.SslUpdate(d.config.CertificateId, sslUpdateReq)
+	d.logger.Debug("sdk request 'apisix.SslUpdate'", slog.Any("request", sslUpdateReq), slog.Any("response", sslUpdateResp))
 	if err != nil {
-		return fmt.Errorf("failed to execute sdk request 'apisix.UpdateSslCertificate': %w", err)
+		return fmt.Errorf("failed to execute sdk request 'apisix.SslUpdate': %w", err)
 	}
 
 	return nil
 }
 
-func createSDKClient(serverUrl, apiKey string, skipTlsVerify bool) (*apisix.ApiClient, error) {
-	client, err := apisix.NewClient(&serverUrl, &apiKey)
+func createSDKClient(serverUrl, apiKey string, skipTlsVerify bool) (*apisixsdk.Client, error) {
+	client, err := apisixsdk.NewClient(serverUrl, apiKey)
 	if err != nil {
 		return nil, err
 	}
 
 	if skipTlsVerify {
-		transport := xhttp.NewDefaultTransport()
-		transport.DisableKeepAlives = true
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-		if client.HTTPClient.Transport == nil {
-			client.HTTPClient.Transport = transport
-		} else {
-			transport := client.HTTPClient.Transport.(*apisix.AddHeadersRoundtripper)
-			transport.Nested = transport
-			client.HTTPClient.Transport = transport
-		}
+		client.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
 	return client, nil

@@ -15,7 +15,7 @@ type WebsiteSearchRequest struct {
 }
 
 type WebsiteSearchResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *struct {
 		Items []*struct {

@@ -8,13 +8,13 @@ import (
 )
 
 type ListDomainsRequest struct {
-	GroupId   *string `json:"groupId,omitempty" url:"groupId,omitempty"`
+	GroupId   *string `json:"groupId,omitempty"   url:"groupId,omitempty"`
 	PageIndex *int32  `json:"pageIndex,omitempty" url:"pageIndex,omitempty"`
-	PageSize  *int32  `json:"pageSize,omitempty" url:"pageSize,omitempty"`
+	PageSize  *int32  `json:"pageSize,omitempty"  url:"pageSize,omitempty"`
 }
 
 type ListDomainsResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	Data *struct {
 		Total   int32           `json:"total"`
 		Results []*DomainRecord `json:"results"`

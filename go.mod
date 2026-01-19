@@ -9,28 +9,28 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.13.1
 	github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azcertificates v1.4.0
 	github.com/G-Core/gcorelabscdn-go v1.0.35
-	github.com/KscSDK/ksc-sdk-go v0.17.0
+	github.com/KscSDK/ksc-sdk-go v0.18.0
 	github.com/akamai/AkamaiOPEN-edgegrid-golang/v11 v11.1.0
-	github.com/alibabacloud-go/alb-20200616/v2 v2.2.10
-	github.com/alibabacloud-go/apig-20240327/v5 v5.4.1
-	github.com/alibabacloud-go/cas-20200407/v4 v4.0.4
+	github.com/alibabacloud-go/alb-20200616/v2 v2.3.0
+	github.com/alibabacloud-go/apig-20240327/v5 v5.7.0
+	github.com/alibabacloud-go/cas-20200407/v4 v4.0.5
 	github.com/alibabacloud-go/cdn-20180510/v9 v9.0.0
 	github.com/alibabacloud-go/cloudapi-20160714/v5 v5.7.8
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.13
 	github.com/alibabacloud-go/dcdn-20180115/v4 v4.0.0
-	github.com/alibabacloud-go/ddoscoo-20200101/v4 v4.1.1
-	github.com/alibabacloud-go/esa-20240910/v2 v2.42.0
+	github.com/alibabacloud-go/ddoscoo-20200101/v4 v4.2.1
+	github.com/alibabacloud-go/esa-20240910/v2 v2.44.0
 	github.com/alibabacloud-go/fc-20230330/v4 v4.6.6
 	github.com/alibabacloud-go/fc-open-20210406/v2 v2.0.12
 	github.com/alibabacloud-go/ga-20191120/v3 v3.1.8
-	github.com/alibabacloud-go/live-20161101/v2 v2.5.0
-	github.com/alibabacloud-go/nlb-20220430/v4 v4.1.0
+	github.com/alibabacloud-go/live-20161101/v2 v2.6.0
+	github.com/alibabacloud-go/nlb-20220430/v4 v4.1.1
 	github.com/alibabacloud-go/openapi-util v0.1.1
 	github.com/alibabacloud-go/slb-20140515/v4 v4.0.13
-	github.com/alibabacloud-go/tea v1.3.14
+	github.com/alibabacloud-go/tea v1.4.0
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.9
 	github.com/alibabacloud-go/vod-20170321/v4 v4.11.0
-	github.com/alibabacloud-go/waf-openapi-20211001/v7 v7.1.1
+	github.com/alibabacloud-go/waf-openapi-20211001/v7 v7.3.1
 	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.3.0
 	github.com/aws/aws-sdk-go-v2 v1.41.0
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
@@ -39,19 +39,18 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.58.3
 	github.com/aws/aws-sdk-go-v2/service/iam v1.53.1
 	github.com/baidubce/bce-sdk-go v0.9.256
-	github.com/byteplus-sdk/byteplus-sdk-golang v1.0.60
-	github.com/go-acme/lego/v4 v4.30.1
+	github.com/byteplus-sdk/byteplus-sdk-golang v1.0.61
+	github.com/go-acme/lego/v4 v4.31.0
 	github.com/go-cmd/cmd v1.4.3
 	github.com/go-resty/resty/v2 v2.17.1
 	github.com/go-viper/mapstructure/v2 v2.4.0
-	github.com/google/go-querystring v1.1.0
-	github.com/holubovskyi/apisix-client-go v1.4.1
-	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.181
+	github.com/google/go-querystring v1.2.0
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.182
 	github.com/jdcloud-api/jdcloud-sdk-go v1.64.0
 	github.com/kong/go-kong v0.71.0
 	github.com/libdns/dynv6 v1.1.1
 	github.com/libdns/libdns v1.1.1
-	github.com/luthermonson/go-proxmox v0.2.4
+	github.com/luthermonson/go-proxmox v0.3.2
 	github.com/minio/minio-go/v7 v7.0.97
 	github.com/mohuatech/mohuacloud-go-sdk v0.0.0-20251115182757-6fba4d0a4c47
 	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0
@@ -59,24 +58,25 @@ require (
 	github.com/pocketbase/dbx v1.11.0
 	github.com/pocketbase/pocketbase v0.35.0
 	github.com/povsister/scp v0.0.0-20250701154629-777cf82de5df
+	github.com/pquerna/otp v1.5.0
 	github.com/qiniu/go-sdk/v7 v7.25.5
 	github.com/samber/lo v1.52.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdn v1.3.20
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/clb v1.3.13
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.20
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdn v1.3.22
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/clb v1.3.29
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.29
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/gaap v1.1.45
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/live v1.3.20
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/scf v1.3.4
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl v1.3.20
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/teo v1.3.18
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/vod v1.3.20
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/waf v1.3.20
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/live v1.3.29
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/scf v1.3.29
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl v1.3.24
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/teo v1.3.21
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/vod v1.3.29
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/waf v1.3.27
 	github.com/ucloud/ucloud-sdk-go v0.22.58
-	github.com/volcengine/ve-tos-golang-sdk/v2 v2.8.0
-	github.com/volcengine/volc-sdk-golang v1.0.232
-	github.com/volcengine/volcengine-go-sdk v1.1.55
+	github.com/volcengine/ve-tos-golang-sdk/v2 v2.9.0
+	github.com/volcengine/volc-sdk-golang v1.0.233
+	github.com/volcengine/volcengine-go-sdk v1.2.4
 	github.com/wneessen/go-mail v0.7.2
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	gitlab.ecloud.com/ecloud/ecloudsdkclouddns v1.0.1
@@ -84,11 +84,10 @@ require (
 	golang.org/x/crypto v0.46.0
 	golang.org/x/sync v0.19.0
 	golang.org/x/sys v0.39.0
-	golang.org/x/text v0.32.0
 	k8s.io/api v0.35.0
 	k8s.io/apimachinery v0.35.0
 	k8s.io/client-go v0.35.0
-	software.sslmate.com/src/go-pkcs12 v0.6.0
+	software.sslmate.com/src/go-pkcs12 v0.7.0
 )
 
 require (
@@ -132,7 +131,7 @@ require (
 	github.com/kong/semver/v4 v4.0.1 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/linode/linodego v1.62.0 // indirect
+	github.com/linode/linodego v1.64.0 // indirect
 	github.com/magefile/mage v1.15.0 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -156,7 +155,7 @@ require (
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/vultr/govultr/v3 v3.26.0 // indirect
+	github.com/vultr/govultr/v3 v3.26.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.mongodb.org/mongo-driver v1.17.2 // indirect
 	go.uber.org/ratelimit v0.3.1 // indirect
@@ -178,7 +177,7 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
 	github.com/alibabacloud-go/debug v1.0.1 // indirect
 	github.com/alibabacloud-go/endpoint-util v1.1.1 // indirect
@@ -195,6 +194,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.12 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.41.5 // indirect
 	github.com/aws/smithy-go v1.24.0 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -204,7 +204,8 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
 	github.com/ganigeorgiev/fexpr v0.5.0 // indirect
-	github.com/go-acme/esa-20240910/v2 v2.40.3 // indirect
+	github.com/go-acme/esa-20240910/v2 v2.44.0 // indirect
+	github.com/go-acme/jdcloud-sdk-go v1.64.0 // indirect
 	github.com/go-acme/tencentedgdeone v1.1.48 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
@@ -237,9 +238,10 @@ require (
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/term v0.38.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.40.0 // indirect
-	google.golang.org/protobuf v1.36.10 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.66.10 // indirect

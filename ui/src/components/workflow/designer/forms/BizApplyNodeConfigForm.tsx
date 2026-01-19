@@ -107,9 +107,9 @@ const BizApplyNodeConfigForm = ({ node, ...props }: BizApplyNodeConfigFormProps)
   const renderNestedFieldProviderComponent = BizApplyNodeConfigFieldsProvider.useComponent(fieldChallengeType, fieldProvider, {});
 
   const resetFieldIfInvalid = (field: keyof FormSchema) => {
-    const fieldSchame = formSchema.pick({ [field]: true });
+    const fieldSchema = formSchema.pick({ [field]: true } as Record<keyof FormSchema, true>);
     const fieldValue = formInst.getFieldValue(field);
-    if (!fieldSchame.safeParse({ [field]: fieldValue }).success) {
+    if (!fieldSchema.safeParse({ [field]: fieldValue }).success) {
       formInst.setFieldValue(field, void 0);
     }
   };

@@ -5,15 +5,15 @@ import (
 	"fmt"
 )
 
-type apiResponse interface {
+type sdkResponse interface {
 	GetError() string
 }
 
-type apiResponseBase struct {
+type sdkResponseBase struct {
 	Error json.RawMessage `json:"error"`
 }
 
-func (r *apiResponseBase) GetError() string {
+func (r *sdkResponseBase) GetError() string {
 	if len(r.Error) == 0 {
 		return ""
 	}
@@ -45,7 +45,7 @@ func (r *apiResponseBase) GetError() string {
 	return ""
 }
 
-var _ apiResponse = (*apiResponseBase)(nil)
+var _ sdkResponse = (*sdkResponseBase)(nil)
 
 type CertificateRecord struct {
 	Id          int64           `json:"id"`

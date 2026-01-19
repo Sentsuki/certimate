@@ -12,7 +12,7 @@ type SslCenterUpdateRequest struct {
 }
 
 type SslCenterUpdateResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) SslCenterUpdate(certId int64, req *SslCenterUpdateRequest) (*SslCenterUpdateResponse, error) {

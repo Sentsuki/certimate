@@ -104,11 +104,8 @@ jobs:
             tmpdir=$(mktemp -d)
             cp "$bin" "${tmpdir}/certimate"
             cp ../LICENSE "$tmpdir/LICENSE"
-            cp ../README.md "$tmpdir/README_zhCN.md"
-            cp ../README_EN.md "$tmpdir/README_enUS.md"
+            cp ../README.md "$tmpdir/README.md"
             cp ../CHANGELOG.md "$tmpdir/CHANGELOG.md"
-            sed -i 's/README_EN\.md/README_enUS.md/g' "$tmpdir/README_zhCN.md"
-            sed -i 's/README\.md/README_zhCN.md/g' "$tmpdir/README_enUS.md"
 
             zip -j -X "${bin}.zip" "$tmpdir"/*
 

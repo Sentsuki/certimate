@@ -9,12 +9,12 @@ import (
 
 type ShowListenerRequest struct {
 	ClientToken *string `json:"clientToken,omitempty" url:"clientToken,omitempty"`
-	RegionID    *string `json:"regionID,omitempty" url:"regionID,omitempty"`
-	ListenerID  *string `json:"listenerID,omitempty" url:"listenerID,omitempty"`
+	RegionID    *string `json:"regionID,omitempty"    url:"regionID,omitempty"`
+	ListenerID  *string `json:"listenerID,omitempty"  url:"listenerID,omitempty"`
 }
 
 type ShowListenerResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	ReturnObj []*ListenerRecord `json:"returnObj,omitempty"`
 }

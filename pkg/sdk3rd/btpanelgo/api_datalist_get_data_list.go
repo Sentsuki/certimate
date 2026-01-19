@@ -16,7 +16,7 @@ type DatalistGetDataListRequest struct {
 }
 
 type DatalistGetDataListResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	Data []*SiteData `json:"data,omitempty"`
 	Page *PageData   `json:"page,omitempty"`
 }

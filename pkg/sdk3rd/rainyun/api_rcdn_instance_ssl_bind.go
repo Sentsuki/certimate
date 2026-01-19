@@ -12,7 +12,7 @@ type RcdnInstanceSslBindRequest struct {
 }
 
 type RcdnInstanceSslBindResponse struct {
-	apiResponseBase
+	sdkResponseBase
 }
 
 func (c *Client) RcdnInstanceSslBind(instanceId int64, req *RcdnInstanceSslBindRequest) (*RcdnInstanceSslBindResponse, error) {

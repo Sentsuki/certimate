@@ -4,22 +4,22 @@ import (
 	"encoding/json"
 )
 
-type apiResponse interface {
+type sdkResponse interface {
 	GetStatus() json.RawMessage
 	GetMessage() *string
 }
 
-type apiResponseBase struct {
+type sdkResponseBase struct {
 	Status  json.RawMessage `json:"status,omitempty"`
 	Code    *int            `json:"code,omitempty"`
 	Message *string         `json:"msg,omitempty"`
 }
 
-func (r *apiResponseBase) GetStatus() json.RawMessage {
+func (r *sdkResponseBase) GetStatus() json.RawMessage {
 	return r.Status
 }
 
-func (r *apiResponseBase) GetMessage() *string {
+func (r *sdkResponseBase) GetMessage() *string {
 	return r.Message
 }
 

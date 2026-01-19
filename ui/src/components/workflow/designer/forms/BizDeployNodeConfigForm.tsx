@@ -130,7 +130,6 @@ const BizDeployNodeConfigForm = ({ node, ...props }: BizDeployNodeConfigFormProp
       <Form {...formProps} clearOnDestroy={true} form={formInst} layout="vertical" preserve={false} scrollToFirstError>
         <Show when={!fieldProvider}>
           <DeploymentProviderPicker
-            autoFocus
             placeholder={t("workflow_node.deploy.form.provider.search.placeholder")}
             showAvailability
             showSearch

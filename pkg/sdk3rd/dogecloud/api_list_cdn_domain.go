@@ -7,7 +7,7 @@ import (
 )
 
 type ListCdnDomainResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *struct {
 		Domains []*struct {

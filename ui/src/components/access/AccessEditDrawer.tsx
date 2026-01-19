@@ -227,7 +227,6 @@ const AccessEditDrawer = ({ afterSubmit, mode, data, loading, trigger, usage, ..
       >
         <Show when={!fieldProvider && !data?.provider}>
           <AccessProviderPicker
-            autoFocus
             gap="large"
             placeholder={t("access.form.provider.search.placeholder")}
             showOptionTags={

@@ -7,7 +7,7 @@ import (
 )
 
 type WebsiteHttpsGetResponse struct {
-	apiResponseBase
+	sdkResponseBase
 
 	Data *struct {
 		Enable       bool     `json:"enable"`

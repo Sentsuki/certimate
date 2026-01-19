@@ -18,7 +18,7 @@ type CreateRecordRequest struct {
 }
 
 type CreateRecordResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	Data *struct {
 		Id string `json:"id"`
 	} `json:"data,omitempty"`

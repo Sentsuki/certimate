@@ -1,16 +1,16 @@
 package dns
 
-type apiResponse interface {
+type sdkResponse interface {
 	GetCode() int
 	GetMessage() string
 }
 
-type apiResponseBase struct {
+type sdkResponseBase struct {
 	Code    *int    `json:"code,omitempty"`
 	Message *string `json:"message,omitempty"`
 }
 
-func (r *apiResponseBase) GetCode() int {
+func (r *sdkResponseBase) GetCode() int {
 	if r.Code == nil {
 		return 0
 	}
@@ -18,7 +18,7 @@ func (r *apiResponseBase) GetCode() int {
 	return *r.Code
 }
 
-func (r *apiResponseBase) GetMessage() string {
+func (r *sdkResponseBase) GetMessage() string {
 	if r.Message == nil {
 		return ""
 	}
@@ -26,7 +26,7 @@ func (r *apiResponseBase) GetMessage() string {
 	return *r.Message
 }
 
-var _ apiResponse = (*apiResponseBase)(nil)
+var _ sdkResponse = (*sdkResponseBase)(nil)
 
 type DnsRecord struct {
 	GroupId     *int64            `json:"group_id,omitempty"`

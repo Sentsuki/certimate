@@ -8,21 +8,21 @@ import (
 )
 
 type GetBucketsRequest struct {
-	BucketName    string `json:"status" url:"bucket_name"`
+	BucketName    string `json:"status"        url:"bucket_name"`
 	BusinessType  string `json:"business_type" url:"business_type"`
-	Type          string `json:"type" url:"type"`
-	Status        string `json:"state" url:"state"`
-	Tag           string `json:"tag" url:"tag"`
-	IsSecurityCDN bool   `json:"security_cdn" url:"security_cdn"`
-	WithDomains   bool   `json:"with_domains" url:"with_domains"`
-	Page          int32  `json:"page" url:"page"`
-	PerPage       int32  `json:"perPage" url:"perPage"`
+	Type          string `json:"type"          url:"type"`
+	Status        string `json:"state"         url:"state"`
+	Tag           string `json:"tag"           url:"tag"`
+	IsSecurityCDN bool   `json:"security_cdn"  url:"security_cdn"`
+	WithDomains   bool   `json:"with_domains"  url:"with_domains"`
+	Page          int32  `json:"page"          url:"page"`
+	PerPage       int32  `json:"perPage"       url:"perPage"`
 }
 
 type GetBucketsResponse struct {
-	apiResponseBase
+	sdkResponseBase
 	Data *struct {
-		apiResponseBaseData
+		sdkResponseBaseData
 		Buckets []*BucketInfo `json:"buckets"`
 		Pager   BucketPager   `json:"pager"`
 	} `json:"data,omitempty"`
