@@ -281,7 +281,7 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 		log.RunId = task.RunId
 		log.NodeId = node.Id
 		log.NodeName = node.Data.Name
-		log.Timestamp = time.Now().UnixMilli()
+		log.TimestampMilli = time.Now().UnixMilli()
 		log.Level = int32(slog.LevelError)
 		log.Message = err.Error()
 		log.CreatedAt = time.Now()
@@ -299,7 +299,7 @@ func (wd *workflowDispatcher) tryExecuteAsync(task *taskInfo) {
 		log.RunId = task.RunId
 		log.NodeId = node.Id
 		log.NodeName = node.Data.Name
-		log.Timestamp = record.Time.UnixMilli()
+		log.TimestampMilli = record.Time.UnixMilli()
 		log.Level = int32(record.Level)
 		log.Message = record.Message
 		log.Data = record.Data()

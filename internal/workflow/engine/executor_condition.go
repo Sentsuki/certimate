@@ -25,9 +25,10 @@ func (ne *conditionNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 	errs := make([]error, 0)
 	blocks := lo.Filter(execCtx.Node.Blocks, func(n *Node, _ int) bool { return n.Type == NodeTypeBranchBlock })
 	for _, node := range blocks {
+		ctx := execCtx.Context()
 		select {
-		case <-execCtx.ctx.Done():
-			return execRes, execCtx.ctx.Err()
+		case <-ctx.Done():
+			return execRes, ctx.Err()
 		default:
 		}
 

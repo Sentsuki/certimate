@@ -48,7 +48,7 @@ func (ne *bizDeployNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		if inputStateValue, ok := inputState.Value.(string); ok {
 			s := strings.Split(inputStateValue, "#")
 			if len(s) == 2 {
-				certificate, err := ne.certificateRepo.GetById(execCtx.ctx, s[1])
+				certificate, err := ne.certificateRepo.GetById(execCtx.Context(), s[1])
 				if err != nil {
 					ne.logger.Warn("could not get input certificate")
 					return execRes, err
@@ -81,7 +81,7 @@ func (ne *bizDeployNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 	// 读取部署提供商授权
 	providerAccessConfig := make(map[string]any)
 	if nodeCfg.ProviderAccessId != "" {
-		if access, err := ne.accessRepo.GetById(execCtx.ctx, nodeCfg.ProviderAccessId); err != nil {
+		if access, err := ne.accessRepo.GetById(execCtx.Context(), nodeCfg.ProviderAccessId); err != nil {
 			return nil, fmt.Errorf("failed to get access #%s record: %w", nodeCfg.ProviderAccessId, err)
 		} else {
 			providerAccessConfig = access.Config
@@ -97,7 +97,7 @@ func (ne *bizDeployNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 		Certificate:            inputCertificate.Certificate,
 		PrivateKey:             inputCertificate.PrivateKey,
 	}
-	if _, err := deployer.DeployCertificate(execCtx.ctx, deployReq); err != nil {
+	if _, err := deployer.DeployCertificate(execCtx.Context(), deployReq); err != nil {
 		ne.logger.Warn("could not deploy certificate")
 		return execRes, err
 	}
@@ -110,7 +110,7 @@ func (ne *bizDeployNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeEx
 }
 
 func (ne *bizDeployNodeExecutor) getLastOutputArtifacts(execCtx *NodeExecutionContext) (*domain.WorkflowOutput, error) {
-	lastOutput, err := ne.wfoutputRepo.GetByWorkflowIdAndNodeId(execCtx.ctx, execCtx.WorkflowId, execCtx.Node.Id)
+	lastOutput, err := ne.wfoutputRepo.GetByWorkflowIdAndNodeId(execCtx.Context(), execCtx.WorkflowId, execCtx.Node.Id)
 	if err != nil && !domain.IsRecordNotFoundError(err) {
 		return nil, fmt.Errorf("failed to get last output record of node #%s: %w", execCtx.Node.Id, err)
 	}

@@ -5,12 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
-	"github.com/wneessen/go-mail"
-
+	"github.com/certimate-go/certimate/internal/tools/smtp"
 	"github.com/certimate-go/certimate/pkg/core/notifier"
-	xtls "github.com/certimate-go/certimate/pkg/utils/tls"
 )
 
 type NotifierConfig struct {
@@ -62,49 +59,23 @@ func (n *Notifier) SetLogger(logger *slog.Logger) {
 }
 
 func (n *Notifier) Notify(ctx context.Context, subject string, message string) (*notifier.NotifyResult, error) {
-	clientOptions := []mail.Option{
-		mail.WithSMTPAuth(mail.SMTPAuthAutoDiscover),
-		mail.WithUsername(n.config.Username),
-		mail.WithPassword(n.config.Password),
-		mail.WithTimeout(time.Second * 30),
-	}
-
-	if n.config.SmtpPort == 0 {
-		if n.config.SmtpTls {
-			clientOptions = append(clientOptions, mail.WithPort(mail.DefaultPortSSL))
-		} else {
-			clientOptions = append(clientOptions, mail.WithPort(mail.DefaultPort))
-		}
-	} else {
-		clientOptions = append(clientOptions, mail.WithPort(int(n.config.SmtpPort)))
-	}
-
-	if n.config.SmtpTls {
-		tlsConfig := xtls.NewCompatibleConfig()
-		if n.config.AllowInsecureConnections {
-			tlsConfig.InsecureSkipVerify = true
-		} else {
-			tlsConfig.ServerName = n.config.SmtpHost
-		}
-
-		clientOptions = append(clientOptions, mail.WithSSL())
-		clientOptions = append(clientOptions, mail.WithTLSConfig(tlsConfig))
-		clientOptions = append(clientOptions, mail.WithTLSPolicy(mail.TLSMandatory))
-	} else {
-		clientOptions = append(clientOptions, mail.WithTLSPolicy(mail.TLSOpportunistic))
-	}
-
-	client, err := mail.NewClient(n.config.SmtpHost, clientOptions...)
+	clientCfg := smtp.NewDefaultConfig()
+	clientCfg.Host = n.config.SmtpHost
+	clientCfg.Port = int(n.config.SmtpPort)
+	clientCfg.Username = n.config.Username
+	clientCfg.Password = n.config.Password
+	clientCfg.UseSsl = n.config.SmtpTls
+	clientCfg.SkipTlsVerify = n.config.AllowInsecureConnections
+	client, err := smtp.NewClient(clientCfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create smtp client: %w", err)
+		return nil, fmt.Errorf("failed to create SMTP client: %w", err)
 	}
 
-	client.ErrorHandlerRegistry.RegisterHandler("smtp.qq.com", "QUIT", &wQQMailQuitErrorHandler{})
 	defer client.Close()
 
-	msg := mail.NewMsg()
+	msg := smtp.NewMessage()
 	msg.Subject(subject)
-	msg.SetBodyString(mail.TypeTextPlain, message)
+	msg.SetBodyString(smtp.MIMETypeTextPlain, message)
 	if n.config.SenderName == "" {
 		msg.From(n.config.SenderAddress)
 	} else {
@@ -112,20 +83,8 @@ func (n *Notifier) Notify(ctx context.Context, subject string, message string) (
 	}
 	msg.To(n.config.ReceiverAddress)
 
-	if err := client.DialAndSend(msg); err != nil {
-		errShouldBeIgnored := false
-
-		// REF: https://github.com/wneessen/go-mail/issues/463
-		var sendErr *mail.SendError
-		if errors.As(err, &sendErr) {
-			if sendErr.Reason == mail.ErrSMTPReset {
-				errShouldBeIgnored = true
-			}
-		}
-
-		if !errShouldBeIgnored {
-			return nil, fmt.Errorf("failed to send mail: %w", err)
-		}
+	if err := client.Send(ctx, msg); err != nil {
+		return nil, fmt.Errorf("failed to send mail: %w", err)
 	}
 
 	return &notifier.NotifyResult{}, nil

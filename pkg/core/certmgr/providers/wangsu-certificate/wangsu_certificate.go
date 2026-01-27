@@ -127,7 +127,24 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 }
 
 func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
-	return nil, certmgr.ErrUnsupported
+	certId := certIdOrName
+	certName := fmt.Sprintf("certimate_%d", time.Now().UnixMilli())
+
+	// 修改证书
+	// REF: https://www.wangsu.com/document/api-doc/25568?productCode=certificatemanagement
+	updateCertificateReq := &wangsusdk.UpdateCertificateRequest{
+		Name:        lo.ToPtr(certName),
+		Certificate: lo.ToPtr(certPEM),
+		PrivateKey:  lo.ToPtr(privkeyPEM),
+		Comment:     lo.ToPtr("upload from certimate"),
+	}
+	updateCertificateResp, err := c.sdkClient.UpdateCertificate(certId, updateCertificateReq)
+	c.logger.Debug("sdk request 'certificatemanagement.UpdateCertificate'", slog.Any("request", updateCertificateReq), slog.Any("response", updateCertificateResp))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute sdk request 'certificatemanagement.UpdateCertificate': %w", err)
+	}
+
+	return &certmgr.OperateResult{}, nil
 }
 
 func createSDKClient(accessKeyId, accessKeySecret string) (*wangsusdk.Client, error) {

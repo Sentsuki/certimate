@@ -69,17 +69,9 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, errors.New("the configuration of the deployer provider is nil")
 	}
 
-	client, err := s3.NewClient(&s3.Config{
-		Endpoint:         config.Endpoint,
-		AccessKey:        config.AccessKey,
-		SecretKey:        config.SecretKey,
-		SignatureVersion: config.SignatureVersion,
-		UsePathStyle:     config.UsePathStyle,
-		Region:           config.Region,
-		SkipTlsVerify:    config.AllowInsecureConnections,
-	})
+	client, err := createS3Client(*config)
 	if err != nil {
-		return nil, fmt.Errorf("s3: failed to create s3 client: %w", err)
+		return nil, fmt.Errorf("s3: failed to create S3 client: %w", err)
 	}
 
 	return &Deployer{
@@ -166,4 +158,22 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	}
 
 	return &deployer.DeployResult{}, nil
+}
+
+func createS3Client(config DeployerConfig) (*s3.Client, error) {
+	clientCfg := s3.NewDefaultConfig()
+	clientCfg.Endpoint = config.Endpoint
+	clientCfg.AccessKey = config.AccessKey
+	clientCfg.SecretKey = config.SecretKey
+	clientCfg.SignatureVersion = config.SignatureVersion
+	clientCfg.UsePathStyle = config.UsePathStyle
+	clientCfg.Region = config.Region
+	clientCfg.SkipTlsVerify = config.AllowInsecureConnections
+
+	client, err := s3.NewClient(clientCfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, err
 }

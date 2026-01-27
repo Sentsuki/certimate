@@ -4,13 +4,17 @@ import (
 	"os"
 	"strings"
 
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase/core"
 	m "github.com/pocketbase/pocketbase/migrations"
 )
 
 func init() {
 	m.Register(func(app core.App) error {
-		if mr, _ := app.FindFirstRecordByFilter("_migrations", "file='1757476801_m0.4.0_initialize.go'"); mr != nil {
+		if err := app.DB().
+			NewQuery("SELECT (1) FROM _migrations WHERE file={:file} LIMIT 1").
+			Bind(dbx.Params{"file": "1757476801_m0.4.0_initialize.go"}).
+			One(&struct{}{}); err == nil {
 			return nil
 		}
 

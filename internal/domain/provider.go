@@ -327,6 +327,7 @@ const (
 	DeploymentProviderTypeQiniuKodo             = DeploymentProviderType(AccessProviderTypeQiniu + "-kodo")
 	DeploymentProviderTypeQiniuPili             = DeploymentProviderType(AccessProviderTypeQiniu + "-pili")
 	DeploymentProviderTypeRainYunRCDN           = DeploymentProviderType(AccessProviderTypeRainYun + "-rcdn")
+	DeploymentProviderTypeRainYunSSLCenter      = DeploymentProviderType(AccessProviderTypeRainYun + "-sslcenter")
 	DeploymentProviderTypeRatPanel              = DeploymentProviderType(AccessProviderTypeRatPanel)
 	DeploymentProviderTypeRatPanelConsole       = DeploymentProviderType(AccessProviderTypeRatPanel + "-console")
 	DeploymentProviderTypeS3                    = DeploymentProviderType(AccessProviderTypeS3)

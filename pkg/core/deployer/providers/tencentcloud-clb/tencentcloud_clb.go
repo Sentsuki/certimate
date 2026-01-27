@@ -17,6 +17,7 @@ import (
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	"github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-clb/internal"
+	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
 type DeployerConfig struct {
@@ -217,32 +218,28 @@ func (d *Deployer) deployToRuleDomain(ctx context.Context, cloudCertId string) e
 		return fmt.Errorf("failed to execute sdk request 'clb.ModifyDomainAttributes': %w", err)
 	}
 
-	// 循环查询异步任务状态，等待任务状态变更
+	// 查询异步任务状态，等待任务状态变更
 	// REF: https://cloud.tencent.com/document/product/214/30683
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		describeTaskStatusReq := tcclb.NewDescribeTaskStatusRequest()
 		describeTaskStatusReq.TaskId = modifyDomainAttributesResp.Response.RequestId
 		describeTaskStatusResp, err := d.sdkClient.DescribeTaskStatus(describeTaskStatusReq)
 		d.logger.Debug("sdk request 'clb.DescribeTaskStatus'", slog.Any("request", describeTaskStatusReq), slog.Any("response", describeTaskStatusResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'clb.DescribeTaskStatus': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'clb.DescribeTaskStatus': %w", err)
 		}
 
-		status := lo.FromPtr(describeTaskStatusResp.Response.Status)
-		if status == 1 {
-			return errors.New("unexpected tencentcloud task status")
-		} else if status == 0 {
-			break
+		switch lo.FromPtr(describeTaskStatusResp.Response.Status) {
+		case 0:
+			return true, nil
+		case 1:
+			return false, fmt.Errorf("unexpected tencentcloud task status")
 		}
 
 		d.logger.Info("waiting for tencentcloud task completion ...")
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return err
 	}
 
 	return nil
@@ -280,32 +277,28 @@ func (d *Deployer) updateListenerCertificate(ctx context.Context, cloudLoadbalan
 		return fmt.Errorf("failed to execute sdk request 'clb.ModifyListener': %w", err)
 	}
 
-	// 循环查询异步任务状态，等待任务状态变更
+	// 查询异步任务状态，等待任务状态变更
 	// REF: https://cloud.tencent.com/document/product/214/30683
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		describeTaskStatusReq := tcclb.NewDescribeTaskStatusRequest()
 		describeTaskStatusReq.TaskId = modifyListenerResp.Response.RequestId
 		describeTaskStatusResp, err := d.sdkClient.DescribeTaskStatus(describeTaskStatusReq)
 		d.logger.Debug("sdk request 'clb.DescribeTaskStatus'", slog.Any("request", describeTaskStatusReq), slog.Any("response", describeTaskStatusResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'clb.DescribeTaskStatus': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'clb.DescribeTaskStatus': %w", err)
 		}
 
-		status := lo.FromPtr(describeTaskStatusResp.Response.Status)
-		if status == 1 {
-			return errors.New("unexpected tencentcloud task status")
-		} else if status == 0 {
-			break
+		switch lo.FromPtr(describeTaskStatusResp.Response.Status) {
+		case 0:
+			return true, nil
+		case 1:
+			return false, fmt.Errorf("unexpected tencentcloud task status")
 		}
 
 		d.logger.Info("waiting for tencentcloud task completion ...")
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return err
 	}
 
 	return nil

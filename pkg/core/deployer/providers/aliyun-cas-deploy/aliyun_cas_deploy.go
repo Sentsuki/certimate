@@ -17,6 +17,7 @@ import (
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	"github.com/certimate-go/certimate/pkg/core/deployer/providers/aliyun-cas-deploy/internal"
+	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
 type DeployerConfig struct {
@@ -129,33 +130,29 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, fmt.Errorf("failed to execute sdk request 'cas.CreateDeploymentJob': %w", err)
 	}
 
-	// 循环获取部署任务详情，等待任务状态变更
+	// 获取部署任务详情，等待任务状态变更
 	// REF: https://help.aliyun.com/zh/ssl-certificate/developer-reference/api-cas-2020-04-07-describedeploymentjob
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		describeDeploymentJobReq := &alicas.DescribeDeploymentJobRequest{
 			JobId: createDeploymentJobResp.Body.JobId,
 		}
 		describeDeploymentJobResp, err := d.sdkClient.DescribeDeploymentJobWithContext(ctx, describeDeploymentJobReq, &dara.RuntimeOptions{})
 		d.logger.Debug("sdk request 'cas.DescribeDeploymentJob'", slog.Any("request", describeDeploymentJobReq), slog.Any("response", describeDeploymentJobResp))
 		if err != nil {
-			return nil, fmt.Errorf("failed to execute sdk request 'cas.DescribeDeploymentJob': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'cas.DescribeDeploymentJob': %w", err)
 		}
 
-		status := tea.StringValue(describeDeploymentJobResp.Body.Status)
-		if status == "" || status == "editing" {
-			return nil, errors.New("unexpected aliyun deployment job status")
-		} else if status == "success" || status == "error" {
-			break
+		switch tea.StringValue(describeDeploymentJobResp.Body.Status) {
+		case "success", "error":
+			return true, nil
+		case "", "editing":
+			return false, fmt.Errorf("unexpected aliyun deployment job status")
 		}
 
 		d.logger.Info("waiting for aliyun deployment job completion ...")
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return nil, err
 	}
 
 	return &deployer.DeployResult{}, nil

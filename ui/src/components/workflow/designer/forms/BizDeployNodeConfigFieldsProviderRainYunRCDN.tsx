@@ -1,15 +1,11 @@
 import { getI18n, useTranslation } from "react-i18next";
-import { Form, Input, Radio, Select } from "antd";
+import { Form, Input, Radio } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
-import Show from "@/components/Show";
 import { isDomain } from "@/utils/validator";
 
 import { useFormNestedFieldsContext } from "./_context";
-
-const RESOURCE_TYPE_DOMAIN = "domain" as const;
-const RESOURCE_TYPE_CERTIFICATE = "certificate" as const;
 
 const DOMAIN_MATCH_PATTERN_EXACT = "exact" as const;
 
@@ -24,87 +20,56 @@ const BizDeployNodeConfigFieldsProviderRainYunRCDN = () => {
   const formInst = Form.useFormInstance();
   const initialValues = getInitialValues();
 
-  const fieldResourceType = Form.useWatch([parentNamePath, "resourceType"], formInst);
   const fieldDomainMatchPattern = Form.useWatch([parentNamePath, "domainMatchPattern"], { form: formInst, preserve: true });
 
   return (
     <>
       <Form.Item
-        name={[parentNamePath, "resourceType"]}
-        initialValue={initialValues.resourceType}
-        label={t("workflow_node.deploy.form.shared_resource_type.label")}
+        name={[parentNamePath, "instanceId"]}
+        initialValue={initialValues.instanceId}
+        label={t("workflow_node.deploy.form.rainyun_rcdn_instance_id.label")}
+        rules={[formRule]}
+        tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.rainyun_rcdn_instance_id.tooltip") }}></span>}
+      >
+        <Input type="number" placeholder={t("workflow_node.deploy.form.rainyun_rcdn_instance_id.placeholder")} />
+      </Form.Item>
+
+      <Form.Item
+        name={[parentNamePath, "domainMatchPattern"]}
+        initialValue={initialValues.domainMatchPattern}
+        label={t("workflow_node.deploy.form.shared_domain_match_pattern.label")}
+        extra={
+          fieldDomainMatchPattern === DOMAIN_MATCH_PATTERN_EXACT ? (
+            <span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.shared_domain_match_pattern.help_wildcard") }}></span>
+          ) : (
+            void 0
+          )
+        }
         rules={[formRule]}
       >
-        <Select
-          options={[RESOURCE_TYPE_DOMAIN, RESOURCE_TYPE_CERTIFICATE].map((s) => ({
+        <Radio.Group
+          options={[DOMAIN_MATCH_PATTERN_EXACT].map((s) => ({
+            key: s,
+            label: t(`workflow_node.deploy.form.shared_domain_match_pattern.option.${s}.label`),
             value: s,
-            label: t(`workflow_node.deploy.form.rainyun_rcdn_resource_type.option.${s}.label`),
           }))}
-          placeholder={t("workflow_node.deploy.form.shared_resource_type.placeholder")}
         />
       </Form.Item>
 
-      <Show when={fieldResourceType === RESOURCE_TYPE_DOMAIN}>
-        <Form.Item
-          name={[parentNamePath, "instanceId"]}
-          initialValue={initialValues.instanceId}
-          label={t("workflow_node.deploy.form.rainyun_rcdn_instance_id.label")}
-          rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.rainyun_rcdn_instance_id.tooltip") }}></span>}
-        >
-          <Input type="number" placeholder={t("workflow_node.deploy.form.rainyun_rcdn_instance_id.placeholder")} />
-        </Form.Item>
-
-        <Form.Item
-          name={[parentNamePath, "domainMatchPattern"]}
-          initialValue={initialValues.domainMatchPattern}
-          label={t("workflow_node.deploy.form.shared_domain_match_pattern.label")}
-          extra={
-            fieldDomainMatchPattern === DOMAIN_MATCH_PATTERN_EXACT ? (
-              <span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.shared_domain_match_pattern.help_wildcard") }}></span>
-            ) : (
-              void 0
-            )
-          }
-          rules={[formRule]}
-        >
-          <Radio.Group
-            options={[DOMAIN_MATCH_PATTERN_EXACT].map((s) => ({
-              key: s,
-              label: t(`workflow_node.deploy.form.shared_domain_match_pattern.option.${s}.label`),
-              value: s,
-            }))}
-          />
-        </Form.Item>
-
-        <Form.Item
-          name={[parentNamePath, "domain"]}
-          initialValue={initialValues.domain}
-          label={t("workflow_node.deploy.form.rainyun_rcdn_domain.label")}
-          rules={[formRule]}
-        >
-          <Input placeholder={t("workflow_node.deploy.form.rainyun_rcdn_domain.placeholder")} />
-        </Form.Item>
-      </Show>
-
-      <Show when={fieldResourceType === RESOURCE_TYPE_CERTIFICATE}>
-        <Form.Item
-          name={[parentNamePath, "certificateId"]}
-          initialValue={initialValues.certificateId}
-          label={t("workflow_node.deploy.form.rainyun_rcdn_certificate_id.label")}
-          rules={[formRule]}
-          tooltip={<span dangerouslySetInnerHTML={{ __html: t("workflow_node.deploy.form.rainyun_rcdn_certificate_id.tooltip") }}></span>}
-        >
-          <Input allowClear placeholder={t("workflow_node.deploy.form.rainyun_rcdn_certificate_id.placeholder")} />
-        </Form.Item>
-      </Show>
+      <Form.Item
+        name={[parentNamePath, "domain"]}
+        initialValue={initialValues.domain}
+        label={t("workflow_node.deploy.form.rainyun_rcdn_domain.label")}
+        rules={[formRule]}
+      >
+        <Input placeholder={t("workflow_node.deploy.form.rainyun_rcdn_domain.placeholder")} />
+      </Form.Item>
     </>
   );
 };
 
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
-    resourceType: RESOURCE_TYPE_DOMAIN,
     instanceId: "",
     domainMatchPattern: DOMAIN_MATCH_PATTERN_EXACT,
     domain: "",
@@ -116,55 +81,19 @@ const getSchema = ({ i18n = getI18n() }: { i18n?: ReturnType<typeof getI18n> }) 
 
   return z
     .object({
-      resourceType: z.literal([RESOURCE_TYPE_DOMAIN, RESOURCE_TYPE_CERTIFICATE], t("workflow_node.deploy.form.shared_resource_type.placeholder")),
       instanceId: z.union([z.string(), z.number().int()]).nullish(),
       domainMatchPattern: z.string().nonempty(t("workflow_node.deploy.form.shared_domain_match_pattern.placeholder")).default(DOMAIN_MATCH_PATTERN_EXACT),
       domain: z.string().nullish(),
-      certificateId: z.union([z.string(), z.number().int()]).nullish(),
     })
     .superRefine((values, ctx) => {
-      switch (values.resourceType) {
-        case RESOURCE_TYPE_DOMAIN:
+      switch (values.domainMatchPattern) {
+        case DOMAIN_MATCH_PATTERN_EXACT:
           {
-            if (!values.instanceId) {
+            if (!isDomain(values.domain!, { allowWildcard: true })) {
               ctx.addIssue({
                 code: "custom",
-                message: t("workflow_node.deploy.form.rainyun_rcdn_instance_id.placeholder"),
-                path: ["instanceId"],
-              });
-            }
-
-            if (!values.domainMatchPattern) {
-              ctx.addIssue({
-                code: "custom",
-                message: t("workflow_node.deploy.form.shared_domain_match_pattern.placeholder"),
-                path: ["domainMatchPattern"],
-              });
-            }
-
-            switch (values.domainMatchPattern) {
-              case DOMAIN_MATCH_PATTERN_EXACT:
-                {
-                  if (!isDomain(values.domain!, { allowWildcard: true })) {
-                    ctx.addIssue({
-                      code: "custom",
-                      message: t("common.errmsg.domain_invalid"),
-                      path: ["domain"],
-                    });
-                  }
-                }
-                break;
-            }
-          }
-          break;
-
-        case RESOURCE_TYPE_CERTIFICATE:
-          {
-            if (!values.certificateId) {
-              ctx.addIssue({
-                code: "custom",
-                message: t("workflow_node.deploy.form.rainyun_rcdn_certificate_id.placeholder"),
-                path: ["certificateId"],
+                message: t("common.errmsg.domain_invalid"),
+                path: ["domain"],
               });
             }
           }

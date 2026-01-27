@@ -43,6 +43,10 @@ func (c *WorkflowContext) SetContext(ctx context.Context) *WorkflowContext {
 	return c
 }
 
+func (c *WorkflowContext) Context() context.Context {
+	return c.ctx
+}
+
 func (c *WorkflowContext) Clone() *WorkflowContext {
 	return &WorkflowContext{
 		WorkflowId: c.WorkflowId,

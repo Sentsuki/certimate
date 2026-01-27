@@ -3,13 +3,11 @@ package ssh
 import (
 	"errors"
 	"fmt"
-	"net"
 	"path/filepath"
-	"strconv"
 
 	"github.com/go-acme/lego/v4/challenge/http01"
-	"golang.org/x/crypto/ssh"
 
+	"github.com/certimate-go/certimate/internal/tools/ssh"
 	"github.com/certimate-go/certimate/pkg/core/certifier"
 	xssh "github.com/certimate-go/certimate/pkg/utils/ssh"
 )
@@ -61,76 +59,15 @@ type provider struct {
 }
 
 func (p *provider) Present(domain, token, keyAuth string) error {
-	var err error
-
-	// 创建 TCP 链接
-	var targetConn net.Conn
-	if len(p.config.JumpServers) > 0 {
-		var jumpClient *ssh.Client
-		for i, jumpServerConf := range p.config.JumpServers {
-			var jumpConn net.Conn
-			// 第一个连接是主机发起，后续通过跳板机发起
-			if jumpClient == nil {
-				jumpConn, err = net.Dial("tcp", net.JoinHostPort(jumpServerConf.SshHost, strconv.Itoa(int(jumpServerConf.SshPort))))
-			} else {
-				jumpConn, err = jumpClient.Dial("tcp", net.JoinHostPort(jumpServerConf.SshHost, strconv.Itoa(int(jumpServerConf.SshPort))))
-			}
-			if err != nil {
-				return fmt.Errorf("failed to connect to jump server [%d]: %w", i+1, err)
-			}
-			defer jumpConn.Close()
-
-			newClient, err := p.createSshClient(
-				jumpConn,
-				jumpServerConf.SshHost,
-				jumpServerConf.SshPort,
-				jumpServerConf.SshAuthMethod,
-				jumpServerConf.SshUsername,
-				jumpServerConf.SshPassword,
-				jumpServerConf.SshKey,
-				jumpServerConf.SshKeyPassphrase,
-			)
-			if err != nil {
-				return fmt.Errorf("failed to create jump server ssh client[%d]: %w", i+1, err)
-			}
-			defer newClient.Close()
-
-			jumpClient = newClient
-		}
-
-		// 通过跳板机发起 TCP 连接到目标服务器
-		targetConn, err = jumpClient.Dial("tcp", net.JoinHostPort(p.config.SshHost, strconv.Itoa(int(p.config.SshPort))))
-		if err != nil {
-			return fmt.Errorf("failed to connect to target server: %w", err)
-		}
-	} else {
-		// 直接发起 TCP 连接到目标服务器
-		targetConn, err = net.Dial("tcp", net.JoinHostPort(p.config.SshHost, strconv.Itoa(int(p.config.SshPort))))
-		if err != nil {
-			return fmt.Errorf("failed to connect to target server: %w", err)
-		}
-	}
-	defer targetConn.Close()
-
-	// 创建 SSH 客户端
-	client, err := p.createSshClient(
-		targetConn,
-		p.config.SshHost,
-		p.config.SshPort,
-		p.config.SshAuthMethod,
-		p.config.SshUsername,
-		p.config.SshPassword,
-		p.config.SshKey,
-		p.config.SshKeyPassphrase,
-	)
+	client, err := createSshClient(*p.config)
 	if err != nil {
-		return fmt.Errorf("failed to create ssh client: %w", err)
+		return fmt.Errorf("ssh: failed to create SSH client: %w", err)
 	}
+
 	defer client.Close()
 
-	// 写入质询文件
 	challengeFilePath := filepath.Join(p.config.WebRootPath, http01.ChallengePath(token))
-	if err := xssh.WriteRemoteString(client, challengeFilePath, keyAuth, p.config.UseSCP); err != nil {
+	if err := xssh.WriteRemoteString(client.GetClient(), challengeFilePath, keyAuth, p.config.UseSCP); err != nil {
 		return fmt.Errorf("failed to write file in webroot for HTTP challenge: %w", err)
 	}
 
@@ -138,114 +75,45 @@ func (p *provider) Present(domain, token, keyAuth string) error {
 }
 
 func (p *provider) CleanUp(domain, token, keyAuth string) error {
-	var err error
-
-	// 创建 TCP 链接
-	var targetConn net.Conn
-	if len(p.config.JumpServers) > 0 {
-		var jumpClient *ssh.Client
-		for i, jumpServerConf := range p.config.JumpServers {
-			var jumpConn net.Conn
-			// 第一个连接是主机发起，后续通过跳板机发起
-			if jumpClient == nil {
-				jumpConn, err = net.Dial("tcp", net.JoinHostPort(jumpServerConf.SshHost, strconv.Itoa(int(jumpServerConf.SshPort))))
-			} else {
-				jumpConn, err = jumpClient.Dial("tcp", net.JoinHostPort(jumpServerConf.SshHost, strconv.Itoa(int(jumpServerConf.SshPort))))
-			}
-			if err != nil {
-				return fmt.Errorf("failed to connect to jump server [%d]: %w", i+1, err)
-			}
-			defer jumpConn.Close()
-
-			newClient, err := p.createSshClient(
-				jumpConn,
-				jumpServerConf.SshHost,
-				jumpServerConf.SshPort,
-				jumpServerConf.SshAuthMethod,
-				jumpServerConf.SshUsername,
-				jumpServerConf.SshPassword,
-				jumpServerConf.SshKey,
-				jumpServerConf.SshKeyPassphrase,
-			)
-			if err != nil {
-				return fmt.Errorf("failed to create jump server ssh client[%d]: %w", i+1, err)
-			}
-			defer newClient.Close()
-
-			jumpClient = newClient
-		}
-
-		// 通过跳板机发起 TCP 连接到目标服务器
-		targetConn, err = jumpClient.Dial("tcp", net.JoinHostPort(p.config.SshHost, strconv.Itoa(int(p.config.SshPort))))
-		if err != nil {
-			return fmt.Errorf("failed to connect to target server: %w", err)
-		}
-	} else {
-		// 直接发起 TCP 连接到目标服务器
-		targetConn, err = net.Dial("tcp", net.JoinHostPort(p.config.SshHost, strconv.Itoa(int(p.config.SshPort))))
-		if err != nil {
-			return fmt.Errorf("failed to connect to target server: %w", err)
-		}
-	}
-	defer targetConn.Close()
-
-	// 创建 SSH 客户端
-	client, err := p.createSshClient(
-		targetConn,
-		p.config.SshHost,
-		p.config.SshPort,
-		p.config.SshAuthMethod,
-		p.config.SshUsername,
-		p.config.SshPassword,
-		p.config.SshKey,
-		p.config.SshKeyPassphrase,
-	)
+	client, err := createSshClient(*p.config)
 	if err != nil {
-		return fmt.Errorf("failed to create ssh client: %w", err)
+		return fmt.Errorf("ssh: failed to create SSH client: %w", err)
 	}
+
 	defer client.Close()
 
 	// 删除质询文件
 	challengeFilePath := filepath.Join(p.config.WebRootPath, http01.ChallengePath(token))
-	xssh.RemoveRemote(client, challengeFilePath, p.config.UseSCP)
+	xssh.RemoveRemote(client.GetClient(), challengeFilePath, p.config.UseSCP)
 
 	return nil
 }
 
-func (p *provider) createSshClient(conn net.Conn, host string, port int32, authMethod string, username, password, key, keyPassphrase string) (*ssh.Client, error) {
-	if host == "" {
-		host = "localhost"
+func createSshClient(config ChallengerConfig) (*ssh.Client, error) {
+	clientCfg := ssh.NewDefaultConfig()
+	clientCfg.Host = config.SshHost
+	clientCfg.Port = int(config.SshPort)
+	clientCfg.AuthMethod = ssh.AuthMethodType(config.SshAuthMethod)
+	clientCfg.Username = config.SshUsername
+	clientCfg.Password = config.SshPassword
+	clientCfg.Key = config.SshKey
+	clientCfg.KeyPassphrase = config.SshKeyPassphrase
+	for _, jumpServer := range config.JumpServers {
+		jumpServerCfg := ssh.NewServerConfig()
+		jumpServerCfg.Host = jumpServer.SshHost
+		jumpServerCfg.Port = int(jumpServer.SshPort)
+		jumpServerCfg.AuthMethod = ssh.AuthMethodType(jumpServer.SshAuthMethod)
+		jumpServerCfg.Username = jumpServer.SshUsername
+		jumpServerCfg.Password = jumpServer.SshPassword
+		jumpServerCfg.Key = jumpServer.SshKey
+		jumpServerCfg.KeyPassphrase = jumpServer.SshKeyPassphrase
+		clientCfg.JumpServers = append(clientCfg.JumpServers, *jumpServerCfg)
 	}
 
-	if port == 0 {
-		port = 22
+	client, err := ssh.NewClient(clientCfg)
+	if err != nil {
+		return nil, err
 	}
 
-	if username == "" {
-		username = "root"
-	}
-
-	if authMethod == "" {
-		if key != "" {
-			authMethod = AUTH_METHOD_KEY
-		} else if password != "" {
-			authMethod = AUTH_METHOD_PASSWORD
-		} else {
-			authMethod = AUTH_METHOD_NONE
-		}
-	}
-
-	switch authMethod {
-	case AUTH_METHOD_NONE:
-		return xssh.NewClient(conn, host, int(port), username)
-
-	case AUTH_METHOD_PASSWORD:
-		return xssh.NewClientWithPassword(conn, host, int(port), username, password)
-
-	case AUTH_METHOD_KEY:
-		return xssh.NewClientWithKey(conn, host, int(port), username, key, keyPassphrase)
-
-	default:
-		return nil, fmt.Errorf("unsupported auth method '%s'", authMethod)
-	}
+	return client, nil
 }

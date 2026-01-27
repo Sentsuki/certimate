@@ -154,6 +154,7 @@
   "provider.qiniu_pili": "Qiniu - Pili",
   "provider.rainyun": "Rain Yun",
   "provider.rainyun_rcdn": "Rain Yun - RCDN (Content Delivery Network)",
+  "provider.rainyun_sslcenter_upload": "Rain Yun - Upload to SSL Certificate Center",
   "provider.ratpanel": "AcePanel (aka RatPanel)",
   "provider.ratpanel_common": "AcePanel",
   "provider.ratpanel_console": "AcePanel - Console itself",

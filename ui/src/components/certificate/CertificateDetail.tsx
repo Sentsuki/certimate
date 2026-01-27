@@ -5,7 +5,7 @@ import { App, Button, Dropdown, Form, Input, Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { saveAs } from "file-saver";
 
-import { archive as archiveCertificate } from "@/api/certificates";
+import { download as downloadCertificate } from "@/api/certificates";
 import { CERTIFICATE_FORMATS, type CertificateFormatType, type CertificateModel } from "@/domain/certificate";
 
 export interface CertificateDetailProps {
@@ -21,7 +21,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
 
   const handleDownloadClick = async (format: CertificateFormatType) => {
     try {
-      const res = await archiveCertificate(data.id, format);
+      const res = await downloadCertificate(data.id, format);
       const bstr = atob(res.data.fileBytes);
       const u8arr = Uint8Array.from(bstr, (ch) => ch.charCodeAt(0));
       const blob = new Blob([u8arr], { type: "application/zip" });

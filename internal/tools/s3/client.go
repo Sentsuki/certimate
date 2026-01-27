@@ -3,7 +3,6 @@
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -17,84 +16,30 @@ import (
 	xtls "github.com/certimate-go/certimate/pkg/utils/tls"
 )
 
-const (
-	SignatureV2 = "v2"
-	SignatureV4 = "v4"
-)
-
-type Config struct {
-	Endpoint         string
-	AccessKey        string
-	SecretKey        string
-	SignatureVersion string // 默认值 "v4"
-	UsePathStyle     bool
-	Region           string
-	SkipTlsVerify    bool
-}
-
 type Client struct {
-	client *minio.Client
+	cli *minio.Client
 }
 
 func NewClient(config *Config) (*Client, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of S3 client is nil")
+		return nil, fmt.Errorf("the configuration of S3 client is nil")
 	}
 
-	var clientCred *credentials.Credentials
-	switch config.SignatureVersion {
-	case "", SignatureV4:
-		clientCred = credentials.NewStaticV4(config.AccessKey, config.SecretKey, "")
-	case SignatureV2:
-		clientCred = credentials.NewStaticV2(config.AccessKey, config.SecretKey, "")
-	default:
-		return nil, fmt.Errorf("unsupported S3 signature version: '%s'", config.SignatureVersion)
-	}
-
-	var clientOpts *minio.Options
-	clientOpts = &minio.Options{
-		Creds:        clientCred,
-		Region:       config.Region,
-		BucketLookup: lo.If(config.UsePathStyle, minio.BucketLookupPath).Else(minio.BucketLookupDNS),
-	}
-
-	var endpoint string
-	if config.Endpoint != "" {
-		reScheme := regexp.MustCompile("^([^:]+)://")
-		if reScheme.MatchString(config.Endpoint) {
-			temp := strings.Split(config.Endpoint, "://")
-			scheme := temp[0]
-			endpoint = temp[1]
-			clientOpts.Secure = strings.EqualFold(scheme, "https")
-		} else {
-			endpoint = config.Endpoint
-			clientOpts.Secure = true
-		}
-	}
-
-	if clientOpts.Secure && config.SkipTlsVerify {
-		transport := xhttp.NewDefaultTransport()
-		transport.TLSClientConfig = xtls.NewInsecureConfig()
-		clientOpts.Transport = transport
-	}
-
-	client, err := minio.New(endpoint, clientOpts)
+	client, err := createS3Client(config)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Client{
-		client: client,
-	}, nil
+	return &Client{cli: client}, nil
 }
 
 func (c *Client) PutObject(ctx context.Context, bucket, key string, reader io.Reader, size int64) error {
 	putOpts := minio.PutObjectOptions{
 		DisableMultipart: true,
 	}
-	_, err := c.client.PutObject(ctx, bucket, key, reader, size, putOpts)
+	_, err := c.cli.PutObject(ctx, bucket, key, reader, size, putOpts)
 	if err != nil {
-		return err
+		return fmt.Errorf("s3: failed to put object: %w", err)
 	}
 
 	return nil
@@ -112,10 +57,61 @@ func (c *Client) PutObjectBytes(ctx context.Context, bucket, key string, data []
 
 func (c *Client) RemoveObject(ctx context.Context, bucket, key string) error {
 	removeOpts := minio.RemoveObjectOptions{}
-	err := c.client.RemoveObject(ctx, bucket, key, removeOpts)
+	err := c.cli.RemoveObject(ctx, bucket, key, removeOpts)
 	if err != nil {
-		return err
+		return fmt.Errorf("s3: failed to remove object: %w", err)
 	}
 
 	return nil
+}
+
+func createS3Client(config *Config) (*minio.Client, error) {
+	var clientCred *credentials.Credentials
+	switch config.SignatureVersion {
+	case "", SignatureV4:
+		clientCred = credentials.NewStaticV4(config.AccessKey, config.SecretKey, "")
+	case SignatureV2:
+		clientCred = credentials.NewStaticV2(config.AccessKey, config.SecretKey, "")
+	default:
+		return nil, fmt.Errorf("s3: unsupported signature version: '%s'", config.SignatureVersion)
+	}
+
+	endpoint, secure := resolveEndpoint(config.Endpoint)
+	clientOpts := &minio.Options{
+		Creds:        clientCred,
+		Region:       config.Region,
+		BucketLookup: lo.If(config.UsePathStyle, minio.BucketLookupPath).Else(minio.BucketLookupDNS),
+		Secure:       secure,
+	}
+
+	if secure && config.SkipTlsVerify {
+		transport := xhttp.NewDefaultTransport()
+		transport.TLSClientConfig = xtls.NewInsecureConfig()
+		clientOpts.Transport = transport
+	}
+
+	client, err := minio.New(endpoint, clientOpts)
+	if err != nil {
+		return nil, fmt.Errorf("s3: %w", err)
+	}
+
+	return client, nil
+}
+
+func resolveEndpoint(endpoint string) (string, bool) {
+	var secure bool
+	var result string
+
+	reScheme := regexp.MustCompile("^([^:]+)://")
+	if reScheme.MatchString(endpoint) {
+		temp := strings.Split(endpoint, "://")
+		scheme := temp[0]
+		result = temp[1]
+		secure = strings.EqualFold(scheme, "https")
+	} else {
+		result = endpoint
+		secure = true
+	}
+
+	return result, secure
 }

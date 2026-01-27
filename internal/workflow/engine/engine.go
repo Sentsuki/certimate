@@ -210,7 +210,7 @@ func (we *workflowEngine) executeNode(wfCtx *WorkflowContext, node *Node) error 
 					}
 				})
 			}
-			if _, err := we.wfoutputRepo.Save(execCtx.ctx, output); err != nil {
+			if _, err := we.wfoutputRepo.Save(execCtx.Context(), output); err != nil {
 				we.syslog.Error("failed to save node output", slog.Any("error", err))
 			}
 		}

@@ -16,6 +16,7 @@ import (
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	btsdk "github.com/certimate-go/certimate/pkg/sdk3rd/btpanelgo"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
 type DeployerConfig struct {
@@ -85,7 +86,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				errs = append(errs, err)
 			}
 			if i < len(d.config.SiteNames)-1 {
-				time.Sleep(time.Second * 5)
+				xwait.DelayWithContext(ctx, time.Second*5)
 			}
 		}
 	}

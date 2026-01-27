@@ -32,7 +32,7 @@ func init() {
 /*
 Shell command to run this test:
 
-	go test -v ./ucloud_ucdn_test.go -args \
+	go test -v ./rainyun_rcdn_test.go -args \
 	--RAINYUNRCDN_INPUTCERTPATH="/path/to/your-input-cert.pem" \
 	--RAINYUNRCDN_INPUTKEYPATH="/path/to/your-input-key.pem" \
 	--RAINYUNRCDN_APIKEY="your-api-key" \

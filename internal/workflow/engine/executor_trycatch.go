@@ -25,9 +25,10 @@ func (ne *tryCatchNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 	tryErrs := make([]error, 0)
 	tryBlocks := lo.Filter(execCtx.Node.Blocks, func(n *Node, _ int) bool { return n.Type == NodeTypeTryBlock })
 	for _, node := range tryBlocks {
+		ctx := execCtx.Context()
 		select {
-		case <-execCtx.ctx.Done():
-			return execRes, execCtx.ctx.Err()
+		case <-ctx.Done():
+			return execRes, ctx.Err()
 		default:
 		}
 
@@ -45,8 +46,8 @@ func (ne *tryCatchNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExe
 		catchBlocks := lo.Filter(execCtx.Node.Blocks, func(n *Node, _ int) bool { return n.Type == NodeTypeCatchBlock })
 		for _, node := range catchBlocks {
 			select {
-			case <-execCtx.ctx.Done():
-				return execRes, execCtx.ctx.Err()
+			case <-execCtx.Context().Done():
+				return execRes, execCtx.Context().Err()
 			default:
 			}
 

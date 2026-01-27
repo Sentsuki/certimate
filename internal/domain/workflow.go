@@ -16,18 +16,18 @@ const CollectionNameWorkflow = "workflow"
 
 type Workflow struct {
 	Meta
-	Name          string                `json:"name" db:"name"`
-	Description   string                `json:"description" db:"description"`
-	Trigger       WorkflowTriggerType   `json:"trigger" db:"trigger"`
-	TriggerCron   string                `json:"triggerCron" db:"triggerCron"`
-	Enabled       bool                  `json:"enabled" db:"enabled"`
-	GraphDraft    *WorkflowGraph        `json:"graphDraft" db:"graphDraft"`
-	GraphContent  *WorkflowGraph        `json:"graphContent" db:"graphContent"`
-	HasDraft      bool                  `json:"hasDraft" db:"hasDraft"`
-	HasContent    bool                  `json:"hasContent" db:"hasContent"`
-	LastRunId     string                `json:"lastRunId" db:"lastRunRef"`
-	LastRunStatus WorkflowRunStatusType `json:"lastRunStatus" db:"lastRunStatus"`
-	LastRunTime   time.Time             `json:"lastRunTime" db:"lastRunTime"`
+	Name          string                `db:"name"          json:"name"`
+	Description   string                `db:"description"   json:"description"`
+	Trigger       WorkflowTriggerType   `db:"trigger"       json:"trigger"`
+	TriggerCron   string                `db:"triggerCron"   json:"triggerCron"`
+	Enabled       bool                  `db:"enabled"       json:"enabled"`
+	GraphDraft    *WorkflowGraph        `db:"graphDraft"    json:"graphDraft"`
+	GraphContent  *WorkflowGraph        `db:"graphContent"  json:"graphContent"`
+	HasDraft      bool                  `db:"hasDraft"      json:"hasDraft"`
+	HasContent    bool                  `db:"hasContent"    json:"hasContent"`
+	LastRunId     string                `db:"lastRunRef"    json:"lastRunId"`
+	LastRunStatus WorkflowRunStatusType `db:"lastRunStatus" json:"lastRunStatus"`
+	LastRunTime   time.Time             `db:"lastRunTime"   json:"lastRunTime"`
 }
 
 type WorkflowGraph struct {

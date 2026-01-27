@@ -119,7 +119,7 @@ func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM 
 		return err
 	}
 
-	// 设置站点 SSL 证书
+	// 更新 SSL 证书
 	certUpdateReq := &ratpanelsdk.CertUpdateRequest{
 		CertId:      d.config.CertificateId,
 		Type:        "upload",

@@ -16,6 +16,7 @@ import (
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	"github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-ssl-deploy/internal"
+	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
 type DeployerConfig struct {
@@ -110,27 +111,21 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, errors.New("failed to create deploy record")
 	}
 
-	// 循环获取部署任务详情，等待任务状态变更
+	// 获取部署任务详情，等待任务状态变更
 	// REF: https://cloud.tencent.com/document/api/400/91658
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		describeHostDeployRecordDetailReq := tcssl.NewDescribeHostDeployRecordDetailRequest()
 		describeHostDeployRecordDetailReq.DeployRecordId = common.StringPtr(fmt.Sprintf("%d", *deployCertificateInstanceResp.Response.DeployRecordId))
 		describeHostDeployRecordDetailReq.Limit = common.Uint64Ptr(200)
 		describeHostDeployRecordDetailResp, err := d.sdkClient.DescribeHostDeployRecordDetail(describeHostDeployRecordDetailReq)
 		d.logger.Debug("sdk request 'ssl.DescribeHostDeployRecordDetail'", slog.Any("request", describeHostDeployRecordDetailReq), slog.Any("response", describeHostDeployRecordDetailResp))
 		if err != nil {
-			return nil, fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail': %w", err)
 		}
 
 		var pendingCount, runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostDeployRecordDetailResp.Response.TotalCount == nil {
-			return nil, errors.New("unexpected tencentcloud deployment job status")
+			return false, fmt.Errorf("unexpected tencentcloud deployment job status")
 		} else {
 			pendingCount = lo.FromPtr(describeHostDeployRecordDetailResp.Response.PendingTotalCount)
 			runningCount = lo.FromPtr(describeHostDeployRecordDetailResp.Response.RunningTotalCount)
@@ -140,14 +135,16 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 			if succeededCount+failedCount == totalCount {
 				if failedCount > 0 {
-					return nil, fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+					return false, fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
 				}
-				break
+				return true, nil
 			}
 		}
 
 		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (pending: %d, running: %d, succeeded: %d, failed: %d, total: %d) ...", pendingCount, runningCount, succeededCount, failedCount, totalCount))
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return nil, err
 	}
 
 	return &deployer.DeployResult{}, nil

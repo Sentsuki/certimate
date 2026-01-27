@@ -20,7 +20,7 @@ var (
 	notifySvc      *notify.NotifyService
 )
 
-func SetupRouter(router *router.Router[*core.RequestEvent]) {
+func BindRouter(router *router.Router[*core.RequestEvent]) {
 	accessRepo := repository.NewAccessRepository()
 	workflowRepo := repository.NewWorkflowRepository()
 	workflowRunRepo := repository.NewWorkflowRunRepository()

@@ -1,11 +1,11 @@
 package dtos
 
-type CertificateArchiveFileReq struct {
+type CertificateDownloadReq struct {
 	CertificateId     string `json:"-"`
 	CertificateFormat string `json:"format"`
 }
 
-type CertificateArchiveFileResp struct {
+type CertificateDownloadResp struct {
 	FileBytes  []byte `json:"fileBytes"`
 	FileFormat string `json:"fileFormat"`
 }

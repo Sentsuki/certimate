@@ -7,6 +7,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/certimate/certimate?style=flat)](https://hub.docker.com/r/certimate/certimate)
 [![Release](https://img.shields.io/github/v/release/certimate-go/certimate?style=flat&sort=semver)](https://github.com/certimate-go/certimate/releases)
 [![License](https://img.shields.io/github/license/certimate-go/certimate?style=flat)](https://mit-license.org/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/certimate-go/certimate)
 
 </div>
 
@@ -29,14 +30,14 @@
 
 ## 💡 功能特性
 
-- 灵活的工作流编排方式，证书从申请到部署完全自动化；
-- 支持单域名、多域名、泛域名证书，可选 RSA、ECC 私钥算法；
-- 支持 DNS-01（即基于域名解析验证）、HTTP-01（即基于文件验证）两种质询方式；
-- 支持 PEM、PFX、JKS 等多种格式输出证书；
-- 支持 60+ 域名托管商（如阿里云、腾讯云、AWS、Cloudflare、GoDaddy 等，[点此查看完整清单](https://docs.certimate.me/zh-CN/docs/reference/providers#supported-dns-providers)）；
-- 支持 110+ 部署目标（如 Kubernetes、CDN、WAF、负载均衡等，[点此查看完整清单](https://docs.certimate.me/zh-CN/docs/reference/providers#supported-hosting-providers)）；
-- 支持邮件、钉钉、飞书、企业微信、Discord、Slack、Telegram 等多种通知渠道；
-- 支持 Let's Encrypt、Actalis、Google Trust Services、SSL.com、ZeroSSL 等多种 ACME 证书颁发机构；
+- 灵活的工作流编排方式，证书从申请到部署完全自动化。
+- 支持申请单/多/泛域名证书、IP 地址证书，可选 RSA、ECC 私钥算法。
+- 支持 DNS-01（即基于域名解析验证）、HTTP-01（即基于文件验证）两种质询方式。
+- 支持 PEM、PFX、JKS 等多种格式输出证书。
+- 支持 60+ 域名托管商（如阿里云、腾讯云、AWS、Cloudflare、GoDaddy 等，[点此查看完整清单](https://docs.certimate.me/zh-CN/docs/reference/providers#supported-dns-providers)）。
+- 支持 110+ 部署目标（如 Kubernetes、CDN、WAF、负载均衡等，[点此查看完整清单](https://docs.certimate.me/zh-CN/docs/reference/providers#supported-hosting-providers)）。
+- 支持邮件、钉钉、飞书、企业微信、Discord、Slack、Telegram 等多种通知渠道。
+- 支持 Let's Encrypt、Actalis、Google Trust Services、SSL.com、ZeroSSL 等多种 ACME 证书颁发机构。
 - 更多特性等待探索。
 
 ## 🚀 快速启动
@@ -118,7 +119,7 @@ Certimate 遵循 [MIT License](https://opensource.org/licenses/MIT) 开源协议
 ## 🌐 加入社群
 
 - [Telegram](https://t.me/+ZXphsppxUg41YmVl)
-- 微信群聊（超 200 人需邀请入群，可先加作者好友）
+- 微信群聊（因微信自身限制需群主邀请，可先加 [@usual2970](https://github.com/usual2970) 好友）
 
   <img src="https://i.imgur.com/8xwsLTA.png" width="200"/>
 

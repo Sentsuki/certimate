@@ -11,7 +11,7 @@ import (
 )
 
 type certificateService interface {
-	DownloadArchivedFile(ctx context.Context, req *dtos.CertificateArchiveFileReq) (*dtos.CertificateArchiveFileResp, error)
+	DownloadCertificate(ctx context.Context, req *dtos.CertificateDownloadReq) (*dtos.CertificateDownloadResp, error)
 	RevokeCertificate(ctx context.Context, req *dtos.CertificateRevokeReq) (*dtos.CertificateRevokeResp, error)
 }
 
@@ -25,18 +25,20 @@ func NewCertificatesHandler(router *router.RouterGroup[*core.RequestEvent], serv
 	}
 
 	group := router.Group("/certificates")
-	group.POST("/{certificateId}/archive", handler.archiveCertificate)
+	group.POST("/{certificateId}/download", handler.downloadCertificate)
 	group.POST("/{certificateId}/revoke", handler.revokeCertificate)
+
+	group.POST("/{certificateId}/archive", handler.downloadCertificate) // 兼容旧版
 }
 
-func (handler *CertificatesHandler) archiveCertificate(e *core.RequestEvent) error {
-	req := &dtos.CertificateArchiveFileReq{}
+func (handler *CertificatesHandler) downloadCertificate(e *core.RequestEvent) error {
+	req := &dtos.CertificateDownloadReq{}
 	req.CertificateId = e.Request.PathValue("certificateId")
 	if err := e.BindBody(req); err != nil {
 		return resp.Err(e, err)
 	}
 
-	res, err := handler.service.DownloadArchivedFile(e.Request.Context(), req)
+	res, err := handler.service.DownloadCertificate(e.Request.Context(), req)
 	if err != nil {
 		return resp.Err(e, err)
 	}

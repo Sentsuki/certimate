@@ -8,8 +8,8 @@ const CollectionNameSettings = "settings"
 
 type Settings struct {
 	Meta
-	Name    string          `json:"name" db:"name"`
-	Content SettingsContent `json:"content" db:"content"`
+	Name    string          `db:"name"    json:"name"`
+	Content SettingsContent `db:"content" json:"content"`
 }
 
 const (

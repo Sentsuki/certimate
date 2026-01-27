@@ -5,9 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
-
-	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/wangsu-certificate"
@@ -78,18 +75,12 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 			d.logger.Info("ssl certificate uploaded", slog.Any("result", upres))
 		}
 	} else {
-		// 修改证书
-		// REF: https://www.wangsu.com/document/api-doc/25568?productCode=certificatemanagement
-		updateCertificateReq := &wangsusdk.UpdateCertificateRequest{
-			Name:        lo.ToPtr(fmt.Sprintf("certimate_%d", time.Now().UnixMilli())),
-			Certificate: lo.ToPtr(certPEM),
-			PrivateKey:  lo.ToPtr(privkeyPEM),
-			Comment:     lo.ToPtr("upload from certimate"),
-		}
-		updateCertificateResp, err := d.sdkClient.UpdateCertificate(d.config.CertificateId, updateCertificateReq)
-		d.logger.Debug("sdk request 'certificatemanagement.UpdateCertificate'", slog.Any("request", updateCertificateReq), slog.Any("response", updateCertificateResp))
+		// 替换证书
+		opres, err := d.sdkCertmgr.Replace(ctx, d.config.CertificateId, certPEM, privkeyPEM)
 		if err != nil {
-			return nil, fmt.Errorf("failed to execute sdk request 'certificatemanagement.CreateCertificate': %w", err)
+			return nil, fmt.Errorf("failed to replace certificate file: %w", err)
+		} else {
+			d.logger.Info("ssl certificate replaced", slog.Any("result", opres))
 		}
 	}
 

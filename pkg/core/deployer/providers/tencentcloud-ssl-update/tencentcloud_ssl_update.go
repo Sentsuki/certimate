@@ -17,6 +17,7 @@ import (
 	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	"github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-ssl-update/internal"
+	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
 type DeployerConfig struct {
@@ -115,13 +116,7 @@ func (d *Deployer) executeUpdateCertificateInstance(ctx context.Context, certPEM
 	// 一键更新新旧证书资源
 	// REF: https://cloud.tencent.com/document/product/400/91649
 	var deployRecordId string
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		updateCertificateInstanceReq := tcssl.NewUpdateCertificateInstanceRequest()
 		updateCertificateInstanceReq.OldCertificateId = common.StringPtr(d.config.CertificateId)
 		updateCertificateInstanceReq.CertificateId = common.StringPtr(upres.CertId)
@@ -130,40 +125,36 @@ func (d *Deployer) executeUpdateCertificateInstance(ctx context.Context, certPEM
 		updateCertificateInstanceResp, err := d.sdkClient.UpdateCertificateInstance(updateCertificateInstanceReq)
 		d.logger.Debug("sdk request 'ssl.UpdateCertificateInstance'", slog.Any("request", updateCertificateInstanceReq), slog.Any("response", updateCertificateInstanceResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'ssl.UpdateCertificateInstance': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'ssl.UpdateCertificateInstance': %w", err)
 		}
 
 		if updateCertificateInstanceResp.Response.DeployStatus == nil || updateCertificateInstanceResp.Response.DeployRecordId == nil {
-			return errors.New("unexpected deployment job status")
+			return false, fmt.Errorf("unexpected deployment job status")
 		} else if *updateCertificateInstanceResp.Response.DeployRecordId > 0 {
 			deployRecordId = fmt.Sprintf("%d", *updateCertificateInstanceResp.Response.DeployRecordId)
-			break
+			return true, nil
 		}
 
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return err
 	}
 
-	// 循环查询证书云资源更新记录详情，等待任务状态变更
+	// 查询证书云资源更新记录详情，等待任务状态变更
 	// REF: https://cloud.tencent.com/document/api/400/91652
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		describeHostUpdateRecordDetailReq := tcssl.NewDescribeHostUpdateRecordDetailRequest()
 		describeHostUpdateRecordDetailReq.DeployRecordId = common.StringPtr(deployRecordId)
 		describeHostUpdateRecordDetailReq.Limit = common.StringPtr("200")
 		describeHostUpdateRecordDetailResp, err := d.sdkClient.DescribeHostUpdateRecordDetail(describeHostUpdateRecordDetailReq)
 		d.logger.Debug("sdk request 'ssl.DescribeHostUpdateRecordDetail'", slog.Any("request", describeHostUpdateRecordDetailReq), slog.Any("response", describeHostUpdateRecordDetailResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostUpdateRecordDetail': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostUpdateRecordDetail': %w", err)
 		}
 
 		var pendingCount, runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostUpdateRecordDetailResp.Response.TotalCount == nil {
-			return errors.New("unexpected tencentcloud deployment job status")
+			return false, fmt.Errorf("unexpected tencentcloud deployment job status")
 		} else {
 			pendingCount = lo.FromPtr(describeHostUpdateRecordDetailResp.Response.PendingTotalCount)
 			runningCount = lo.FromPtr(describeHostUpdateRecordDetailResp.Response.RunningTotalCount)
@@ -173,14 +164,16 @@ func (d *Deployer) executeUpdateCertificateInstance(ctx context.Context, certPEM
 
 			if succeededCount+failedCount == totalCount {
 				if failedCount > 0 {
-					return fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+					return false, fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
 				}
-				break
+				return true, nil
 			}
 		}
 
 		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (pending: %d, running: %d, succeeded: %d, failed: %d, total: %d) ...", pendingCount, runningCount, succeededCount, failedCount, totalCount))
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return err
 	}
 
 	return nil
@@ -190,13 +183,7 @@ func (d *Deployer) executeUploadUpdateCertificateInstance(ctx context.Context, c
 	// 更新证书内容并更新关联的云资源
 	// REF: https://cloud.tencent.com/document/product/400/119791
 	var deployRecordId int64
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		uploadUpdateCertificateInstanceReq := tcssl.NewUploadUpdateCertificateInstanceRequest()
 		uploadUpdateCertificateInstanceReq.OldCertificateId = common.StringPtr(d.config.CertificateId)
 		uploadUpdateCertificateInstanceReq.CertificatePublicKey = common.StringPtr(certPEM)
@@ -206,40 +193,36 @@ func (d *Deployer) executeUploadUpdateCertificateInstance(ctx context.Context, c
 		uploadUpdateCertificateInstanceResp, err := d.sdkClient.UploadUpdateCertificateInstance(uploadUpdateCertificateInstanceReq)
 		d.logger.Debug("sdk request 'ssl.UploadUpdateCertificateInstance'", slog.Any("request", uploadUpdateCertificateInstanceReq), slog.Any("response", uploadUpdateCertificateInstanceResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'ssl.UploadUpdateCertificateInstance': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'ssl.UploadUpdateCertificateInstance': %w", err)
 		}
 
 		if uploadUpdateCertificateInstanceResp.Response.DeployStatus == nil {
-			return errors.New("unexpected deployment job status")
+			return false, fmt.Errorf("unexpected deployment job status")
 		} else if *uploadUpdateCertificateInstanceResp.Response.DeployStatus == 1 {
 			deployRecordId = int64(*uploadUpdateCertificateInstanceResp.Response.DeployRecordId)
-			break
+			return true, nil
 		}
 
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return err
 	}
 
-	// 循环查询证书云资源更新记录详情，等待任务状态变更
+	// 查询证书云资源更新记录详情，等待任务状态变更
 	// REF: https://cloud.tencent.com/document/product/400/120056
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
+	if _, err := xwait.UntilWithContext(ctx, func(_ context.Context, _ int) (bool, error) {
 		describeHostUploadUpdateRecordDetailReq := tcssl.NewDescribeHostUploadUpdateRecordDetailRequest()
 		describeHostUploadUpdateRecordDetailReq.DeployRecordId = common.Int64Ptr(deployRecordId)
 		describeHostUploadUpdateRecordDetailReq.Limit = common.Int64Ptr(200)
 		describeHostUploadUpdateRecordDetailResp, err := d.sdkClient.DescribeHostUploadUpdateRecordDetail(describeHostUploadUpdateRecordDetailReq)
 		d.logger.Debug("sdk request 'ssl.DescribeHostUploadUpdateRecordDetail'", slog.Any("request", describeHostUploadUpdateRecordDetailReq), slog.Any("response", describeHostUploadUpdateRecordDetailResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostUploadUpdateRecordDetail': %w", err)
+			return false, fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostUploadUpdateRecordDetail': %w", err)
 		}
 
 		var runningCount, succeededCount, failedCount, totalCount int64
 		if describeHostUploadUpdateRecordDetailResp.Response.DeployRecordDetail == nil {
-			return errors.New("unexpected tencentcloud deployment job status")
+			return false, fmt.Errorf("unexpected tencentcloud deployment job status")
 		} else {
 			for _, record := range describeHostUploadUpdateRecordDetailResp.Response.DeployRecordDetail {
 				runningCount += lo.FromPtr(record.RunningTotalCount)
@@ -250,14 +233,16 @@ func (d *Deployer) executeUploadUpdateCertificateInstance(ctx context.Context, c
 
 			if succeededCount+failedCount == totalCount {
 				if failedCount > 0 {
-					return fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
+					return false, fmt.Errorf("tencentcloud deployment job failed (succeeded: %d, failed: %d, total: %d)", succeededCount, failedCount, totalCount)
 				}
-				break
+				return true, nil
 			}
 		}
 
 		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount))
-		time.Sleep(time.Second * 5)
+		return false, nil
+	}, time.Second*5); err != nil {
+		return err
 	}
 
 	return nil

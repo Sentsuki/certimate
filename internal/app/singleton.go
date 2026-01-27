@@ -53,5 +53,10 @@ func GetDB() dbx.Builder {
 }
 
 func GetLogger() *slog.Logger {
-	return GetApp().Logger()
+	app := GetApp()
+	if !app.IsBootstrapped() {
+		panic("MUST NOT USE THIS BEFORE APP BOOTSTRAPPED!")
+	}
+
+	return app.Logger()
 }

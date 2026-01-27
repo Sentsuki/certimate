@@ -60,9 +60,10 @@ func (ne *bizMonitorNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeE
 		if attempt > 0 {
 			ne.logger.Info(fmt.Sprintf("retry %d time(s) ...", attempt))
 
+			ctx := execCtx.Context()
 			select {
-			case <-execCtx.ctx.Done():
-				return execRes, execCtx.ctx.Err()
+			case <-ctx.Done():
+				return execRes, ctx.Err()
 			case <-time.After(RETRY_INTERVAL):
 			}
 		}
@@ -132,7 +133,7 @@ func (ne *bizMonitorNodeExecutor) tryRetrievePeerCertificates(execCtx *NodeExecu
 	}
 
 	url := fmt.Sprintf("https://%s/%s", addr, strings.TrimLeft(requestPath, "/"))
-	req, err := http.NewRequestWithContext(execCtx.ctx, http.MethodHead, url, nil)
+	req, err := http.NewRequestWithContext(execCtx.Context(), http.MethodHead, url, nil)
 	if err != nil {
 		err = fmt.Errorf("failed to create http request: %w", err)
 		ne.logger.Warn(err.Error())

@@ -44,7 +44,7 @@ func (s *CertificateService) InitSchedule(ctx context.Context) error {
 	return nil
 }
 
-func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos.CertificateArchiveFileReq) (*dtos.CertificateArchiveFileResp, error) {
+func (s *CertificateService) DownloadCertificate(ctx context.Context, req *dtos.CertificateDownloadReq) (*dtos.CertificateDownloadResp, error) {
 	certificate, err := s.certificateRepo.GetById(ctx, req.CertificateId)
 	if err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func (s *CertificateService) DownloadArchivedFile(ctx context.Context, req *dtos
 		return nil, domain.ErrInvalidParams
 	}
 
-	resp := &dtos.CertificateArchiveFileResp{
+	resp := &dtos.CertificateDownloadResp{
 		FileFormat: "zip",
 		FileBytes:  bytes,
 	}

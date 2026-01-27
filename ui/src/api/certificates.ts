@@ -3,13 +3,13 @@ import { ClientResponseError } from "pocketbase";
 import { type CertificateFormatType } from "@/domain/certificate";
 import { getPocketBase } from "@/repository/_pocketbase";
 
-export const archive = async (certificateId: string, format?: CertificateFormatType) => {
+export const download = async (certificateId: string, format?: CertificateFormatType) => {
   const pb = getPocketBase();
 
   type RespData = {
     fileBytes: string;
   };
-  const resp = await pb.send<BaseResponse<RespData>>(`/api/certificates/${encodeURIComponent(certificateId)}/archive`, {
+  const resp = await pb.send<BaseResponse<RespData>>(`/api/certificates/${encodeURIComponent(certificateId)}/download`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

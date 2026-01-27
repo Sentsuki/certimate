@@ -109,8 +109,8 @@ const WorkflowDetail = () => {
   return (
     <div className="flex size-full flex-col">
       <div className="px-6 py-4" ref={divHeaderRef}>
-        <div className="relative z-11 container flex justify-between gap-4">
-          <div className="flex-1">
+        <div className="relative z-11 container flex justify-between gap-4 not-md:flex-wrap">
+          <div className="flex-1 not-md:w-full not-md:flex-none">
             <WorkflowDetailBaseName />
             <WorkflowDetailBaseDescription />
 
@@ -132,9 +132,9 @@ const WorkflowDetail = () => {
               />
             </div>
           </div>
-          <div className="py-2">
+          <div className="not-md:mb-2 not-md:w-full">
             <Show when={initialized}>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 not-md:justify-end">
                 <Button onClick={handleActiveClick}>{workflow.enabled ? t("workflow.action.disable.button") : t("workflow.action.enable.button")}</Button>
                 <Button disabled={runButtonDisabled} icon={<IconPlayerPlay size="1.25em" />} loading={runButtonLoading} type="primary" onClick={handleRunClick}>
                   {t("workflow.action.execute.button")}
@@ -182,6 +182,8 @@ const WorkflowDetailBaseName = () => {
   }, [workflow.id]);
 
   const handleEditClick = () => {
+    if (!initialized) return;
+
     setEditing(true);
     setValue(workflow.name);
     setTimeout(() => {
@@ -213,7 +215,7 @@ const WorkflowDetailBaseName = () => {
 
   return (
     <div className="group/input relative flex items-center gap-1">
-      <h1 className={mergeCls("break-all", { invisible: editing })}>
+      <h1 className={mergeCls("break-all", { invisible: editing })} onDoubleClick={handleEditClick}>
         <Show when={initialized} fallback={<Spin />}>
           {workflow.name || t("workflow.detail.baseinfo.name.placeholder")}
         </Show>
@@ -260,6 +262,8 @@ const WorkflowDetailBaseDescription = () => {
   }, [workflow.id]);
 
   const handleEditClick = () => {
+    if (!initialized) return;
+
     setEditing(true);
     setValue(workflow.description || "");
     setTimeout(() => {
@@ -291,7 +295,7 @@ const WorkflowDetailBaseDescription = () => {
 
   return (
     <div className="group/input relative flex items-center gap-1">
-      <p className={mergeCls("text-base text-gray-500", { invisible: editing })}>
+      <p className={mergeCls("text-base text-gray-500", { invisible: editing })} onDoubleClick={handleEditClick}>
         <Show when={initialized} fallback={"\u00A0"}>
           {workflow.description || t("workflow.detail.baseinfo.description.placeholder")}
         </Show>

@@ -38,17 +38,9 @@ func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
 		return nil, errors.New("the configuration of the acme challenge provider is nil")
 	}
 
-	client, err := s3.NewClient(&s3.Config{
-		Endpoint:         config.Endpoint,
-		AccessKey:        config.AccessKey,
-		SecretKey:        config.SecretKey,
-		SignatureVersion: config.SignatureVersion,
-		UsePathStyle:     config.UsePathStyle,
-		Region:           config.Region,
-		SkipTlsVerify:    config.AllowInsecureConnections,
-	})
+	client, err := createS3Client(*config)
 	if err != nil {
-		return nil, fmt.Errorf("s3: failed to create s3 client: %w", err)
+		return nil, fmt.Errorf("s3: failed to create S3 client: %w", err)
 	}
 
 	provider := &provider{client: client, bucket: config.Bucket}
@@ -76,4 +68,22 @@ func (p *provider) CleanUp(domain, token, keyAuth string) error {
 	}
 
 	return nil
+}
+
+func createS3Client(config ChallengerConfig) (*s3.Client, error) {
+	clientCfg := s3.NewDefaultConfig()
+	clientCfg.Endpoint = config.Endpoint
+	clientCfg.AccessKey = config.AccessKey
+	clientCfg.SecretKey = config.SecretKey
+	clientCfg.SignatureVersion = config.SignatureVersion
+	clientCfg.UsePathStyle = config.UsePathStyle
+	clientCfg.Region = config.Region
+	clientCfg.SkipTlsVerify = config.AllowInsecureConnections
+
+	client, err := s3.NewClient(clientCfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, err
 }

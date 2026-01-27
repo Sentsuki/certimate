@@ -1,17 +1,13 @@
 package ssh
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"log/slog"
-	"net"
-	"strconv"
 	"strings"
 
-	"golang.org/x/crypto/ssh"
-
+	"github.com/certimate-go/certimate/internal/tools/ssh"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 	xssh "github.com/certimate-go/certimate/pkg/utils/ssh"
@@ -103,81 +99,17 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 }
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
-	var err error
-
 	// 提取服务器证书和中间证书
 	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
 
-	// 创建 TCP 链接
-	var targetConn net.Conn
-	if len(d.config.JumpServers) > 0 {
-		var jumpClient *ssh.Client
-		for i, jumpServerConf := range d.config.JumpServers {
-			d.logger.Info(fmt.Sprintf("connecting to jump server [%d]", i+1), slog.String("host", jumpServerConf.SshHost))
-
-			var jumpConn net.Conn
-			// 第一个连接是主机发起，后续通过跳板机发起
-			if jumpClient == nil {
-				jumpConn, err = net.Dial("tcp", net.JoinHostPort(jumpServerConf.SshHost, strconv.Itoa(int(jumpServerConf.SshPort))))
-			} else {
-				jumpConn, err = jumpClient.DialContext(ctx, "tcp", net.JoinHostPort(jumpServerConf.SshHost, strconv.Itoa(int(jumpServerConf.SshPort))))
-			}
-			if err != nil {
-				return nil, fmt.Errorf("failed to connect to jump server [%d]: %w", i+1, err)
-			}
-			defer jumpConn.Close()
-
-			newClient, err := createSshClient(
-				jumpConn,
-				jumpServerConf.SshHost,
-				jumpServerConf.SshPort,
-				jumpServerConf.SshAuthMethod,
-				jumpServerConf.SshUsername,
-				jumpServerConf.SshPassword,
-				jumpServerConf.SshKey,
-				jumpServerConf.SshKeyPassphrase,
-			)
-			if err != nil {
-				return nil, fmt.Errorf("failed to create jump server ssh client[%d]: %w", i+1, err)
-			}
-			defer newClient.Close()
-
-			jumpClient = newClient
-			d.logger.Info(fmt.Sprintf("jump server connected [%d]", i+1), slog.String("host", jumpServerConf.SshHost))
-		}
-
-		// 通过跳板机发起 TCP 连接到目标服务器
-		targetConn, err = jumpClient.DialContext(ctx, "tcp", net.JoinHostPort(d.config.SshHost, strconv.Itoa(int(d.config.SshPort))))
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to target server: %w", err)
-		}
-	} else {
-		// 直接发起 TCP 连接到目标服务器
-		targetConn, err = net.Dial("tcp", net.JoinHostPort(d.config.SshHost, strconv.Itoa(int(d.config.SshPort))))
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect to target server: %w", err)
-		}
-	}
-	defer targetConn.Close()
-
-	// 创建 SSH 客户端
-	client, err := createSshClient(
-		targetConn,
-		d.config.SshHost,
-		d.config.SshPort,
-		d.config.SshAuthMethod,
-		d.config.SshUsername,
-		d.config.SshPassword,
-		d.config.SshKey,
-		d.config.SshKeyPassphrase,
-	)
+	client, err := createSshClient(*d.config)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create ssh client: %w", err)
+		return nil, fmt.Errorf("ssh: failed to create SSH client: %w", err)
 	}
-	defer client.Close()
+
 	d.logger.Info("ssh connected")
 
 	// 执行前置命令
@@ -192,7 +124,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		command = strings.ReplaceAll(command, "${CERTIMATE_DEPLOYER_CMDVAR_JKS_KEYPASS}", d.config.JksKeypass)
 		command = strings.ReplaceAll(command, "${CERTIMATE_DEPLOYER_CMDVAR_JKS_STOREPASS}", d.config.JksStorepass)
 
-		stdout, stderr, err := execSshCommand(client, command)
+		stdout, stderr, err := xssh.RunCommand(client.GetClient(), command)
 		d.logger.Debug("run pre-command", slog.String("stdout", stdout), slog.String("stderr", stderr))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute pre-command (stdout: %s, stderr: %s): %w ", stdout, stderr, err)
@@ -203,26 +135,26 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	switch d.config.OutputFormat {
 	case OUTPUT_FORMAT_PEM:
 		{
-			if err := xssh.WriteRemoteString(client, d.config.OutputCertPath, certPEM, d.config.UseSCP); err != nil {
+			if err := xssh.WriteRemoteString(client.GetClient(), d.config.OutputCertPath, certPEM, d.config.UseSCP); err != nil {
 				return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 			}
 			d.logger.Info("ssl certificate file uploaded", slog.String("path", d.config.OutputCertPath))
 
 			if d.config.OutputServerCertPath != "" {
-				if err := xssh.WriteRemoteString(client, d.config.OutputServerCertPath, serverCertPEM, d.config.UseSCP); err != nil {
+				if err := xssh.WriteRemoteString(client.GetClient(), d.config.OutputServerCertPath, serverCertPEM, d.config.UseSCP); err != nil {
 					return nil, fmt.Errorf("failed to save server certificate file: %w", err)
 				}
 				d.logger.Info("ssl server certificate file uploaded", slog.String("path", d.config.OutputServerCertPath))
 			}
 
 			if d.config.OutputIntermediaCertPath != "" {
-				if err := xssh.WriteRemoteString(client, d.config.OutputIntermediaCertPath, intermediaCertPEM, d.config.UseSCP); err != nil {
+				if err := xssh.WriteRemoteString(client.GetClient(), d.config.OutputIntermediaCertPath, intermediaCertPEM, d.config.UseSCP); err != nil {
 					return nil, fmt.Errorf("failed to save intermedia certificate file: %w", err)
 				}
 				d.logger.Info("ssl intermedia certificate file uploaded", slog.String("path", d.config.OutputIntermediaCertPath))
 			}
 
-			if err := xssh.WriteRemoteString(client, d.config.OutputKeyPath, privkeyPEM, d.config.UseSCP); err != nil {
+			if err := xssh.WriteRemoteString(client.GetClient(), d.config.OutputKeyPath, privkeyPEM, d.config.UseSCP); err != nil {
 				return nil, fmt.Errorf("failed to upload private key file: %w", err)
 			}
 			d.logger.Info("ssl private key file uploaded", slog.String("path", d.config.OutputKeyPath))
@@ -236,7 +168,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 			}
 			d.logger.Info("ssl certificate transformed to pfx")
 
-			if err := xssh.WriteRemote(client, d.config.OutputCertPath, pfxData, d.config.UseSCP); err != nil {
+			if err := xssh.WriteRemote(client.GetClient(), d.config.OutputCertPath, pfxData, d.config.UseSCP); err != nil {
 				return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 			}
 			d.logger.Info("ssl certificate file uploaded", slog.String("path", d.config.OutputCertPath))
@@ -250,7 +182,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 			}
 			d.logger.Info("ssl certificate transformed to jks")
 
-			if err := xssh.WriteRemote(client, d.config.OutputCertPath, jksData, d.config.UseSCP); err != nil {
+			if err := xssh.WriteRemote(client.GetClient(), d.config.OutputCertPath, jksData, d.config.UseSCP); err != nil {
 				return nil, fmt.Errorf("failed to upload certificate file: %w", err)
 			}
 			d.logger.Info("ssl certificate file uploaded", slog.String("path", d.config.OutputCertPath))
@@ -272,7 +204,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		command = strings.ReplaceAll(command, "${CERTIMATE_DEPLOYER_CMDVAR_JKS_KEYPASS}", d.config.JksKeypass)
 		command = strings.ReplaceAll(command, "${CERTIMATE_DEPLOYER_CMDVAR_JKS_STOREPASS}", d.config.JksStorepass)
 
-		stdout, stderr, err := execSshCommand(client, command)
+		stdout, stderr, err := xssh.RunCommand(client.GetClient(), command)
 		d.logger.Debug("run post-command", slog.String("stdout", stdout), slog.String("stderr", stderr))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute post-command (stdout: %s, stderr: %s): %w ", stdout, stderr, err)
@@ -282,59 +214,31 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	return &deployer.DeployResult{}, nil
 }
 
-func createSshClient(conn net.Conn, host string, port int32, authMethod string, username, password, key, keyPassphrase string) (*ssh.Client, error) {
-	if host == "" {
-		host = "localhost"
+func createSshClient(config DeployerConfig) (*ssh.Client, error) {
+	clientCfg := ssh.NewDefaultConfig()
+	clientCfg.Host = config.SshHost
+	clientCfg.Port = int(config.SshPort)
+	clientCfg.AuthMethod = ssh.AuthMethodType(config.SshAuthMethod)
+	clientCfg.Username = config.SshUsername
+	clientCfg.Password = config.SshPassword
+	clientCfg.Key = config.SshKey
+	clientCfg.KeyPassphrase = config.SshKeyPassphrase
+	for _, jumpServer := range config.JumpServers {
+		jumpServerCfg := ssh.NewServerConfig()
+		jumpServerCfg.Host = jumpServer.SshHost
+		jumpServerCfg.Port = int(jumpServer.SshPort)
+		jumpServerCfg.AuthMethod = ssh.AuthMethodType(jumpServer.SshAuthMethod)
+		jumpServerCfg.Username = jumpServer.SshUsername
+		jumpServerCfg.Password = jumpServer.SshPassword
+		jumpServerCfg.Key = jumpServer.SshKey
+		jumpServerCfg.KeyPassphrase = jumpServer.SshKeyPassphrase
+		clientCfg.JumpServers = append(clientCfg.JumpServers, *jumpServerCfg)
 	}
 
-	if port == 0 {
-		port = 22
-	}
-
-	if username == "" {
-		username = "root"
-	}
-
-	if authMethod == "" {
-		if key != "" {
-			authMethod = AUTH_METHOD_KEY
-		} else if password != "" {
-			authMethod = AUTH_METHOD_PASSWORD
-		} else {
-			authMethod = AUTH_METHOD_NONE
-		}
-	}
-
-	switch authMethod {
-	case AUTH_METHOD_NONE:
-		return xssh.NewClient(conn, host, int(port), username)
-
-	case AUTH_METHOD_PASSWORD:
-		return xssh.NewClientWithPassword(conn, host, int(port), username, password)
-
-	case AUTH_METHOD_KEY:
-		return xssh.NewClientWithKey(conn, host, int(port), username, key, keyPassphrase)
-
-	default:
-		return nil, fmt.Errorf("unsupported auth method '%s'", authMethod)
-	}
-}
-
-func execSshCommand(sshCli *ssh.Client, command string) (string, string, error) {
-	session, err := sshCli.NewSession()
+	client, err := ssh.NewClient(clientCfg)
 	if err != nil {
-		return "", "", err
-	}
-	defer session.Close()
-
-	stdoutBuf := bytes.NewBuffer(nil)
-	session.Stdout = stdoutBuf
-	stderrBuf := bytes.NewBuffer(nil)
-	session.Stderr = stderrBuf
-	err = session.Run(command)
-	if err != nil {
-		return stdoutBuf.String(), stderrBuf.String(), fmt.Errorf("failed to execute ssh command: %w", err)
+		return nil, err
 	}
 
-	return stdoutBuf.String(), stderrBuf.String(), nil
+	return client, nil
 }

@@ -15,6 +15,7 @@ import (
 	onepanelsdk "github.com/certimate-go/certimate/pkg/sdk3rd/1panel"
 	onepanelsdk2 "github.com/certimate-go/certimate/pkg/sdk3rd/1panel/v2"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
 type DeployerConfig struct {
@@ -163,7 +164,7 @@ func (d *Deployer) deployToWebsite(ctx context.Context, certPEM, privkeyPEM stri
 					errs = append(errs, err)
 				}
 				if i < len(websiteIds)-1 {
-					time.Sleep(time.Second * 5)
+					xwait.DelayWithContext(ctx, time.Second*5)
 				}
 			}
 		}

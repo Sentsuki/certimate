@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
+
+	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
 type delayNodeExecutor struct {
@@ -16,7 +18,7 @@ func (ne *delayNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeExecut
 	nodeCfg := execCtx.Node.Data.Config.AsDelay()
 	ne.logger.Info(fmt.Sprintf("delay for %d second(s) before continuing ...", nodeCfg.Wait))
 
-	time.Sleep(time.Duration(nodeCfg.Wait) * time.Second)
+	xwait.DelayWithContext(execCtx.Context(), time.Duration(nodeCfg.Wait)*time.Second)
 
 	return execRes, nil
 }

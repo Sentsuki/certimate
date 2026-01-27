@@ -1,18 +1,16 @@
 package domain
 
-import (
-	"time"
-)
+import "time"
 
 const CollectionNameAccess = "access"
 
 type Access struct {
 	Meta
-	Name      string         `json:"name" db:"name"`
-	Provider  string         `json:"provider" db:"provider"`
-	Config    map[string]any `json:"config" db:"config"`
-	Reserve   string         `json:"reserve,omitempty" db:"reserve"`
-	DeletedAt *time.Time     `json:"deleted" db:"deleted"`
+	Name      string         `db:"name"     json:"name"`
+	Provider  string         `db:"provider" json:"provider"`
+	Config    map[string]any `db:"config"   json:"config"`
+	Reserve   string         `db:"reserve"  json:"reserve,omitempty"`
+	DeletedAt *time.Time     `db:"deleted" json:"deleted"`
 }
 
 type AccessConfigFor1Panel struct {

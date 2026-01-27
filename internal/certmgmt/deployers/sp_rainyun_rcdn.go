@@ -18,11 +18,9 @@ func init() {
 
 		provider, err := rainyunrcdn.NewDeployer(&rainyunrcdn.DeployerConfig{
 			ApiKey:             credentials.ApiKey,
-			ResourceType:       xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
 			InstanceId:         xmaps.GetInt64(options.ProviderExtendedConfig, "instanceId"),
 			DomainMatchPattern: xmaps.GetString(options.ProviderExtendedConfig, "domainMatchPattern"),
 			Domain:             xmaps.GetString(options.ProviderExtendedConfig, "domain"),
-			CertificateId:      xmaps.GetInt64(options.ProviderExtendedConfig, "certificateId"),
 		})
 		return provider, err
 	})

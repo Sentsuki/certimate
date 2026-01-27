@@ -10,6 +10,7 @@ none
 [![Docker Pulls](https://img.shields.io/docker/pulls/certimate/certimate?style=flat)](https://hub.docker.com/r/certimate/certimate)
 [![Release](https://img.shields.io/github/v/release/certimate-go/certimate?style=flat&sort=semver)](https://github.com/certimate-go/certimate/releases)
 [![License](https://img.shields.io/github/license/certimate-go/certimate?style=flat)](https://mit-license.org/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg?label=DeepWiki)](https://deepwiki.com/certimate-go/certimate)
 
 </div>
 
@@ -32,14 +33,14 @@ An open-source and free self-hosted SSL certificates ACME tool, automates the fu
 
 ## 💡 Features
 
-- Flexible workflow orchestration, fully automation from certificate application to deployment;
-- Supports single-domain, multi-domain, wildcard certificates, with options for RSA or ECC.
+- Flexible workflow orchestration, fully automation from certificate application to deployment.
+- Supports requesting single/multiple/wildcard domain certificates, IP address certificates, with options for RSA or ECC key.
 - Supports DNS-01 challenge and HTTP-01 challenge both.
 - Supports various certificate formats such as PEM, PFX, JKS.
-- Supports more than 60+ domain registrars (e.g., AWS, Cloudflare, GoDaddy, Alibaba Cloud, Tencent Cloud, etc. [Check out full providers](https://docs.certimate.me/en-US/docs/reference/providers#supported-dns-providers));
-- Supports more than 110+ deployment targets (e.g., Kubernetes, CDN, WAF, load balancers, etc. [Check out full providers](https://docs.certimate.me/en-US/docs/reference/providers#supported-hosting-providers));
-- Supports multiple notification channels including email, Discord, Slack, Telegram, DingTalk, Feishu, WeCom, and more;
-- Supports multiple ACME CAs including Let's Encrypt, Actalis, Google Trust Services，SSL.com, ZeroSSL, and more;
+- Supports more than 60+ domain registrars (e.g., AWS, Cloudflare, GoDaddy, Alibaba Cloud, Tencent Cloud, etc. [Check out full providers](https://docs.certimate.me/en-US/docs/reference/providers#supported-dns-providers)).
+- Supports more than 110+ deployment targets (e.g., Kubernetes, CDN, WAF, load balancers, etc. [Check out full providers](https://docs.certimate.me/en-US/docs/reference/providers#supported-hosting-providers)).
+- Supports multiple notification channels including email, Discord, Slack, Telegram, DingTalk, Feishu, WeCom, and more.
+- Supports multiple ACME CAs including Let's Encrypt, Actalis, Google Trust Services，SSL.com, ZeroSSL, and more.
 - More features waiting to be discovered.
 
 ## 🚀 Quick Start
@@ -119,9 +120,9 @@ This repository is available under the [MIT License](https://opensource.org/lice
 ## 🌐 Join the Community
 
 - [Telegram](https://t.me/+ZXphsppxUg41YmVl)
-- Wechat Group
+- Wechat Group (contact to the author [@usual2970](https://github.com/usual2970) to getting invitation)
 
-  <img src="https://i.imgur.com/zSHEoIm.png" width="200"/>
+  <img src="https://i.imgur.com/8xwsLTA.png" width="200"/>
 
 ## ⭐ Star History
 
