@@ -288,6 +288,7 @@ export const accessProvidersMap: Map<AccessProvider["type"] | string, AccessProv
 export const CA_PROVIDERS = Object.freeze({
   ACMECA: `${ACCESS_PROVIDERS.ACMECA}`,
   ACTALISSSL: `${ACCESS_PROVIDERS.ACTALISSSL}`,
+  DIGICERT: `${ACCESS_PROVIDERS.DIGICERT}`,
   GLOBALSIGNATLAS: `${ACCESS_PROVIDERS.GLOBALSIGNATLAS}`,
   GOOGLETRUSTSERVICES: `${ACCESS_PROVIDERS.GOOGLETRUSTSERVICES}`,
   LETSENCRYPT: `${ACCESS_PROVIDERS.LETSENCRYPT}`,
@@ -300,7 +301,9 @@ export const CA_PROVIDERS = Object.freeze({
 
 export type CAProviderType = (typeof CA_PROVIDERS)[keyof typeof CA_PROVIDERS];
 
-export interface CAProvider extends BaseProviderWithAccess<CAProviderType> {}
+export interface CAProvider extends BaseProviderWithAccess<CAProviderType> {
+  description?: string;
+}
 
 export const caProvidersMap: Map<CAProvider["type"] | string, CAProvider> = new Map(
   /*
@@ -309,22 +312,24 @@ export const caProvidersMap: Map<CAProvider["type"] | string, CAProvider> = new 
   */
   (
     [
-      [CA_PROVIDERS.LETSENCRYPT, "builtin"],
-      [CA_PROVIDERS.LETSENCRYPTSTAGING, "builtin"],
-      [CA_PROVIDERS.ACTALISSSL],
-      [CA_PROVIDERS.GLOBALSIGNATLAS],
-      [CA_PROVIDERS.GOOGLETRUSTSERVICES],
-      [CA_PROVIDERS.SECTIGO],
-      [CA_PROVIDERS.SSLCOM],
-      [CA_PROVIDERS.ZEROSSL],
-      [CA_PROVIDERS.LITESSL],
-      [CA_PROVIDERS.ACMECA],
-    ] satisfies Array<[CAProviderType, "builtin"] | [CAProviderType]>
-  ).map(([type, builtin]) => [
+      [CA_PROVIDERS.LETSENCRYPT, "letsencrypt.org", "builtin"],
+      [CA_PROVIDERS.LETSENCRYPTSTAGING, "letsencrypt.org", "builtin"],
+      [CA_PROVIDERS.ACTALISSSL, "actalis.com"],
+      [CA_PROVIDERS.DIGICERT, "digicert.com"],
+      [CA_PROVIDERS.GLOBALSIGNATLAS, "atlas.globalsign.com"],
+      [CA_PROVIDERS.GOOGLETRUSTSERVICES, "pki.goog"],
+      [CA_PROVIDERS.SECTIGO, "sectigo.com"],
+      [CA_PROVIDERS.SSLCOM, "ssl.com"],
+      [CA_PROVIDERS.ZEROSSL, "zerossl.com"],
+      [CA_PROVIDERS.LITESSL, "litessl.cn (freessl.cn)"],
+      [CA_PROVIDERS.ACMECA, "ACME v2 (RFC 8555)"],
+    ] satisfies Array<[CAProviderType, string, "builtin"] | [CAProviderType, string]>
+  ).map(([type, description, builtin]) => [
     type,
     {
       type: type,
       name: accessProvidersMap.get(type.split("-")[0])!.name,
+      description: description,
       icon: accessProvidersMap.get(type.split("-")[0])!.icon,
       provider: type.split("-")[0] as AccessProviderType,
       builtin: builtin === "builtin",

@@ -2,6 +2,6 @@
 
 const (
 	AppName      = "Certimate"
-	AppVersion   = "0.4.19"
+	AppVersion   = "0.4.20"
 	AppUserAgent = AppName + "/" + AppVersion
 )
