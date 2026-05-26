@@ -55,6 +55,7 @@ export const ACCESS_PROVIDERS = Object.freeze({
   DOGECLOUD: "dogecloud",
   DOKPLOY: "dokploy",
   DUCKDNS: "duckdns",
+  DYNADOT: "dynadot",
   DYNU: "dynu",
   DYNV6: "dynv6",
   EMAIL: "email",
@@ -127,6 +128,7 @@ export const ACCESS_PROVIDERS = Object.freeze({
   WECOMBOT: "wecombot",
   WESTCN: "westcn",
   XINNET: "xinnet",
+  ZENLAYER: "zenlayer",
   ZEROSSL: "zerossl",
 } as const);
 
@@ -186,6 +188,7 @@ export const accessProvidersMap: Map<AccessProvider["type"] | string, AccessProv
       [ACCESS_PROVIDERS.CACHEFLY, "provider.cachefly", "/imgs/providers/cachefly.png", [ACCESS_USAGES.HOSTING]],
       [ACCESS_PROVIDERS.MOHUA, "provider.mohua", "/imgs/providers/mohua.png", [ACCESS_USAGES.HOSTING]],
       [ACCESS_PROVIDERS.UNICLOUD, "provider.unicloud", "/imgs/providers/unicloud.png", [ACCESS_USAGES.HOSTING]],
+      [ACCESS_PROVIDERS.ZENLAYER, "provider.zenlayer", "/imgs/providers/zenlayer.svg", [ACCESS_USAGES.HOSTING]],
       [ACCESS_PROVIDERS["1PANEL"], "provider.1panel", "/imgs/providers/1panel.svg", [ACCESS_USAGES.HOSTING]],
       [ACCESS_PROVIDERS.APISIX, "provider.apisix", "/imgs/providers/apisix.svg", [ACCESS_USAGES.HOSTING]],
       [ACCESS_PROVIDERS.BAOTAPANEL, "provider.baotapanel", "/imgs/providers/baotapanel.svg", [ACCESS_USAGES.HOSTING]],
@@ -216,6 +219,7 @@ export const accessProvidersMap: Map<AccessProvider["type"] | string, AccessProv
       [ACCESS_PROVIDERS.DNSEXIT, "provider.dnsexit", "/imgs/providers/dnsexit.png", [ACCESS_USAGES.DNS]],
       [ACCESS_PROVIDERS.DNSMADEEASY, "provider.dnsmadeeasy", "/imgs/providers/dnsmadeeasy.png", [ACCESS_USAGES.DNS]],
       [ACCESS_PROVIDERS.DUCKDNS, "provider.duckdns", "/imgs/providers/duckdns.png", [ACCESS_USAGES.DNS]],
+      [ACCESS_PROVIDERS.DYNADOT, "provider.dynadot", "/imgs/providers/dynadot.svg", [ACCESS_USAGES.DNS]],
       [ACCESS_PROVIDERS.DYNU, "provider.dynu", "/imgs/providers/dynu.png", [ACCESS_USAGES.DNS]],
       [ACCESS_PROVIDERS.DYNV6, "provider.dynv6", "/imgs/providers/dynv6.svg", [ACCESS_USAGES.DNS]],
       [ACCESS_PROVIDERS.GANDINET, "provider.gandinet", "/imgs/providers/gandinet.svg", [ACCESS_USAGES.DNS]],
@@ -359,6 +363,7 @@ export const ACME_DNS01_PROVIDERS = Object.freeze({
   ALIYUN_ESA: `${ACCESS_PROVIDERS.ALIYUN}-esa`,
   ARVANCLOUD: `${ACCESS_PROVIDERS.ARVANCLOUD}`,
   AWS: `${ACCESS_PROVIDERS.AWS}`, // 兼容旧值，等同于 `AWS_ROUTE53`
+  AWS_LIGHTSAIL: `${ACCESS_PROVIDERS.AWS}-lightsail`,
   AWS_ROUTE53: `${ACCESS_PROVIDERS.AWS}-route53`,
   AZURE: `${ACCESS_PROVIDERS.AZURE}`, // 兼容旧值，等同于 `AZURE_DNS`
   AZURE_DNS: `${ACCESS_PROVIDERS.AZURE}-dns`,
@@ -380,6 +385,7 @@ export const ACME_DNS01_PROVIDERS = Object.freeze({
   DNSLA: `${ACCESS_PROVIDERS.DNSLA}`,
   DNSMADEEASY: `${ACCESS_PROVIDERS.DNSMADEEASY}`,
   DUCKDNS: `${ACCESS_PROVIDERS.DUCKDNS}`,
+  DYNADOT: `${ACCESS_PROVIDERS.DYNADOT}`,
   DYNU: `${ACCESS_PROVIDERS.DYNU}`,
   DYNV6: `${ACCESS_PROVIDERS.DYNV6}`,
   GANDINET: `${ACCESS_PROVIDERS.GANDINET}`,
@@ -445,6 +451,7 @@ export const acmeDns01ProvidersMap: Map<ACMEDns01Provider["type"] | string, ACME
       [ACME_DNS01_PROVIDERS.VOLCENGINE_DNS, "provider.volcengine_dns"],
       [ACME_DNS01_PROVIDERS.JDCLOUD_DNS, "provider.jdcloud_dns"],
       [ACME_DNS01_PROVIDERS.AWS_ROUTE53, "provider.aws_route53"],
+      [ACME_DNS01_PROVIDERS.AWS_LIGHTSAIL, "provider.aws_lightsail"],
       [ACME_DNS01_PROVIDERS.AZURE_DNS, "provider.azure_dns"],
       [ACME_DNS01_PROVIDERS.AKAMAI_EDGEDNS, "provider.akamai_edgedns"],
       [ACME_DNS01_PROVIDERS.ARVANCLOUD, "provider.arvancloud"],
@@ -458,6 +465,7 @@ export const acmeDns01ProvidersMap: Map<ACMEDns01Provider["type"] | string, ACME
       [ACME_DNS01_PROVIDERS.DNSEXIT, "provider.dnsexit"],
       [ACME_DNS01_PROVIDERS.DNSMADEEASY, "provider.dnsmadeeasy"],
       [ACME_DNS01_PROVIDERS.DUCKDNS, "provider.duckdns"],
+      [ACME_DNS01_PROVIDERS.DYNADOT, "provider.dynadot"],
       [ACME_DNS01_PROVIDERS.DYNU, "provider.dynu"],
       [ACME_DNS01_PROVIDERS.DYNV6, "provider.dynv6"],
       [ACME_DNS01_PROVIDERS.GANDINET, "provider.gandinet"],
@@ -687,6 +695,8 @@ export const DEPLOYMENT_PROVIDERS = Object.freeze({
   WANGSU_CDNPRO: `${ACCESS_PROVIDERS.WANGSU}-cdnpro`,
   WANGSU_CERTIFICATE: `${ACCESS_PROVIDERS.WANGSU}-certificate`,
   WEBHOOK: `${ACCESS_PROVIDERS.WEBHOOK}`,
+  ZENLAYER_CDN: `${ACCESS_PROVIDERS.ZENLAYER}-cdn`,
+  ZENLAYER_GA: `${ACCESS_PROVIDERS.ZENLAYER}-ga`,
 } as const);
 
 export type DeploymentProviderType = (typeof DEPLOYMENT_PROVIDERS)[keyof typeof DEPLOYMENT_PROVIDERS];
@@ -824,6 +834,8 @@ export const deploymentProvidersMap: Map<DeploymentProvider["type"] | string, De
       [DEPLOYMENT_PROVIDERS.FLYIO, "provider.flyio", DEPLOYMENT_CATEGORIES.WEBSITE],
       [DEPLOYMENT_PROVIDERS.NETLIFY, "provider.netlify", DEPLOYMENT_CATEGORIES.WEBSITE],
       [DEPLOYMENT_PROVIDERS.VERCEL, "provider.vercel", DEPLOYMENT_CATEGORIES.WEBSITE],
+      [DEPLOYMENT_PROVIDERS.ZENLAYER_CDN, "provider.zenlayer_cdn", DEPLOYMENT_CATEGORIES.CDN],
+      [DEPLOYMENT_PROVIDERS.ZENLAYER_GA, "provider.zenlayer_ga", DEPLOYMENT_CATEGORIES.ACCELERATOR],
       [DEPLOYMENT_PROVIDERS.CDNFLY, "provider.cdnfly", DEPLOYMENT_CATEGORIES.CDN],
       [DEPLOYMENT_PROVIDERS.FLEXCDN, "provider.flexcdn", DEPLOYMENT_CATEGORIES.CDN],
       [DEPLOYMENT_PROVIDERS.GOEDGE, "provider.goedge", DEPLOYMENT_CATEGORIES.CDN],

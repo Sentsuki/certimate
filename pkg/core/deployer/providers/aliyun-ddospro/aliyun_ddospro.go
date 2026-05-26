@@ -8,15 +8,14 @@ import (
 	"strings"
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
-	aliddoscoo "github.com/alibabacloud-go/ddoscoo-20200101/v5/client"
 	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/aliyun-ddospro/internal"
+	aliddoscoo "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/alibabacloud-go/ddoscoo-20200101/v5/client"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
@@ -39,7 +38,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.DdoscooClient
+	sdkClient  *aliddoscoo.Client
 	sdkCertmgr certmgr.Provider
 }
 
@@ -47,7 +46,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
@@ -55,7 +54,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 		ResourceGroupId: config.ResourceGroupId,
@@ -100,7 +99,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case "", DOMAIN_MATCH_PATTERN_EXACT:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			domains = []string{d.config.Domain}
@@ -109,7 +108,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case DOMAIN_MATCH_PATTERN_WILDCARD:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			if strings.HasPrefix(d.config.Domain, "*.") {
@@ -122,7 +121,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 					return xcerthostname.IsMatch(d.config.Domain, domain)
 				})
 				if len(domains) == 0 {
-					return nil, errors.New("could not find any domains matched by wildcard")
+					return nil, fmt.Errorf("could not find any domains matched by wildcard")
 				}
 			} else {
 				domains = []string{d.config.Domain}
@@ -140,7 +139,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				return xcerthostname.IsMatchByCertificatePEM(certPEM, domain)
 			})
 			if len(domains) == 0 {
-				return nil, errors.New("could not find any domains matched by certificate")
+				return nil, fmt.Errorf("could not find any domains matched by certificate")
 			}
 		}
 
@@ -184,9 +183,9 @@ func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
 		ResourceGroupId: lo.EmptyableToPtr(d.config.ResourceGroupId),
 	}
 	describeDomainsResp, err := d.sdkClient.DescribeDomainsWithContext(ctx, describeDomainsReq, &dara.RuntimeOptions{})
-	d.logger.Debug("sdk request 'aliddoscoo.DescribeLiveUserDomains'", slog.Any("request", describeDomainsReq), slog.Any("response", describeDomainsResp))
+	d.logger.Debug("sdk request 'ddoscoo.DescribeLiveUserDomains'", slog.Any("request", describeDomainsReq), slog.Any("response", describeDomainsResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'aliddoscoo.DescribeDomains': %w", err)
+		return nil, fmt.Errorf("failed to execute sdk request 'ddoscoo.DescribeDomains': %w", err)
 	}
 
 	for _, domain := range describeDomainsResp.Body.Domains {
@@ -204,15 +203,15 @@ func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, c
 		CertIdentifier: tea.String(cloudCertId),
 	}
 	associateWebCertResp, err := d.sdkClient.AssociateWebCertWithContext(ctx, associateWebCertReq, &dara.RuntimeOptions{})
-	d.logger.Debug("sdk request 'dcdn.AssociateWebCert'", slog.Any("request", associateWebCertReq), slog.Any("response", associateWebCertResp))
+	d.logger.Debug("sdk request 'ddoscoo.AssociateWebCert'", slog.Any("request", associateWebCertReq), slog.Any("response", associateWebCertResp))
 	if err != nil {
-		return fmt.Errorf("failed to execute sdk request 'dcdn.AssociateWebCert': %w", err)
+		return fmt.Errorf("failed to execute sdk request 'ddoscoo.AssociateWebCert': %w", err)
 	}
 
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.DdoscooClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*aliddoscoo.Client, error) {
 	// 接入点一览 https://api.aliyun.com/product/ddoscoo
 	var endpoint string
 	switch region {
@@ -228,7 +227,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.Ddo
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := internal.NewDdoscooClient(config)
+	client, err := aliddoscoo.NewClient(config)
 	if err != nil {
 		return nil, err
 	}

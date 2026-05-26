@@ -3,7 +3,6 @@ package baotapanelconsole
 import (
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -32,7 +31,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.ApiKey, config.AllowInsecureConnections)
@@ -62,9 +61,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		Certificate: certPEM,
 	}
 	configSavePanelSSLResp, err := d.sdkClient.ConfigSavePanelSSLWithContext(ctx, configSavePanelSSLReq)
-	d.logger.Debug("sdk request 'bt.ConfigSavePanelSSL'", slog.Any("request", configSavePanelSSLReq), slog.Any("response", configSavePanelSSLResp))
+	d.logger.Debug("sdk request 'config.SavePanelSSL'", slog.Any("request", configSavePanelSSLReq), slog.Any("response", configSavePanelSSLResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'bt.ConfigSavePanelSSL': %w", err)
+		return nil, fmt.Errorf("failed to execute sdk request 'config.SavePanelSSL': %w", err)
 	}
 
 	if d.config.AutoRestart {
@@ -74,7 +73,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 			Type: "restart",
 		}
 		systemServiceAdminResp, _ := d.sdkClient.SystemServiceAdminWithContext(ctx, systemServiceAdminReq)
-		d.logger.Debug("sdk request 'bt.SystemServiceAdmin'", slog.Any("request", systemServiceAdminReq), slog.Any("response", systemServiceAdminResp))
+		d.logger.Debug("sdk request 'system.ServiceAdmin'", slog.Any("request", systemServiceAdminReq), slog.Any("response", systemServiceAdminResp))
 	}
 
 	return &deployer.DeployResult{}, nil

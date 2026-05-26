@@ -8,13 +8,13 @@ import (
 	"strings"
 
 	jdcore "github.com/jdcloud-api/jdcloud-sdk-go/core"
-	jdcdn "github.com/jdcloud-api/jdcloud-sdk-go/services/cdn/apis"
+	jdcdnapis "github.com/jdcloud-api/jdcloud-sdk-go/services/cdn/apis"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/jdcloud-ssl"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/jdcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/jdcloud-cdn/internal"
+	jdcdn "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/jdcloud-api/jdcloud-sdk-go/services/cdn/client"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
@@ -33,7 +33,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.CdnClient
+	sdkClient  *jdcdn.CdnClient
 	sdkCertmgr certmgr.Provider
 }
 
@@ -41,7 +41,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
@@ -49,7 +49,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 	})
@@ -90,7 +90,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case "", DOMAIN_MATCH_PATTERN_EXACT:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			domains = []string{d.config.Domain}
@@ -99,7 +99,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case DOMAIN_MATCH_PATTERN_WILDCARD:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			if strings.HasPrefix(d.config.Domain, "*.") {
@@ -112,7 +112,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 					return xcerthostname.IsMatch(d.config.Domain, domain)
 				})
 				if len(domains) == 0 {
-					return nil, errors.New("could not find any domains matched by wildcard")
+					return nil, fmt.Errorf("could not find any domains matched by wildcard")
 				}
 			} else {
 				domains = []string{d.config.Domain}
@@ -130,7 +130,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				return xcerthostname.IsMatchByCertificatePEM(certPEM, domain)
 			})
 			if len(domains) == 0 {
-				return nil, errors.New("could not find any domains matched by certificate")
+				return nil, fmt.Errorf("could not find any domains matched by certificate")
 			}
 		}
 
@@ -178,7 +178,7 @@ func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
 		default:
 		}
 
-		getDomainListReq := jdcdn.NewGetDomainListRequestWithoutParam()
+		getDomainListReq := jdcdnapis.NewGetDomainListRequestWithoutParam()
 		getDomainListReq.SetPageNumber(getDomainListPageNumber)
 		getDomainListReq.SetPageSize(getDomainListPageSize)
 		getDomainListResp, err := d.sdkClient.GetDomainList(getDomainListReq)
@@ -209,7 +209,7 @@ func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
 func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, cloudCertId string) error {
 	// 查询域名配置信息
 	// REF: https://docs.jdcloud.com/cn/cdn/api/querydomainconfig
-	queryDomainConfigReq := jdcdn.NewQueryDomainConfigRequestWithoutParam()
+	queryDomainConfigReq := jdcdnapis.NewQueryDomainConfigRequestWithoutParam()
 	queryDomainConfigReq.SetDomain(domain)
 	queryDomainConfigResp, err := d.sdkClient.QueryDomainConfig(queryDomainConfigReq)
 	d.logger.Debug("sdk request 'cdn.QueryDomainConfig'", slog.Any("request", queryDomainConfigReq), slog.Any("response", queryDomainConfigResp))
@@ -219,7 +219,7 @@ func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, c
 
 	// 设置通讯协议
 	// REF: https://docs.jdcloud.com/cn/cdn/api/sethttptype
-	setHttpTypeReq := jdcdn.NewSetHttpTypeRequestWithoutParam()
+	setHttpTypeReq := jdcdnapis.NewSetHttpTypeRequestWithoutParam()
 	setHttpTypeReq.SetDomain(domain)
 	setHttpTypeReq.SetHttpType("https")
 	setHttpTypeReq.SetCertFrom("ssl")
@@ -234,8 +234,9 @@ func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, c
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*internal.CdnClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (*jdcdn.CdnClient, error) {
 	clientCredentials := jdcore.NewCredentials(accessKeyId, accessKeySecret)
-	client := internal.NewCdnClient(clientCredentials)
+	client := jdcdn.NewCdnClient(clientCredentials)
+	client.DisableLogger()
 	return client, nil
 }

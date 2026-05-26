@@ -2,12 +2,11 @@ package huaweicloudscm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/huaweicloud-scm"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/huaweicloud-scm"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 )
 
@@ -30,10 +29,10 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:         config.AccessKeyId,
 		SecretAccessKey:     config.SecretAccessKey,
 		EnterpriseProjectId: config.EnterpriseProjectId,

@@ -2,7 +2,6 @@ package tencentcloudssldeploy
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -10,12 +9,11 @@ import (
 	"github.com/samber/lo"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
-	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-ssl-deploy/internal"
+	tcssl "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
 	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
 )
 
@@ -26,8 +24,8 @@ type DeployerConfig struct {
 	SecretKey string `json:"secretKey"`
 	// 腾讯云接口端点。
 	Endpoint string `json:"endpoint,omitempty"`
-	// 腾讯云地域。
-	Region string `json:"region"`
+	// 云产品地域。
+	ResourceRegion string `json:"resourceRegion,omitempty"`
 	// 云产品类型。
 	ResourceProduct string `json:"resourceProduct"`
 	// 云产品资源 ID 数组。
@@ -37,7 +35,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.SslClient
+	sdkClient  *tcssl.Client
 	sdkCertmgr certmgr.Provider
 }
 
@@ -45,15 +43,15 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
-	client, err := createSDKClient(config.SecretId, config.SecretKey, config.Endpoint, config.Region)
+	client, err := createSDKClient(config.SecretId, config.SecretKey, config.Endpoint, config.ResourceRegion)
 	if err != nil {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		SecretId:  config.SecretId,
 		SecretKey: config.SecretKey,
 		Endpoint:  config.Endpoint,
@@ -82,10 +80,10 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.ResourceProduct == "" {
-		return nil, errors.New("config `resourceProduct` is required")
+		return nil, fmt.Errorf("config `resourceProduct` is required")
 	}
 	if len(d.config.ResourceIds) == 0 {
-		return nil, errors.New("config `resourceIds` is required")
+		return nil, fmt.Errorf("config `resourceIds` is required")
 	}
 
 	// 上传证书
@@ -103,12 +101,12 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	deployCertificateInstanceReq.ResourceType = common.StringPtr(d.config.ResourceProduct)
 	deployCertificateInstanceReq.InstanceIdList = common.StringPtrs(d.config.ResourceIds)
 	deployCertificateInstanceReq.Status = common.Int64Ptr(1)
-	deployCertificateInstanceResp, err := d.sdkClient.DeployCertificateInstance(deployCertificateInstanceReq)
+	deployCertificateInstanceResp, err := d.sdkClient.DeployCertificateInstanceWithContext(ctx, deployCertificateInstanceReq)
 	d.logger.Debug("sdk request 'ssl.DeployCertificateInstance'", slog.Any("request", deployCertificateInstanceReq), slog.Any("response", deployCertificateInstanceResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'ssl.DeployCertificateInstance': %w", err)
 	} else if deployCertificateInstanceResp.Response == nil || deployCertificateInstanceResp.Response.DeployRecordId == nil {
-		return nil, errors.New("failed to create deploy record")
+		return nil, fmt.Errorf("failed to create deploy record")
 	}
 
 	// 获取部署任务详情，等待任务状态变更
@@ -117,7 +115,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		describeHostDeployRecordDetailReq := tcssl.NewDescribeHostDeployRecordDetailRequest()
 		describeHostDeployRecordDetailReq.DeployRecordId = common.StringPtr(fmt.Sprintf("%d", *deployCertificateInstanceResp.Response.DeployRecordId))
 		describeHostDeployRecordDetailReq.Limit = common.Uint64Ptr(200)
-		describeHostDeployRecordDetailResp, err := d.sdkClient.DescribeHostDeployRecordDetail(describeHostDeployRecordDetailReq)
+		describeHostDeployRecordDetailResp, err := d.sdkClient.DescribeHostDeployRecordDetailWithContext(ctx, describeHostDeployRecordDetailReq)
 		d.logger.Debug("sdk request 'ssl.DescribeHostDeployRecordDetail'", slog.Any("request", describeHostDeployRecordDetailReq), slog.Any("response", describeHostDeployRecordDetailResp))
 		if err != nil {
 			return false, fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail': %w", err)
@@ -143,14 +141,14 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 		d.logger.Info(fmt.Sprintf("waiting for tencentcloud deployment job completion (pending: %d, running: %d, succeeded: %d, failed: %d, total: %d) ...", pendingCount, runningCount, succeededCount, failedCount, totalCount))
 		return false, nil
-	}, time.Second*5); err != nil {
+	}, 10*time.Second); err != nil {
 		return nil, err
 	}
 
 	return &deployer.DeployResult{}, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint, region string) (*internal.SslClient, error) {
+func createSDKClient(secretId, secretKey, endpoint, region string) (*tcssl.Client, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -158,7 +156,7 @@ func createSDKClient(secretId, secretKey, endpoint, region string) (*internal.Ss
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := internal.NewSslClient(credential, region, cpf)
+	client, err := tcssl.NewClient(credential, region, cpf)
 	if err != nil {
 		return nil, err
 	}

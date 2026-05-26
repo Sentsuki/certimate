@@ -21,13 +21,13 @@ type DeployerConfig struct {
 	AccessToken string `json:"accessToken"`
 	// 是否允许不安全的连接。
 	AllowInsecureConnections bool `json:"allowInsecureConnections,omitempty"`
-	// 部署资源类型。
-	ResourceType string `json:"resourceType"`
+	// 部署目标。
+	DeployTarget string `json:"deployTarget"`
 	// 网站名称。
-	// 部署资源类型为 [RESOURCE_TYPE_WEBSITE] 时必填。
+	// 部署目标为 [DEPLOY_TARGET_WEBSITE] 时必填。
 	SiteNames []string `json:"siteNames,omitempty"`
 	// 证书 ID。
-	// 部署资源类型为 [RESOURCE_TYPE_CERTIFICATE] 时必填。
+	// 部署目标为 [DEPLOY_TARGET_CERTIFICATE] 时必填。
 	CertificateId int64 `json:"certificateId,omitempty"`
 }
 
@@ -41,7 +41,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.AccessTokenId, config.AccessToken, config.AllowInsecureConnections)
@@ -65,20 +65,20 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 }
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
-	// 根据部署资源类型决定部署方式
-	switch d.config.ResourceType {
-	case RESOURCE_TYPE_WEBSITE:
+	// 根据部署目标决定业务流程
+	switch d.config.DeployTarget {
+	case DEPLOY_TARGET_WEBSITE:
 		if err := d.deployToWebsite(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
 		}
 
-	case RESOURCE_TYPE_CERTIFICATE:
+	case DEPLOY_TARGET_CERTIFICATE:
 		if err := d.deployToCertificate(ctx, certPEM, privkeyPEM); err != nil {
 			return nil, err
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported resource type '%s'", d.config.ResourceType)
+		return nil, fmt.Errorf("unsupported deploy target '%s'", d.config.DeployTarget)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -86,7 +86,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 func (d *Deployer) deployToWebsite(ctx context.Context, certPEM, privkeyPEM string) error {
 	if len(d.config.SiteNames) == 0 {
-		return errors.New("config `siteNames` is required")
+		return fmt.Errorf("config `siteNames` is required")
 	}
 
 	// 遍历更新站点证书
@@ -110,7 +110,7 @@ func (d *Deployer) deployToWebsite(ctx context.Context, certPEM, privkeyPEM stri
 
 func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM string) error {
 	if d.config.CertificateId == 0 {
-		return errors.New("config `certificateId` is required")
+		return fmt.Errorf("config `certificateId` is required")
 	}
 
 	// 解析证书内容
@@ -128,9 +128,9 @@ func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM 
 		PrivateKey:  privkeyPEM,
 	}
 	certUpdateResp, err := d.sdkClient.CertUpdateWithContext(ctx, certUpdateReq)
-	d.logger.Debug("sdk request 'ratpanel.CertUpdate'", slog.Any("request", certUpdateReq), slog.Any("response", certUpdateResp))
+	d.logger.Debug("sdk request 'CertUpdate'", slog.Any("request", certUpdateReq), slog.Any("response", certUpdateResp))
 	if err != nil {
-		return fmt.Errorf("failed to execute sdk request 'ratpanel.CertUpdate': %w", err)
+		return fmt.Errorf("failed to execute sdk request 'CertUpdate': %w", err)
 	}
 
 	return nil
@@ -144,9 +144,9 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteName string, c
 		PrivateKey:  privkeyPEM,
 	}
 	setWebsiteCertResp, err := d.sdkClient.SetWebsiteCertWithContext(ctx, setWebsiteCertReq)
-	d.logger.Debug("sdk request 'ratpanel.SetWebsiteCert'", slog.Any("request", setWebsiteCertReq), slog.Any("response", setWebsiteCertResp))
+	d.logger.Debug("sdk request 'SetWebsiteCert'", slog.Any("request", setWebsiteCertReq), slog.Any("response", setWebsiteCertResp))
 	if err != nil {
-		return fmt.Errorf("failed to execute sdk request 'ratpanel.SetWebsiteCert': %w", err)
+		return fmt.Errorf("failed to execute sdk request 'SetWebsiteCert': %w", err)
 	}
 
 	return nil

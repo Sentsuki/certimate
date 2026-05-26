@@ -2,7 +2,6 @@ package email
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -21,9 +20,9 @@ type NotifierConfig struct {
 	// 是否启用 TLS。
 	SmtpTls bool `json:"smtpTls"`
 	// 用户名。
-	Username string `json:"username"`
+	Username string `json:"username,omitempty"`
 	// 密码。
-	Password string `json:"password"`
+	Password string `json:"password,omitempty"`
 	// 发件人邮箱。
 	SenderAddress string `json:"senderAddress"`
 	// 发件人显示名称。
@@ -47,7 +46,7 @@ var _ notifier.Provider = (*Notifier)(nil)
 
 func NewNotifier(config *NotifierConfig) (*Notifier, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the notifier provider is nil")
+		return nil, fmt.Errorf("the configuration of the notifier provider is nil")
 	}
 
 	return &Notifier{

@@ -3,7 +3,6 @@ package onepanelconsole
 import (
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -37,7 +36,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.ApiVersion, config.ApiKey, config.AllowInsecureConnections)
@@ -73,9 +72,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				AutoRestart: strconv.FormatBool(d.config.AutoRestart),
 			}
 			settingsSSLUpdateResp, err := sdkClient.SettingsSSLUpdateWithContext(ctx, settingsSSLUpdateReq)
-			d.logger.Debug("sdk request '1panel.SettingsSSLUpdate'", slog.Any("request", settingsSSLUpdateReq), slog.Any("response", settingsSSLUpdateResp))
+			d.logger.Debug("sdk request 'SettingsSSLUpdate'", slog.Any("request", settingsSSLUpdateReq), slog.Any("response", settingsSSLUpdateResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.SettingsSSLUpdate': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'SettingsSSLUpdate': %w", err)
 			}
 		}
 
@@ -89,9 +88,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				AutoRestart: strconv.FormatBool(d.config.AutoRestart),
 			}
 			coreSettingsSSLUpdateResp, err := sdkClient.CoreSettingsSSLUpdateWithContext(ctx, coreSettingsSSLUpdateReq)
-			d.logger.Debug("sdk request '1panel.CoreSettingsSSLUpdate'", slog.Any("request", coreSettingsSSLUpdateReq), slog.Any("response", coreSettingsSSLUpdateResp))
+			d.logger.Debug("sdk request 'CoreSettingsSSLUpdate'", slog.Any("request", coreSettingsSSLUpdateReq), slog.Any("response", coreSettingsSSLUpdateResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.CoreSettingsSSLUpdate': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'CoreSettingsSSLUpdate': %w", err)
 			}
 		}
 
@@ -132,5 +131,5 @@ func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool) (
 		return client, nil
 	}
 
-	return nil, errors.New("1panel: invalid api version")
+	return nil, fmt.Errorf("1panel: invalid api version")
 }

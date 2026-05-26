@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	onepanel "github.com/certimate-go/certimate/pkg/core/deployer/providers/1panel"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderType1Panel, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
+	Registries.MustRegister(domain.DeploymentProviderType1Panel, func(options *ProviderFactoryOptions) (core.Deployer, error) {
 		credentials := domain.AccessConfigFor1Panel{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -22,7 +22,7 @@ func init() {
 			ApiKey:                   credentials.ApiKey,
 			AllowInsecureConnections: credentials.AllowInsecureConnections,
 			NodeName:                 xmaps.GetString(options.ProviderExtendedConfig, "nodeName"),
-			ResourceType:             xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
+			DeployTarget:             xmaps.GetString(options.ProviderExtendedConfig, "deployTarget"),
 			WebsiteMatchPattern:      xmaps.GetString(options.ProviderExtendedConfig, "websiteMatchPattern"),
 			WebsiteId:                xmaps.GetInt64(options.ProviderExtendedConfig, "websiteId"),
 			CertificateId:            xmaps.GetInt64(options.ProviderExtendedConfig, "certificateId"),

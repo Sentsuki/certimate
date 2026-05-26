@@ -2,7 +2,6 @@ package aliyunwaf
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -11,13 +10,12 @@ import (
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
-	aliwaf "github.com/alibabacloud-go/waf-openapi-20211001/v7/client"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/aliyun-waf/internal"
+	aliwaf "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/alibabacloud-go/waf-openapi-20211001/v7/client"
 )
 
 type DeployerConfig struct {
@@ -52,7 +50,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.WafClient
+	sdkClient  *aliwaf.Client
 	sdkCertmgr certmgr.Provider
 }
 
@@ -60,7 +58,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
@@ -68,7 +66,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 		ResourceGroupId: config.ResourceGroupId,
@@ -114,7 +112,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 func (d *Deployer) deployToWAF3(ctx context.Context, certPEM, privkeyPEM string) error {
 	if d.config.InstanceId == "" {
-		return errors.New("config `instanceId` is required")
+		return fmt.Errorf("config `instanceId` is required")
 	}
 
 	// 上传证书
@@ -148,13 +146,13 @@ func (d *Deployer) deployToWAF3(ctx context.Context, certPEM, privkeyPEM string)
 
 func (d *Deployer) deployToWAF3WithCloudResource(ctx context.Context, cloudCertId string) error {
 	if d.config.ResourceProduct == "" {
-		return errors.New("config `resourceProduct` is required")
+		return fmt.Errorf("config `resourceProduct` is required")
 	}
 	if d.config.ResourceId == "" {
-		return errors.New("config `resourceId` is required")
+		return fmt.Errorf("config `resourceId` is required")
 	}
 	if d.config.ResourcePort == 0 {
-		return errors.New("config `resourcePort` is required")
+		return fmt.Errorf("config `resourcePort` is required")
 	}
 
 	// 查询云产品实例已同步的证书列表
@@ -389,7 +387,7 @@ func (d *Deployer) deployToWAF3WithCNAME(ctx context.Context, cloudCertId string
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.WafClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*aliwaf.Client, error) {
 	// 接入点一览：https://api.aliyun.com/product/waf-openapi
 	var endpoint string
 	switch region {
@@ -405,7 +403,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.Waf
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := internal.NewWafClient(config)
+	client, err := aliwaf.NewClient(config)
 	if err != nil {
 		return nil, err
 	}

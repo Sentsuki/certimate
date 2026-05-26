@@ -2,20 +2,18 @@ package volcenginewaf
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 
 	"github.com/samber/lo"
-	vewaf "github.com/volcengine/volcengine-go-sdk/service/waf"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/volcengine-certcenter"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/volcengine-certcenter"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/volcengine-waf/internal"
+	vewaf "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/volcengine/volcengine-go-sdk/service/waf"
 )
 
 type DeployerConfig struct {
@@ -34,7 +32,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.WafClient
+	sdkClient  *vewaf.WAF
 	sdkCertmgr certmgr.Provider
 }
 
@@ -42,7 +40,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
@@ -50,7 +48,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 		Region:          config.Region,
@@ -102,7 +100,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 func (d *Deployer) deployWithCNAME(ctx context.Context, cloudCertId string) error {
 	if d.config.Domain == "" {
-		return errors.New("config `domain` is required")
+		return fmt.Errorf("config `domain` is required")
 	}
 
 	// 查询云 WAF 实例防护网站信息
@@ -114,7 +112,7 @@ func (d *Deployer) deployWithCNAME(ctx context.Context, cloudCertId string) erro
 		Page:          ve.Int32(1),
 		PageSize:      ve.Int32(1),
 	}
-	listDomainResp, err := d.sdkClient.ListDomain(listDomainReq)
+	listDomainResp, err := d.sdkClient.ListDomainWithContext(ctx, listDomainReq)
 	d.logger.Debug("sdk request 'waf.ListDomain'", slog.Any("request", listDomainReq), slog.Any("response", listDomainResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'waf.ListDomain': %w", err)
@@ -151,7 +149,7 @@ func (d *Deployer) deployWithCNAME(ctx context.Context, cloudCertId string) erro
 			updateDomainReq.ProtocolPorts.HTTPS = domainInfo.ProtocolPorts.HTTPS
 		}
 	}
-	updateDomainResp, err := d.sdkClient.UpdateDomain(updateDomainReq)
+	updateDomainResp, err := d.sdkClient.UpdateDomainWithContext(ctx, updateDomainReq)
 	d.logger.Debug("sdk request 'waf.UpdateDomain'", slog.Any("request", updateDomainReq), slog.Any("response", updateDomainResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'waf.UpdateDomain': %w", err)
@@ -160,7 +158,7 @@ func (d *Deployer) deployWithCNAME(ctx context.Context, cloudCertId string) erro
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.WafClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*vewaf.WAF, error) {
 	config := ve.NewConfig().
 		WithAkSk(accessKeyId, accessKeySecret).
 		WithRegion(region)
@@ -170,6 +168,6 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.Waf
 		return nil, err
 	}
 
-	client := internal.NewWafClient(session)
+	client := vewaf.New(session)
 	return client, nil
 }

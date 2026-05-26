@@ -2,6 +2,10 @@ package domain
 
 type AccessProviderType string
 
+func (t AccessProviderType) String() string {
+	return string(t)
+}
+
 /*
 授权提供商类型常量值。
 
@@ -50,6 +54,7 @@ const (
 	AccessProviderTypeDogeCloud           = AccessProviderType("dogecloud")
 	AccessProviderTypeDokploy             = AccessProviderType("dokploy")
 	AccessProviderTypeDuckDNS             = AccessProviderType("duckdns")
+	AccessProviderTypeDynadot             = AccessProviderType("dynadot")
 	AccessProviderTypeDynu                = AccessProviderType("dynu")
 	AccessProviderTypeDynv6               = AccessProviderType("dynv6")
 	AccessProviderTypeEmail               = AccessProviderType("email")
@@ -123,10 +128,15 @@ const (
 	AccessProviderTypeWeComBot            = AccessProviderType("wecombot")
 	AccessProviderTypeWestcn              = AccessProviderType("westcn")
 	AccessProviderTypeXinnet              = AccessProviderType("xinnet")
+	AccessProviderTypeZenlayer            = AccessProviderType("zenlayer")
 	AccessProviderTypeZeroSSL             = AccessProviderType("zerossl")
 )
 
 type CAProviderType string
+
+func (t CAProviderType) String() string {
+	return string(t)
+}
 
 /*
 证书颁发机构提供商常量值。
@@ -151,6 +161,10 @@ const (
 
 type ACMEDns01ProviderType string
 
+func (t ACMEDns01ProviderType) String() string {
+	return string(t)
+}
+
 /*
 ACME DNS-01 提供商常量值。
 短横线前的部分始终等于授权提供商类型。
@@ -170,6 +184,7 @@ const (
 	ACMEDns01ProviderTypeAliyunESA         = ACMEDns01ProviderType(AccessProviderTypeAliyun + "-esa")
 	ACMEDns01ProviderTypeArvanCloud        = ACMEDns01ProviderType(AccessProviderTypeArvanCloud)
 	ACMEDns01ProviderTypeAWS               = ACMEDns01ProviderType(AccessProviderTypeAWS) // 兼容旧值，等同于 [ACMEDns01ProviderTypeAWSRoute53]
+	ACMEDns01ProviderTypeAWSLightsail      = ACMEDns01ProviderType(AccessProviderTypeAWS + "-lightsail")
 	ACMEDns01ProviderTypeAWSRoute53        = ACMEDns01ProviderType(AccessProviderTypeAWS + "-route53")
 	ACMEDns01ProviderTypeAzure             = ACMEDns01ProviderType(AccessProviderTypeAzure) // 兼容旧值，等同于 [ACMEDns01ProviderTypeAzure]
 	ACMEDns01ProviderTypeAzureDNS          = ACMEDns01ProviderType(AccessProviderTypeAzure + "-dns")
@@ -191,6 +206,7 @@ const (
 	ACMEDns01ProviderTypeDNSLA             = ACMEDns01ProviderType(AccessProviderTypeDNSLA)
 	ACMEDns01ProviderTypeDNSMadeEasy       = ACMEDns01ProviderType(AccessProviderTypeDNSMadeEasy)
 	ACMEDns01ProviderTypeDuckDNS           = ACMEDns01ProviderType(AccessProviderTypeDuckDNS)
+	ACMEDns01ProviderTypeDynadot           = ACMEDns01ProviderType(AccessProviderTypeDynadot)
 	ACMEDns01ProviderTypeDynu              = ACMEDns01ProviderType(AccessProviderTypeDynu)
 	ACMEDns01ProviderTypeDynv6             = ACMEDns01ProviderType(AccessProviderTypeDynv6)
 	ACMEDns01ProviderTypeGandinet          = ACMEDns01ProviderType(AccessProviderTypeGandinet)
@@ -238,6 +254,10 @@ const (
 
 type ACMEHttp01ProviderType string
 
+func (t ACMEHttp01ProviderType) String() string {
+	return string(t)
+}
+
 /*
 ACME HTTP-01 提供商常量值。
 短横线前的部分始终等于授权提供商类型。
@@ -253,6 +273,10 @@ const (
 )
 
 type DeploymentProviderType string
+
+func (t DeploymentProviderType) String() string {
+	return string(t)
+}
 
 /*
 部署证书主机提供商常量值。
@@ -390,9 +414,15 @@ const (
 	DeploymentProviderTypeWangsuCDNPro          = DeploymentProviderType(AccessProviderTypeWangsu + "-cdnpro")
 	DeploymentProviderTypeWangsuCertificate     = DeploymentProviderType(AccessProviderTypeWangsu + "-certificate")
 	DeploymentProviderTypeWebhook               = DeploymentProviderType(AccessProviderTypeWebhook)
+	DeploymentProviderTypeZenlayerCDN           = DeploymentProviderType(AccessProviderTypeZenlayer + "-cdn")
+	DeploymentProviderTypeZenlayerGA            = DeploymentProviderType(AccessProviderTypeZenlayer + "-ga")
 )
 
 type NotificationProviderType string
+
+func (t NotificationProviderType) String() string {
+	return string(t)
+}
 
 /*
 消息通知提供商常量值。

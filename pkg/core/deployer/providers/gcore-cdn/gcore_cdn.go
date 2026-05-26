@@ -2,7 +2,6 @@ package gcorecdn
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -13,7 +12,7 @@ import (
 	"github.com/G-Core/gcorelabscdn-go/sslcerts"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/gcore-cdn"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/gcore-cdn"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	gcoresdk "github.com/certimate-go/certimate/pkg/sdk3rd/gcore"
 )
@@ -44,7 +43,7 @@ type wSDKClients struct {
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	clients, err := createSDKClients(config.ApiToken)
@@ -52,7 +51,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		ApiToken: config.ApiToken,
 	})
 	if err != nil {
@@ -79,7 +78,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.ResourceId == 0 {
-		return nil, errors.New("config `resourceId` is required")
+		return nil, fmt.Errorf("config `resourceId` is required")
 	}
 
 	// 如果原证书 ID 为空，则创建证书；否则更新证书。
@@ -158,7 +157,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 func createSDKClients(apiToken string) (*wSDKClients, error) {
 	if apiToken == "" {
-		return nil, errors.New("gcore: invalid api token")
+		return nil, fmt.Errorf("gcore: invalid api token")
 	}
 
 	requester := provider.NewClient(

@@ -7,14 +7,13 @@ import (
 	"log/slog"
 	"strings"
 
-	vecdn "github.com/volcengine/volcengine-go-sdk/service/cdn"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/volcengine-cdn"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/volcengine-cdn"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/volcengine-cdn/internal"
+	vecdn "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/volcengine/volcengine-go-sdk/service/cdn"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
@@ -33,7 +32,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.CdnClient
+	sdkClient  *vecdn.CDN
 	sdkCertmgr certmgr.Provider
 }
 
@@ -41,7 +40,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
@@ -49,7 +48,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 	})
@@ -90,7 +89,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case "", DOMAIN_MATCH_PATTERN_EXACT:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			domains = []string{d.config.Domain}
@@ -99,7 +98,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case DOMAIN_MATCH_PATTERN_WILDCARD:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			if strings.HasPrefix(d.config.Domain, "*.") {
@@ -174,7 +173,7 @@ func (d *Deployer) getMatchedDomainsByWildcard(ctx context.Context, wildcardDoma
 			PageNum:  ve.Int64(int64(listCdnDomainsPageNum)),
 			PageSize: ve.Int64(int64(listCdnDomainsPageSize)),
 		}
-		listCdnDomainsResp, err := d.sdkClient.ListCdnDomains(listCdnDomainsReq)
+		listCdnDomainsResp, err := d.sdkClient.ListCdnDomainsWithContext(ctx, listCdnDomainsReq)
 		d.logger.Debug("sdk request 'cdn.ListCdnDomains'", slog.Any("request", listCdnDomainsReq), slog.Any("response", listCdnDomainsResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'cdn.ListCdnDomains': %w", err)
@@ -194,7 +193,7 @@ func (d *Deployer) getMatchedDomainsByWildcard(ctx context.Context, wildcardDoma
 	}
 
 	if len(domains) == 0 {
-		return nil, errors.New("could not find any domains matched by wildcard")
+		return nil, fmt.Errorf("could not find any domains matched by wildcard")
 	}
 
 	return domains, nil
@@ -208,7 +207,7 @@ func (d *Deployer) getMatchedDomainsByCertId(ctx context.Context, cloudCertId st
 	describeCertConfigReq := &vecdn.DescribeCertConfigInput{
 		CertId: ve.String(cloudCertId),
 	}
-	describeCertConfigResp, err := d.sdkClient.DescribeCertConfig(describeCertConfigReq)
+	describeCertConfigResp, err := d.sdkClient.DescribeCertConfigWithContext(ctx, describeCertConfigReq)
 	d.logger.Debug("sdk request 'cdn.DescribeCertConfig'", slog.Any("request", describeCertConfigReq), slog.Any("response", describeCertConfigResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cdn.DescribeCertConfig': %w", err)
@@ -228,7 +227,7 @@ func (d *Deployer) getMatchedDomainsByCertId(ctx context.Context, cloudCertId st
 
 	if len(domains) == 0 {
 		if len(describeCertConfigResp.SpecifiedCertConfig) == 0 {
-			return nil, errors.New("could not find any domains matched by certificate")
+			return nil, fmt.Errorf("could not find any domains matched by certificate")
 		}
 	}
 
@@ -242,7 +241,7 @@ func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, c
 		Domain: ve.String(domain),
 		CertId: ve.String(cloudCertId),
 	}
-	batchDeployCertResp, err := d.sdkClient.BatchDeployCert(batchDeployCertReq)
+	batchDeployCertResp, err := d.sdkClient.BatchDeployCertWithContext(ctx, batchDeployCertReq)
 	d.logger.Debug("sdk request 'cdn.BatchDeployCert'", slog.Any("request", batchDeployCertReq), slog.Any("response", batchDeployCertResp))
 	if err != nil {
 		return err
@@ -251,7 +250,7 @@ func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, c
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*internal.CdnClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (*vecdn.CDN, error) {
 	config := ve.NewConfig().
 		WithAkSk(accessKeyId, accessKeySecret).
 		WithRegion("cn-north-1")
@@ -261,6 +260,6 @@ func createSDKClient(accessKeyId, accessKeySecret string) (*internal.CdnClient, 
 		return nil, err
 	}
 
-	client := internal.NewCdnClient(session)
+	client := vecdn.New(session)
 	return client, nil
 }

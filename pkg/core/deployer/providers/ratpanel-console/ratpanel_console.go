@@ -3,7 +3,6 @@ package ratpanelconsole
 import (
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -32,7 +31,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.AccessTokenId, config.AccessToken, config.AllowInsecureConnections)
@@ -62,9 +61,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		PrivateKey:  privkeyPEM,
 	}
 	setSettingCertResp, err := d.sdkClient.SetSettingCertWithContext(ctx, setSettingCertReq)
-	d.logger.Debug("sdk request 'ratpanel.SetSettingCert'", slog.Any("request", setSettingCertReq), slog.Any("response", setSettingCertResp))
+	d.logger.Debug("sdk request 'SetSettingCert'", slog.Any("request", setSettingCertReq), slog.Any("response", setSettingCertResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'ratpanel.SetSettingCert': %w", err)
+		return nil, fmt.Errorf("failed to execute sdk request 'SetSettingCert': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

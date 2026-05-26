@@ -3,7 +3,6 @@ package onepanelssl
 import (
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -39,7 +38,7 @@ var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the certmgr provider is nil")
+		return nil, fmt.Errorf("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.ApiVersion, config.ApiKey, config.AllowInsecureConnections, config.NodeName)
@@ -85,9 +84,9 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 				PrivateKey:  privkeyPEM,
 			}
 			websiteSSLUploadResp, err := sdkClient.WebsiteSSLUploadWithContext(ctx, websiteSSLUploadReq)
-			c.logger.Debug("sdk request '1panel.WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
+			c.logger.Debug("sdk request 'WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLUpload': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLUpload': %w", err)
 			}
 		}
 
@@ -100,9 +99,9 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 				PrivateKey:  privkeyPEM,
 			}
 			websiteSSLUploadResp, err := sdkClient.WebsiteSSLUploadWithContext(ctx, websiteSSLUploadReq)
-			c.logger.Debug("sdk request '1panel.WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
+			c.logger.Debug("sdk request 'WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLUpload': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLUpload': %w", err)
 			}
 		}
 
@@ -120,7 +119,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
 	sslId, err := strconv.ParseInt(certIdOrName, 10, 64)
 	if err != nil {
 		return nil, err
@@ -131,9 +130,9 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		{
 			// 获取证书详情
 			websiteSSLGetResp, err := sdkClient.WebsiteSSLGetWithContext(ctx, sslId)
-			c.logger.Debug("sdk request '1panel.WebsiteSSLGet'", slog.Int64("sslId", sslId), slog.Any("response", websiteSSLGetResp))
+			c.logger.Debug("sdk request 'WebsiteSSLGet'", slog.Int64("sslId", sslId), slog.Any("response", websiteSSLGetResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLGet': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLGet': %w", err)
 			}
 
 			// 更新证书
@@ -145,9 +144,9 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 				PrivateKey:  privkeyPEM,
 			}
 			websiteSSLUploadResp, err := sdkClient.WebsiteSSLUploadWithContext(ctx, websiteSSLUploadReq)
-			c.logger.Debug("sdk request '1panel.WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
+			c.logger.Debug("sdk request 'WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLUpload': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLUpload': %w", err)
 			}
 		}
 
@@ -155,9 +154,9 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		{
 			// 获取证书详情
 			websiteSSLGetResp, err := sdkClient.WebsiteSSLGetWithContext(ctx, sslId)
-			c.logger.Debug("sdk request '1panel.WebsiteSSLGet'", slog.Any("sslId", sslId), slog.Any("response", websiteSSLGetResp))
+			c.logger.Debug("sdk request 'WebsiteSSLGet'", slog.Any("sslId", sslId), slog.Any("response", websiteSSLGetResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLGet': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLGet': %w", err)
 			}
 
 			// 更新证书
@@ -169,9 +168,9 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 				PrivateKey:  privkeyPEM,
 			}
 			websiteSSLUploadResp, err := sdkClient.WebsiteSSLUploadWithContext(ctx, websiteSSLUploadReq)
-			c.logger.Debug("sdk request '1panel.WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
+			c.logger.Debug("sdk request 'WebsiteSSLUpload'", slog.Any("request", websiteSSLUploadReq), slog.Any("response", websiteSSLUploadResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLUpload': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLUpload': %w", err)
 			}
 		}
 
@@ -179,7 +178,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		panic("unreachable")
 	}
 
-	return &certmgr.OperateResult{}, nil
+	return &certmgr.ReplaceResult{}, nil
 }
 
 func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, bool, error) {
@@ -200,9 +199,9 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkey
 					PageSize: int32(searchWebsiteSSLPageSize),
 				}
 				websiteSSLSearchResp, err := sdkClient.WebsiteSSLSearchWithContext(ctx, websiteSSLSearchReq)
-				c.logger.Debug("sdk request '1panel.WebsiteSSLSearch'", slog.Any("request", websiteSSLSearchReq), slog.Any("response", websiteSSLSearchResp))
+				c.logger.Debug("sdk request 'WebsiteSSLSearch'", slog.Any("request", websiteSSLSearchReq), slog.Any("response", websiteSSLSearchResp))
 				if err != nil {
-					return nil, false, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLSearch': %w", err)
+					return nil, false, fmt.Errorf("failed to execute sdk request 'WebsiteSSLSearch': %w", err)
 				}
 
 				if websiteSSLSearchResp.Data == nil {
@@ -249,9 +248,9 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkey
 					PageSize: int32(searchWebsiteSSLPageSize),
 				}
 				websiteSSLSearchResp, err := sdkClient.WebsiteSSLSearchWithContext(ctx, websiteSSLSearchReq)
-				c.logger.Debug("sdk request '1panel.WebsiteSSLSearch'", slog.Any("request", websiteSSLSearchReq), slog.Any("response", websiteSSLSearchResp))
+				c.logger.Debug("sdk request 'WebsiteSSLSearch'", slog.Any("request", websiteSSLSearchReq), slog.Any("response", websiteSSLSearchResp))
 				if err != nil {
-					return nil, false, fmt.Errorf("failed to execute sdk request '1panel.WebsiteSSLSearch': %w", err)
+					return nil, false, fmt.Errorf("failed to execute sdk request 'WebsiteSSLSearch': %w", err)
 				}
 
 				if websiteSSLSearchResp.Data == nil {
@@ -324,5 +323,5 @@ func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool, n
 		return client, nil
 	}
 
-	return nil, errors.New("1panel: invalid api version")
+	return nil, fmt.Errorf("1panel: invalid api version")
 }

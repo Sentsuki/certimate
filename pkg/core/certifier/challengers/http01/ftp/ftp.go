@@ -2,7 +2,6 @@ package ftp
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -28,7 +27,7 @@ type ChallengerConfig struct {
 
 func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the acme challenge provider is nil")
+		return nil, fmt.Errorf("the configuration of the acme challenge provider is nil")
 	}
 
 	provider := &provider{config: config}
@@ -47,7 +46,7 @@ func (p *provider) Present(domain, token, keyAuth string) error {
 		return fmt.Errorf("ftp: failed to create FTP client: %w", err)
 	}
 
-	defer client.Quit(ctx)
+	defer client.Quit()
 
 	challengePath := filepath.Join(p.config.WebRootPath, http01.ChallengePath(token))
 	challengeDir := filepath.Dir(challengePath)
@@ -73,7 +72,7 @@ func (p *provider) CleanUp(domain, token, keyAuth string) error {
 		return fmt.Errorf("ftp: failed to create FTP client: %w", err)
 	}
 
-	defer client.Quit(ctx)
+	defer client.Quit()
 
 	challengePath := filepath.Join(p.config.WebRootPath, http01.ChallengePath(token))
 	challengeDir := filepath.Dir(challengePath)

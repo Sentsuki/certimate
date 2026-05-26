@@ -2,7 +2,6 @@ package awscloudfront
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -13,8 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgracm "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aws-acm"
-	mcertmgriam "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aws-iam"
+	certmgrimplacm "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aws-acm"
+	certmgrimpliam "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aws-iam"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 )
 
@@ -43,7 +42,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
@@ -54,7 +53,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	var pcertmgr certmgr.Provider
 	switch config.CertificateSource {
 	case CERTIFICATE_SOURCE_ACM:
-		pcertmgr, err = mcertmgracm.NewCertmgr(&mcertmgracm.CertmgrConfig{
+		pcertmgr, err = certmgrimplacm.NewCertmgr(&certmgrimplacm.CertmgrConfig{
 			AccessKeyId:     config.AccessKeyId,
 			SecretAccessKey: config.SecretAccessKey,
 			Region:          config.Region,
@@ -64,7 +63,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		}
 
 	case CERTIFICATE_SOURCE_IAM:
-		pcertmgr, err = mcertmgriam.NewCertmgr(&mcertmgriam.CertmgrConfig{
+		pcertmgr, err = certmgrimpliam.NewCertmgr(&certmgrimpliam.CertmgrConfig{
 			AccessKeyId:     config.AccessKeyId,
 			SecretAccessKey: config.SecretAccessKey,
 			Region:          config.Region,
@@ -98,7 +97,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.DistributionId == "" {
-		return nil, errors.New("config `distribuitionId` is required")
+		return nil, fmt.Errorf("config `distribuitionId` is required")
 	}
 
 	// 上传证书

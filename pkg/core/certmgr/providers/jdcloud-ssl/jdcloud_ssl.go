@@ -4,17 +4,16 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"time"
 
 	jdcore "github.com/jdcloud-api/jdcloud-sdk-go/core"
-	jdsslapi "github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/apis"
-	jdsslclient "github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/client"
+	jdsslapis "github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/apis"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
+	jdssl "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/jdcloud-api/jdcloud-sdk-go/services/ssl/client"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -28,14 +27,14 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *jdsslclient.SslClient
+	sdkClient *jdssl.SslClient
 }
 
 var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the certmgr provider is nil")
+		return nil, fmt.Errorf("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
@@ -82,7 +81,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		default:
 		}
 
-		describeCertsReq := jdsslapi.NewDescribeCertsRequestWithoutParam()
+		describeCertsReq := jdsslapis.NewDescribeCertsRequestWithoutParam()
 		describeCertsReq.SetDomainName(certX509.Subject.CommonName)
 		describeCertsReq.SetPageNumber(describeCertsPageNumber)
 		describeCertsReq.SetPageSize(describeCertsPageSize)
@@ -137,7 +136,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 
 	// 上传证书
 	// REF: https://docs.jdcloud.com/cn/ssl-certificate/api/uploadcert
-	uploadCertReq := jdsslapi.NewUploadCertRequestWithoutParam()
+	uploadCertReq := jdsslapis.NewUploadCertRequestWithoutParam()
 	uploadCertReq.SetCertName(certName)
 	uploadCertReq.SetCertFile(certPEM)
 	uploadCertReq.SetKeyFile(privkeyPEM)
@@ -153,13 +152,13 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
 	return nil, certmgr.ErrUnsupported
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*jdsslclient.SslClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (*jdssl.SslClient, error) {
 	clientCredentials := jdcore.NewCredentials(accessKeyId, accessKeySecret)
-	client := jdsslclient.NewSslClient(clientCredentials)
+	client := jdssl.NewSslClient(clientCredentials)
 	client.DisableLogger()
 	return client, nil
 }

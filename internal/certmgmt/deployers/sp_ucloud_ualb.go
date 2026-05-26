@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/certimate-go/certimate/internal/domain"
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	ucloudualb "github.com/certimate-go/certimate/pkg/core/deployer/providers/ucloud-ualb"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
 func init() {
-	Registries.MustRegister(domain.DeploymentProviderTypeUCloudUALB, func(options *ProviderFactoryOptions) (deployer.Provider, error) {
+	Registries.MustRegister(domain.DeploymentProviderTypeUCloudUALB, func(options *ProviderFactoryOptions) (core.Deployer, error) {
 		credentials := domain.AccessConfigForUCloud{}
 		if err := xmaps.Populate(options.ProviderAccessConfig, &credentials); err != nil {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
@@ -21,7 +21,7 @@ func init() {
 			PublicKey:      credentials.PublicKey,
 			ProjectId:      credentials.ProjectId,
 			Region:         xmaps.GetString(options.ProviderExtendedConfig, "region"),
-			ResourceType:   xmaps.GetString(options.ProviderExtendedConfig, "resourceType"),
+			DeployTarget:   xmaps.GetString(options.ProviderExtendedConfig, "deployTarget"),
 			LoadbalancerId: xmaps.GetString(options.ProviderExtendedConfig, "loadbalancerId"),
 			ListenerId:     xmaps.GetString(options.ProviderExtendedConfig, "listenerId"),
 			Domain:         xmaps.GetString(options.ProviderExtendedConfig, "domain"),

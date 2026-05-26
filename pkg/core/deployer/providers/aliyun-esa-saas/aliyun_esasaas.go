@@ -9,15 +9,14 @@ import (
 	"strings"
 
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
-	aliesa "github.com/alibabacloud-go/esa-20240910/v2/client"
 	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/aliyun-esa-saas/internal"
+	aliesa "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/alibabacloud-go/esa-20240910/v2/client"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
@@ -42,7 +41,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.EsaClient
+	sdkClient  *aliesa.Client
 	sdkCertmgr certmgr.Provider
 }
 
@@ -50,7 +49,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
@@ -58,7 +57,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 		ResourceGroupId: config.ResourceGroupId,
@@ -90,7 +89,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if d.config.SiteId == 0 {
-		return nil, errors.New("config `siteId` is required")
+		return nil, fmt.Errorf("config `siteId` is required")
 	}
 
 	// 上传证书
@@ -107,7 +106,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case "", DOMAIN_MATCH_PATTERN_EXACT:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			hostnameCandidates, err := d.getAllHostnames(ctx)
@@ -128,7 +127,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case DOMAIN_MATCH_PATTERN_WILDCARD:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			hostnameCandidates, err := d.getAllHostnames(ctx)
@@ -144,7 +143,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				}
 			})
 			if len(hostnames) == 0 {
-				return nil, errors.New("could not find any hostnames matched by wildcard")
+				return nil, fmt.Errorf("could not find any hostnames matched by wildcard")
 			}
 
 			hostnameIds = lo.Map(hostnames, func(hostname *aliesa.ListCustomHostnamesResponseBodyHostnames, _ int) int64 {
@@ -163,7 +162,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				return xcerthostname.IsMatchByCertificatePEM(certPEM, tea.StringValue(hostname.Hostname))
 			})
 			if len(hostnames) == 0 {
-				return nil, errors.New("could not find any hostnames matched by certificate")
+				return nil, fmt.Errorf("could not find any hostnames matched by certificate")
 			}
 
 			hostnameIds = lo.Map(hostnames, func(hostname *aliesa.ListCustomHostnamesResponseBodyHostnames, _ int) int64 {
@@ -276,7 +275,7 @@ func (d *Deployer) updateHostnameCertificate(ctx context.Context, cloudHostnameI
 	return nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.EsaClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*aliesa.Client, error) {
 	// 接入点一览 https://api.aliyun.com/product/ESA
 	var endpoint string
 	switch region {
@@ -292,7 +291,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.Esa
 		Endpoint:        tea.String(endpoint),
 	}
 
-	client, err := internal.NewEsaClient(config)
+	client, err := aliesa.NewClient(config)
 	if err != nil {
 		return nil, err
 	}

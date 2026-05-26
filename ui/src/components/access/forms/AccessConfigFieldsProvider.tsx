@@ -42,6 +42,7 @@ import AccessConfigFieldsProviderDNSMadeEasy from "./AccessConfigFieldsProviderD
 import AccessConfigFieldsProviderDogeCloud from "./AccessConfigFieldsProviderDogeCloud";
 import AccessConfigFieldsProviderDokploy from "./AccessConfigFieldsProviderDokploy";
 import AccessConfigFieldsProviderDuckDNS from "./AccessConfigFieldsProviderDuckDNS";
+import AccessConfigFieldsProviderDynadot from "./AccessConfigFieldsProviderDynadot";
 import AccessConfigFieldsProviderDynu from "./AccessConfigFieldsProviderDynu";
 import AccessConfigFieldsProviderDynv6 from "./AccessConfigFieldsProviderDynv6";
 import AccessConfigFieldsProviderEmail from "./AccessConfigFieldsProviderEmail";
@@ -111,6 +112,7 @@ import AccessConfigFieldsProviderWebhook from "./AccessConfigFieldsProviderWebho
 import AccessConfigFieldsProviderWeComBot from "./AccessConfigFieldsProviderWeComBot";
 import AccessConfigFieldsProviderWestcn from "./AccessConfigFieldsProviderWestcn";
 import AccessConfigFieldsProviderXinnet from "./AccessConfigFieldsProviderXinnet";
+import AccessConfigFieldsProviderZenlayer from "./AccessConfigFieldsProviderZenlayer";
 import AccessConfigFieldsProviderZeroSSL from "./AccessConfigFieldsProviderZeroSSL";
 
 const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentType<any>>> = {
@@ -158,6 +160,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.DOKPLOY]: AccessConfigFieldsProviderDokploy,
   [ACCESS_PROVIDERS.DOGECLOUD]: AccessConfigFieldsProviderDogeCloud,
   [ACCESS_PROVIDERS.DUCKDNS]: AccessConfigFieldsProviderDuckDNS,
+  [ACCESS_PROVIDERS.DYNADOT]: AccessConfigFieldsProviderDynadot,
   [ACCESS_PROVIDERS.DYNU]: AccessConfigFieldsProviderDynu,
   [ACCESS_PROVIDERS.DYNV6]: AccessConfigFieldsProviderDynv6,
   [ACCESS_PROVIDERS.EMAIL]: AccessConfigFieldsProviderEmail,
@@ -227,6 +230,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.WECOMBOT]: AccessConfigFieldsProviderWeComBot,
   [ACCESS_PROVIDERS.WESTCN]: AccessConfigFieldsProviderWestcn,
   [ACCESS_PROVIDERS.XINNET]: AccessConfigFieldsProviderXinnet,
+  [ACCESS_PROVIDERS.ZENLAYER]: AccessConfigFieldsProviderZenlayer,
   [ACCESS_PROVIDERS.ZEROSSL]: AccessConfigFieldsProviderZeroSSL,
 };
 

@@ -13,7 +13,7 @@ import (
 	"github.com/ucloud/ucloud-sdk-go/ucloud/auth"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/ucloud-ulb"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/ucloud-ulb"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	ucloudsdk "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ulb"
 )
@@ -27,13 +27,13 @@ type DeployerConfig struct {
 	ProjectId string `json:"projectId,omitempty"`
 	// 优刻得地域。
 	Region string `json:"region"`
-	// 部署资源类型。
-	ResourceType string `json:"resourceType"`
+	// 部署目标。
+	DeployTarget string `json:"deployTarget"`
 	// 负载均衡实例 ID。
-	// 部署资源类型为 [RESOURCE_TYPE_LOADBALANCER]、[RESOURCE_TYPE_VSERVER] 时必填。
+	// 部署目标为 [DEPLOY_TARGET_LOADBALANCER]、[DEPLOY_TARGET_VSERVER] 时必填。
 	LoadbalancerId string `json:"loadbalancerId,omitempty"`
 	// 负载均衡 VServer ID。
-	// 部署资源类型为 [RESOURCE_TYPE_VSERVER] 时必填。
+	// 部署目标为 [DEPLOY_TARGET_VSERVER] 时必填。
 	VServerId string `json:"vserverId,omitempty"`
 }
 
@@ -51,7 +51,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.PrivateKey, config.PublicKey, config.ProjectId, config.Region)
@@ -59,7 +59,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		PrivateKey: config.PrivateKey,
 		PublicKey:  config.PublicKey,
 		ProjectId:  config.ProjectId,
@@ -103,20 +103,20 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		d.sslId2PemMapMu.Unlock()
 	}
 
-	// 根据部署资源类型决定部署方式
-	switch d.config.ResourceType {
-	case RESOURCE_TYPE_LOADBALANCER:
+	// 根据部署目标决定业务流程
+	switch d.config.DeployTarget {
+	case DEPLOY_TARGET_LOADBALANCER:
 		if err := d.deployToLoadbalancer(ctx, upres.CertId); err != nil {
 			return nil, err
 		}
 
-	case RESOURCE_TYPE_VSERVER:
+	case DEPLOY_TARGET_VSERVER:
 		if err := d.deployToVServer(ctx, upres.CertId); err != nil {
 			return nil, err
 		}
 
 	default:
-		return nil, fmt.Errorf("unsupported resource type '%s'", d.config.ResourceType)
+		return nil, fmt.Errorf("unsupported deploy target '%s'", d.config.DeployTarget)
 	}
 
 	return &deployer.DeployResult{}, nil
@@ -124,7 +124,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 func (d *Deployer) deployToLoadbalancer(ctx context.Context, cloudCertId string) error {
 	if d.config.LoadbalancerId == "" {
-		return errors.New("config `loadbalancerId` is required")
+		return fmt.Errorf("config `loadbalancerId` is required")
 	}
 
 	// 获取 CLB 下的 HTTPS VServer 列表
@@ -190,10 +190,10 @@ func (d *Deployer) deployToLoadbalancer(ctx context.Context, cloudCertId string)
 
 func (d *Deployer) deployToVServer(ctx context.Context, cloudCertId string) error {
 	if d.config.LoadbalancerId == "" {
-		return errors.New("config `loadbalancerId` is required")
+		return fmt.Errorf("config `loadbalancerId` is required")
 	}
 	if d.config.VServerId == "" {
-		return errors.New("config `vserverId` is required")
+		return fmt.Errorf("config `vserverId` is required")
 	}
 
 	if err := d.updateVServerCertificate(ctx, d.config.LoadbalancerId, d.config.VServerId, cloudCertId); err != nil {

@@ -1,7 +1,7 @@
 import { getI18n, useTranslation } from "react-i18next";
 import { Form, Input, Radio, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { z } from "zod";
+import { core, z } from "zod";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -72,13 +72,13 @@ const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
 };
 
 const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) => {
-  const { t } = i18n;
+  const { t: _ } = i18n;
 
   return z.object({
-    serverUrl: z.url(t("common.errmsg.url_invalid")),
-    apiRole: z.literal(["user", "admin"], t("access.form.flexcdn_api_role.placeholder")),
-    accessKeyId: z.string().nonempty(t("access.form.flexcdn_access_key_id.placeholder")),
-    accessKey: z.string().nonempty(t("access.form.flexcdn_access_key.placeholder")),
+    serverUrl: z.url({ protocol: core.regexes.httpProtocol }),
+    apiRole: z.enum(["user", "admin"]),
+    accessKeyId: z.string().nonempty(),
+    accessKey: z.string().nonempty(),
     allowInsecureConnections: z.boolean().nullish(),
   });
 };

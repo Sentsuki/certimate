@@ -5,18 +5,16 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"time"
 
-	vecdn "github.com/volcengine/volcengine-go-sdk/service/cdn"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	"github.com/certimate-go/certimate/pkg/core/certmgr/providers/volcengine-cdn/internal"
+	vecdn "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/volcengine/volcengine-go-sdk/service/cdn"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -30,14 +28,14 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *internal.CdnClient
+	sdkClient *vecdn.CDN
 }
 
 var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the certmgr provider is nil")
+		return nil, fmt.Errorf("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
@@ -83,7 +81,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 			PageNum:  ve.Int32(int32(listCertInfoPageNum)),
 			PageSize: ve.Int32(int32(listCertInfoPageSize)),
 		}
-		listCertInfoResp, err := c.sdkClient.ListCertInfo(listCertInfoReq)
+		listCertInfoResp, err := c.sdkClient.ListCertInfoWithContext(ctx, listCertInfoReq)
 		c.logger.Debug("sdk request 'cdn.ListCertInfo'", slog.Any("request", listCertInfoReq), slog.Any("response", listCertInfoResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'cdn.ListCertInfo': %w", err)
@@ -128,8 +126,8 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		PrivateKey:  ve.String(privkeyPEM),
 		Desc:        ve.String(certName),
 	}
-	addCertificateResp, err := c.sdkClient.AddCertificate(addCertificateReq)
-	c.logger.Debug("sdk request 'cdn.AddCertificate'", slog.Any("request", addCertificateResp), slog.Any("response", addCertificateResp))
+	addCertificateResp, err := c.sdkClient.AddCertificateWithContext(ctx, addCertificateReq)
+	c.logger.Debug("sdk request 'cdn.AddCertificate'", slog.Any("request", addCertificateReq), slog.Any("response", addCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'cdn.AddCertificate': %w", err)
 	}
@@ -140,11 +138,11 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
 	return nil, certmgr.ErrUnsupported
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*internal.CdnClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret string) (*vecdn.CDN, error) {
 	config := ve.NewConfig().
 		WithAkSk(accessKeyId, accessKeySecret).
 		WithRegion("cn-north-1")
@@ -154,6 +152,6 @@ func createSDKClient(accessKeyId, accessKeySecret string) (*internal.CdnClient, 
 		return nil, err
 	}
 
-	client := internal.NewCdnClient(session)
+	client := vecdn.New(session)
 	return client, nil
 }

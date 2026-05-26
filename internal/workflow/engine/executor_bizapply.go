@@ -232,7 +232,7 @@ func (ne *bizApplyNodeExecutor) checkCanSkip(execCtx *NodeExecutionContext, last
 func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nodeCfg *domain.WorkflowNodeConfigForBizApply, lastCertificate *domain.Certificate) (*certacme.ObtainCertificateResponse, error) {
 	// 读取私钥算法
 	// 如果复用私钥，则保持算法一致
-	legoKeyType, err := domain.CertificateKeyAlgorithmType(nodeCfg.KeyAlgorithm).KeyType()
+	legoKeyType, err := domain.CertificateKeyAlgorithmType(nodeCfg.KeyAlgorithm).ToLegoKeyType()
 	if err != nil {
 		return nil, err
 	} else {
@@ -241,14 +241,14 @@ func (ne *bizApplyNodeExecutor) executeObtain(execCtx *NodeExecutionContext, nod
 			break
 		case BizApplyKeySourceReuse:
 			if lastCertificate != nil {
-				legoKeyType, _ = lastCertificate.KeyAlgorithm.KeyType()
+				legoKeyType, _ = lastCertificate.KeyAlgorithm.ToLegoKeyType()
 			}
 		case BizApplyKeySourceCustom:
 			privkey, err := xcert.ParsePrivateKeyFromPEM(nodeCfg.KeyContent)
 			if err != nil {
 				return nil, fmt.Errorf("could not parse custom private key: %w", err)
 			} else {
-				privkeyAlg, privkeySize, _ := xcertkey.GetPrivateKeyAlgorithm(privkey)
+				privkeyAlg, privkeySize, _ := xcertkey.DetectPrivateKeyAlgorithm(privkey)
 				switch privkeyAlg {
 				case x509.RSA:
 					if nodeCfg.KeyAlgorithm != fmt.Sprintf("RSA%d", privkeySize) {

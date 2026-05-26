@@ -225,6 +225,11 @@ type AccessConfigForDuckDNS struct {
 	Token string `json:"token"`
 }
 
+type AccessConfigForDynadot struct {
+	ApiKey    string `json:"apiKey"`
+	ApiSecret string `json:"apiSecret"`
+}
+
 type AccessConfigForDynu struct {
 	ApiKey string `json:"apiKey"`
 }
@@ -619,6 +624,12 @@ type AccessConfigForWestcn struct {
 type AccessConfigForXinnet struct {
 	AgentId     string `json:"agentId"`
 	ApiPassword string `json:"apiPassword"`
+}
+
+type AccessConfigForZenlayer struct {
+	AccessKeyId       string `json:"accessKeyId"`
+	AccessKeyPassword string `json:"accessKeyPassword"`
+	ResourceGroupId   string `json:"resourceGroupId,omitempty"`
 }
 
 type AccessConfigForZeroSSL struct {

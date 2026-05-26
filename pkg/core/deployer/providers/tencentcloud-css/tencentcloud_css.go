@@ -2,7 +2,6 @@ package tencentcloudcss
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -10,12 +9,11 @@ import (
 	"github.com/samber/lo"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
-	tclive "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/live/v20180801"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/tencentcloud-ssl"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
-	"github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-css/internal"
+	tclive "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/live/v20180801"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
 )
 
@@ -36,7 +34,7 @@ type DeployerConfig struct {
 type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
-	sdkClient  *internal.LiveClient
+	sdkClient  *tclive.Client
 	sdkCertmgr certmgr.Provider
 }
 
@@ -44,7 +42,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.SecretId, config.SecretKey, config.Endpoint)
@@ -52,7 +50,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		SecretId:  config.SecretId,
 		SecretKey: config.SecretKey,
 		Endpoint: lo.
@@ -96,7 +94,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case "", DOMAIN_MATCH_PATTERN_EXACT:
 		{
 			if d.config.Domain == "" {
-				return nil, errors.New("config `domain` is required")
+				return nil, fmt.Errorf("config `domain` is required")
 			}
 
 			domains = []string{d.config.Domain}
@@ -113,7 +111,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				return xcerthostname.IsMatchByCertificatePEM(certPEM, domain)
 			})
 			if len(domains) == 0 {
-				return nil, errors.New("could not find any domains matched by certificate")
+				return nil, fmt.Errorf("could not find any domains matched by certificate")
 			}
 		}
 
@@ -131,7 +129,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		}
 	})
 	modifyLiveDomainCertBindingsReq.CloudCertId = common.StringPtr(upres.CertId)
-	modifyLiveDomainCertBindingsResp, err := d.sdkClient.ModifyLiveDomainCertBindings(modifyLiveDomainCertBindingsReq)
+	modifyLiveDomainCertBindingsResp, err := d.sdkClient.ModifyLiveDomainCertBindingsWithContext(ctx, modifyLiveDomainCertBindingsReq)
 	d.logger.Debug("sdk request 'live.ModifyLiveDomainCertBindings'", slog.Any("request", modifyLiveDomainCertBindingsReq), slog.Any("response", modifyLiveDomainCertBindingsResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'live.ModifyLiveDomainCertBindings': %w", err)
@@ -159,7 +157,7 @@ func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
 		describeLiveDomainsReq.DomainType = common.Uint64Ptr(1)
 		describeLiveDomainsReq.PageNum = common.Uint64Ptr(uint64(describeLiveDomainsPageNum))
 		describeLiveDomainsReq.PageSize = common.Uint64Ptr(uint64(describeLiveDomainsPageSize))
-		describeLiveDomainsResp, err := d.sdkClient.DescribeLiveDomains(describeLiveDomainsReq)
+		describeLiveDomainsResp, err := d.sdkClient.DescribeLiveDomainsWithContext(ctx, describeLiveDomainsReq)
 		d.logger.Debug("sdk request 'live.DescribeLiveDomains'", slog.Any("request", describeLiveDomainsReq), slog.Any("response", describeLiveDomainsResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'live.DescribeLiveDomains': %w", err)
@@ -183,7 +181,7 @@ func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
 	return domains, nil
 }
 
-func createSDKClient(secretId, secretKey, endpoint string) (*internal.LiveClient, error) {
+func createSDKClient(secretId, secretKey, endpoint string) (*tclive.Client, error) {
 	credential := common.NewCredential(secretId, secretKey)
 
 	cpf := profile.NewClientProfile()
@@ -191,7 +189,7 @@ func createSDKClient(secretId, secretKey, endpoint string) (*internal.LiveClient
 		cpf.HttpProfile.Endpoint = endpoint
 	}
 
-	client, err := internal.NewLiveClient(credential, "", cpf)
+	client, err := tclive.NewClient(credential, "", cpf)
 	if err != nil {
 		return nil, err
 	}

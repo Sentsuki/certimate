@@ -2,7 +2,6 @@ package wangsucdn
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -11,7 +10,7 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/wangsu-certificate"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/wangsu-certificate"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 	wangsusdk "github.com/certimate-go/certimate/pkg/sdk3rd/wangsu/cdn"
 )
@@ -39,7 +38,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret)
@@ -47,7 +46,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		AccessKeySecret: config.AccessKeySecret,
 	})
@@ -86,7 +85,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 	case "", DOMAIN_MATCH_PATTERN_EXACT:
 		{
 			if len(d.config.Domains) == 0 {
-				return nil, errors.New("config `domains` is required")
+				return nil, fmt.Errorf("config `domains` is required")
 			}
 
 			// "*.example.com" → ".example.com"，适配网宿云 CDN 要求的泛域名格式

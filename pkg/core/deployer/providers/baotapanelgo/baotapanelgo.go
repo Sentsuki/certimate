@@ -47,7 +47,7 @@ var (
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.ApiKey, config.AllowInsecureConnections)
@@ -72,7 +72,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 
 func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
 	if len(d.config.SiteNames) == 0 {
-		return nil, errors.New("config `siteNames` is required")
+		return nil, fmt.Errorf("config `siteNames` is required")
 	}
 
 	if d.config.SiteType != "" {
@@ -90,9 +90,8 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		default:
 			if err := d.updateSiteCertificate(ctx, d.config.SiteType, siteName, certPEM, privkeyPEM); err != nil {
 				errs = append(errs, err)
-			}
-			if i < len(d.config.SiteNames)-1 {
-				xwait.DelayWithContext(ctx, time.Second*5)
+			} else if i < len(d.config.SiteNames)-1 {
+				xwait.DelayWithContext(ctx, 5*time.Second)
 			}
 		}
 	}
@@ -122,9 +121,9 @@ func (d *Deployer) findSiteByName(ctx context.Context, siteType, siteName string
 				Limit:        lo.ToPtr(int32(datalistGetDataListLimit)),
 			}
 			datalistGetDataListResp, err := d.sdkClient.DatalistGetDataListWithContext(ctx, datalistGetDataListReq)
-			d.logger.Debug("sdk request 'bt.DatalistGetDataList'", slog.Any("request", datalistGetDataListReq), slog.Any("response", datalistGetDataListResp))
+			d.logger.Debug("sdk request 'datalist.GetDataList'", slog.Any("request", datalistGetDataListReq), slog.Any("response", datalistGetDataListResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request 'bt.DatalistGetDataList': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'datalist.GetDataList': %w", err)
 			}
 
 			for _, siteItem := range datalistGetDataListResp.Data {
@@ -157,9 +156,9 @@ func (d *Deployer) findSiteByName(ctx context.Context, siteType, siteName string
 				Limit:        lo.ToPtr(int32(siteGetProjectListLimit)),
 			}
 			siteGetProjectListResp, err := d.sdkClient.SiteGetProjectListWithContext(ctx, siteGetProjectListReq)
-			d.logger.Debug("sdk request 'bt.SiteGetProjectList'", slog.Any("request", siteGetProjectListReq), slog.Any("response", siteGetProjectListResp))
+			d.logger.Debug("sdk request 'site.GetProjectList'", slog.Any("request", siteGetProjectListReq), slog.Any("response", siteGetProjectListResp))
 			if err != nil {
-				return nil, fmt.Errorf("failed to execute sdk request 'bt.SiteGetProjectList': %w", err)
+				return nil, fmt.Errorf("failed to execute sdk request 'site.GetProjectList': %w", err)
 			}
 
 			for _, siteItem := range siteGetProjectListResp.Data {
@@ -183,9 +182,9 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteType, siteName
 	// 获取面板配置
 	panelGetConfigReq := &btsdk.PanelGetConfigRequest{}
 	panelGetConfigResp, err := d.sdkClient.PanelGetConfigWithContext(ctx, panelGetConfigReq)
-	d.logger.Debug("sdk request 'bt.PanelGetConfig'", slog.Any("request", panelGetConfigReq), slog.Any("response", panelGetConfigResp))
+	d.logger.Debug("sdk request 'panel.GetConfig'", slog.Any("request", panelGetConfigReq), slog.Any("response", panelGetConfigResp))
 	if err != nil {
-		return fmt.Errorf("failed to execute sdk request 'bt.PanelGetConfig': %w", err)
+		return fmt.Errorf("failed to execute sdk request 'panel.GetConfig': %w", err)
 	}
 
 	// 获取网站
@@ -199,7 +198,7 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteType, siteName
 	if pfxRequried {
 		// 转换证书格式
 		certPFXPassword := "certimate"
-		certPFX, err := xcert.TransformCertificateFromPEMToPFX(certPEM, privkeyPEM, certPFXPassword)
+		certPFX, err := xcert.TransformCertificateFromPEMToPFX(certPEM, privkeyPEM, certPFXPassword, nil)
 		if err != nil {
 			return fmt.Errorf("failed to transform certificate from PEM to PFX: %w", err)
 		}
@@ -218,9 +217,9 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteType, siteName
 			Force: lo.ToPtr(true),
 		}
 		filesUploadResp, err := d.sdkClient.FilesUploadWithContext(ctx, filesUploadReq)
-		d.logger.Debug("sdk request 'bt.FilesUpload'", slog.Any("request", filesUploadReq), slog.Any("response", filesUploadResp))
+		d.logger.Debug("sdk request 'files.Upload'", slog.Any("request", filesUploadReq), slog.Any("response", filesUploadResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'bt.FilesUpload': %w", err)
+			return fmt.Errorf("failed to execute sdk request 'files.Upload': %w", err)
 		}
 
 		// 服务器为 IIS，设置网站 SSL
@@ -230,9 +229,9 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteType, siteName
 			Password: lo.ToPtr(certPFXPassword),
 		}
 		siteSetSitePFXSSLResp, err := d.sdkClient.SiteSetSitePFXSSLWithContext(ctx, siteSetSitePFXSSLReq)
-		d.logger.Debug("sdk request 'bt.SiteSetSitePFXSSL'", slog.Any("request", siteSetSitePFXSSLReq), slog.Any("response", siteSetSitePFXSSLResp))
+		d.logger.Debug("sdk request 'site.SetSitePFXSSL'", slog.Any("request", siteSetSitePFXSSLReq), slog.Any("response", siteSetSitePFXSSLResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'bt.SiteSetSitePFXSSL': %w", err)
+			return fmt.Errorf("failed to execute sdk request 'site.SetSitePFXSSL': %w", err)
 		}
 	} else {
 		// 服务器非 IIS，设置网站 SSL
@@ -243,9 +242,9 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteType, siteName
 			Cert:   lo.ToPtr(certPEM),
 		}
 		siteSetSiteSSLResp, err := d.sdkClient.SiteSetSiteSSLWithContext(ctx, siteSetSiteSSLReq)
-		d.logger.Debug("sdk request 'bt.SiteSetSiteSSL'", slog.Any("request", siteSetSiteSSLReq), slog.Any("response", siteSetSiteSSLResp))
+		d.logger.Debug("sdk request 'site.SetSiteSSL'", slog.Any("request", siteSetSiteSSLReq), slog.Any("response", siteSetSiteSSLResp))
 		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'bt.SiteSetSiteSSL': %w", err)
+			return fmt.Errorf("failed to execute sdk request 'site.SetSiteSSL': %w", err)
 		}
 	}
 

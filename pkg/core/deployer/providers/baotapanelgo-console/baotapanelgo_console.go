@@ -3,7 +3,6 @@ package baotapanelgoconsole
 import (
 	"context"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -32,7 +31,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ServerUrl, config.ApiKey, config.AllowInsecureConnections)
@@ -63,9 +62,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		SSLPem:    lo.ToPtr(certPEM),
 	}
 	configSetPanelSSLResp, err := d.sdkClient.ConfigSetPanelSSLWithContext(ctx, configSetPanelSSLReq)
-	d.logger.Debug("sdk request 'bt.ConfigSetPanelSSL'", slog.Any("request", configSetPanelSSLReq), slog.Any("response", configSetPanelSSLResp))
+	d.logger.Debug("sdk request 'config.SetPanelSSL'", slog.Any("request", configSetPanelSSLReq), slog.Any("response", configSetPanelSSLResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'bt.ConfigSetPanelSSL': %w", err)
+		return nil, fmt.Errorf("failed to execute sdk request 'config.SetPanelSSL': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

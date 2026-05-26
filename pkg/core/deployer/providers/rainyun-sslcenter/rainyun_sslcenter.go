@@ -2,13 +2,12 @@ package rainyunsslcenter
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	mcertmgr "github.com/certimate-go/certimate/pkg/core/certmgr/providers/rainyun-sslcenter"
+	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/rainyun-sslcenter"
 	"github.com/certimate-go/certimate/pkg/core/deployer"
 )
 
@@ -30,10 +29,10 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
-	pcertmgr, err := mcertmgr.NewCertmgr(&mcertmgr.CertmgrConfig{
+	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
 		ApiKey: config.ApiKey,
 	})
 	if err != nil {
@@ -68,11 +67,11 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		}
 	} else {
 		// 替换证书
-		opres, err := d.sdkCertmgr.Replace(ctx, strconv.FormatInt(d.config.CertificateId, 10), certPEM, privkeyPEM)
+		rplres, err := d.sdkCertmgr.Replace(ctx, strconv.FormatInt(d.config.CertificateId, 10), certPEM, privkeyPEM)
 		if err != nil {
 			return nil, fmt.Errorf("failed to replace certificate file: %w", err)
 		} else {
-			d.logger.Info("ssl certificate replaced", slog.Any("result", opres))
+			d.logger.Info("ssl certificate replaced", slog.Any("result", rplres))
 		}
 	}
 

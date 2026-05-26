@@ -2,7 +2,6 @@ package vercel
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -28,7 +27,7 @@ var _ deployer.Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the deployer provider is nil")
+		return nil, fmt.Errorf("the configuration of the deployer provider is nil")
 	}
 
 	client, err := createSDKClient(config.ApiAccessToken, config.TeamId)
@@ -67,9 +66,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		SkipValidation: true,
 	}
 	uploadCertResp, err := d.sdkClient.UploadCertWithContext(ctx, uploadCertReq)
-	d.logger.Debug("sdk request 'vercel.UploadCert'", slog.Any("request", uploadCertReq), slog.Any("response", uploadCertResp))
+	d.logger.Debug("sdk request 'UploadCert'", slog.Any("request", uploadCertReq), slog.Any("response", uploadCertResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute sdk request 'vercel.UploadCert': %w", err)
+		return nil, fmt.Errorf("failed to execute sdk request 'UploadCert': %w", err)
 	}
 
 	return &deployer.DeployResult{}, nil

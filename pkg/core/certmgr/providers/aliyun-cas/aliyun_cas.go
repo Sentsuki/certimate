@@ -2,20 +2,18 @@ package aliyuncas
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
 	"time"
 
-	alicas "github.com/alibabacloud-go/cas-20200407/v4/client"
 	aliopen "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/dara"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/samber/lo"
 
 	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	"github.com/certimate-go/certimate/pkg/core/certmgr/providers/aliyun-cas/internal"
+	alicas "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/alibabacloud-go/cas-20200407/v4/client"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 )
 
@@ -33,14 +31,14 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *internal.CasClient
+	sdkClient *alicas.Client
 }
 
 var _ certmgr.Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
-		return nil, errors.New("the configuration of the certmgr provider is nil")
+		return nil, fmt.Errorf("the configuration of the certmgr provider is nil")
 	}
 
 	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
@@ -130,7 +128,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 			c.logger.Info("ssl certificate already exists")
 			return &certmgr.UploadResult{
 				CertId:   fmt.Sprintf("%d", tea.Int64Value(certItem.CertificateId)),
-				CertName: *certItem.Name,
+				CertName: tea.StringValue(certItem.Name),
 				ExtendedData: map[string]any{
 					"InstanceId":     tea.StringValue(getUserCertificateDetailResp.Body.InstanceId),
 					"CertIdentifier": tea.StringValue(getUserCertificateDetailResp.Body.CertIdentifier),
@@ -184,11 +182,11 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.OperateResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
 	return nil, certmgr.ErrUnsupported
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.CasClient, error) {
+func createSDKClient(accessKeyId, accessKeySecret, region string) (*alicas.Client, error) {
 	// 接入点一览 https://api.aliyun.com/product/cas
 	var endpoint string
 	switch region {
@@ -204,7 +202,7 @@ func createSDKClient(accessKeyId, accessKeySecret, region string) (*internal.Cas
 		AccessKeySecret: tea.String(accessKeySecret),
 	}
 
-	client, err := internal.NewCasClient(config)
+	client, err := alicas.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
