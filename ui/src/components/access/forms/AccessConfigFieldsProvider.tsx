@@ -20,6 +20,7 @@ import AccessConfigFieldsProviderBaishan from "./AccessConfigFieldsProviderBaish
 import AccessConfigFieldsProviderBaotaPanel from "./AccessConfigFieldsProviderBaotaPanel";
 import AccessConfigFieldsProviderBaotaPanelGo from "./AccessConfigFieldsProviderBaotaPanelGo";
 import AccessConfigFieldsProviderBaotaWAF from "./AccessConfigFieldsProviderBaotaWAF";
+import AccessConfigFieldsProviderBeget from "./AccessConfigFieldsProviderBeget";
 import AccessConfigFieldsProviderBookMyName from "./AccessConfigFieldsProviderBookMyName";
 import AccessConfigFieldsProviderBunny from "./AccessConfigFieldsProviderBunny";
 import AccessConfigFieldsProviderBytePlus from "./AccessConfigFieldsProviderBytePlus";
@@ -28,6 +29,7 @@ import AccessConfigFieldsProviderCdnfly from "./AccessConfigFieldsProviderCdnfly
 import AccessConfigFieldsProviderCloudflare from "./AccessConfigFieldsProviderCloudflare";
 import AccessConfigFieldsProviderClouDNS from "./AccessConfigFieldsProviderClouDNS";
 import AccessConfigFieldsProviderCMCCCloud from "./AccessConfigFieldsProviderCMCCCloud";
+import AccessConfigFieldsProviderConoHaVPS from "./AccessConfigFieldsProviderConoHaVPS";
 import AccessConfigFieldsProviderConstellix from "./AccessConfigFieldsProviderConstellix";
 import AccessConfigFieldsProviderCPanel from "./AccessConfigFieldsProviderCPanel";
 import AccessConfigFieldsProviderCTCCCloud from "./AccessConfigFieldsProviderCTCCCloud";
@@ -55,6 +57,7 @@ import AccessConfigFieldsProviderGlobalSignAtlas from "./AccessConfigFieldsProvi
 import AccessConfigFieldsProviderGname from "./AccessConfigFieldsProviderGname";
 import AccessConfigFieldsProviderGoDaddy from "./AccessConfigFieldsProviderGoDaddy";
 import AccessConfigFieldsProviderGoEdge from "./AccessConfigFieldsProviderGoEdge";
+import AccessConfigFieldsProviderGoogleCloud from "./AccessConfigFieldsProviderGoogleCloud";
 import AccessConfigFieldsProviderGoogleTrustServices from "./AccessConfigFieldsProviderGoogleTrustServices";
 import AccessConfigFieldsProviderHetzner from "./AccessConfigFieldsProviderHetzner";
 import AccessConfigFieldsProviderHostingde from "./AccessConfigFieldsProviderHostingde";
@@ -87,7 +90,9 @@ import AccessConfigFieldsProviderQingCloud from "./AccessConfigFieldsProviderQin
 import AccessConfigFieldsProviderQiniu from "./AccessConfigFieldsProviderQiniu";
 import AccessConfigFieldsProviderRainYun from "./AccessConfigFieldsProviderRainYun";
 import AccessConfigFieldsProviderRatPanel from "./AccessConfigFieldsProviderRatPanel";
+import AccessConfigFieldsProviderRegru from "./AccessConfigFieldsProviderRegru";
 import AccessConfigFieldsProviderRFC2136 from "./AccessConfigFieldsProviderRFC2136";
+import AccessConfigFieldsProviderRuCenter from "./AccessConfigFieldsProviderRuCenter";
 import AccessConfigFieldsProviderS3 from "./AccessConfigFieldsProviderS3";
 import AccessConfigFieldsProviderSafeLine from "./AccessConfigFieldsProviderSafeLine";
 import AccessConfigFieldsProviderSamWAF from "./AccessConfigFieldsProviderSamWAF";
@@ -138,6 +143,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.BAOTAPANEL]: AccessConfigFieldsProviderBaotaPanel,
   [ACCESS_PROVIDERS.BAOTAPANELGO]: AccessConfigFieldsProviderBaotaPanelGo,
   [ACCESS_PROVIDERS.BAOTAWAF]: AccessConfigFieldsProviderBaotaWAF,
+  [ACCESS_PROVIDERS.BEGET]: AccessConfigFieldsProviderBeget,
   [ACCESS_PROVIDERS.BOOKMYNAME]: AccessConfigFieldsProviderBookMyName,
   [ACCESS_PROVIDERS.BUNNY]: AccessConfigFieldsProviderBunny,
   [ACCESS_PROVIDERS.BYTEPLUS]: AccessConfigFieldsProviderBytePlus,
@@ -146,6 +152,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.CLOUDFLARE]: AccessConfigFieldsProviderCloudflare,
   [ACCESS_PROVIDERS.CLOUDNS]: AccessConfigFieldsProviderClouDNS,
   [ACCESS_PROVIDERS.CMCCCLOUD]: AccessConfigFieldsProviderCMCCCloud,
+  [ACCESS_PROVIDERS.CONOHAVPS]: AccessConfigFieldsProviderConoHaVPS,
   [ACCESS_PROVIDERS.CONSTELLIX]: AccessConfigFieldsProviderConstellix,
   [ACCESS_PROVIDERS.CPANEL]: AccessConfigFieldsProviderCPanel,
   [ACCESS_PROVIDERS.CTCCCLOUD]: AccessConfigFieldsProviderCTCCCloud,
@@ -169,10 +176,11 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.FTP]: AccessConfigFieldsProviderFTP,
   [ACCESS_PROVIDERS.GANDINET]: AccessConfigFieldsProviderGandinet,
   [ACCESS_PROVIDERS.GCORE]: AccessConfigFieldsProviderGcore,
+  [ACCESS_PROVIDERS.GLOBALSIGNATLAS]: AccessConfigFieldsProviderGlobalSignAtlas,
   [ACCESS_PROVIDERS.GNAME]: AccessConfigFieldsProviderGname,
   [ACCESS_PROVIDERS.GODADDY]: AccessConfigFieldsProviderGoDaddy,
   [ACCESS_PROVIDERS.GOEDGE]: AccessConfigFieldsProviderGoEdge,
-  [ACCESS_PROVIDERS.GLOBALSIGNATLAS]: AccessConfigFieldsProviderGlobalSignAtlas,
+  [ACCESS_PROVIDERS.GOOGLECLOUD]: AccessConfigFieldsProviderGoogleCloud,
   [ACCESS_PROVIDERS.GOOGLETRUSTSERVICES]: AccessConfigFieldsProviderGoogleTrustServices,
   [ACCESS_PROVIDERS.HETZNER]: AccessConfigFieldsProviderHetzner,
   [ACCESS_PROVIDERS.HOSTINGDE]: AccessConfigFieldsProviderHostingde,
@@ -205,7 +213,9 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.QINIU]: AccessConfigFieldsProviderQiniu,
   [ACCESS_PROVIDERS.RAINYUN]: AccessConfigFieldsProviderRainYun,
   [ACCESS_PROVIDERS.RATPANEL]: AccessConfigFieldsProviderRatPanel,
+  [ACCESS_PROVIDERS.REGRU]: AccessConfigFieldsProviderRegru,
   [ACCESS_PROVIDERS.RFC2136]: AccessConfigFieldsProviderRFC2136,
+  [ACCESS_PROVIDERS.RUCENTER]: AccessConfigFieldsProviderRuCenter,
   [ACCESS_PROVIDERS.S3]: AccessConfigFieldsProviderS3,
   [ACCESS_PROVIDERS.SAFELINE]: AccessConfigFieldsProviderSafeLine,
   [ACCESS_PROVIDERS.SAMWAF]: AccessConfigFieldsProviderSamWAF,

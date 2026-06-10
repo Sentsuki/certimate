@@ -7,10 +7,15 @@ import (
 	"strings"
 
 	"github.com/certimate-go/certimate/internal/tools/ssh"
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 	xcertpfx "github.com/certimate-go/certimate/pkg/utils/cert/pfx"
 	xssh "github.com/certimate-go/certimate/pkg/utils/ssh"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type ServerConfig struct {
@@ -79,7 +84,7 @@ type Deployer struct {
 	logger *slog.Logger
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -100,9 +105,9 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
@@ -160,7 +165,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 			}
 
 			if d.config.FilePathForCrtOnlyIntermedia != "" {
-				if err := xssh.WriteRemoteString(sshClient.RawClient(), d.config.FilePathForCrtOnlyIntermedia, intermediaCertPEM, d.config.UseSCP); err != nil {
+				if err := xssh.WriteRemoteString(sshClient.RawClient(), d.config.FilePathForCrtOnlyIntermedia, issuerCertPEM, d.config.UseSCP); err != nil {
 					return nil, fmt.Errorf("failed to save intermedia certificate file: %w", err)
 				}
 				d.logger.Info("ssl intermedia certificate file uploaded", slog.String("path", d.config.FilePathForCrtOnlyIntermedia))
@@ -241,7 +246,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		}
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 func createSshClient(config DeployerConfig) (*ssh.Client, error) {

@@ -5,18 +5,28 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/samber/lo"
 	ve "github.com/volcengine/volcengine-go-sdk/volcengine"
 	vesession "github.com/volcengine/volcengine-go-sdk/volcengine/session"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
 	vecertificateservice "github.com/certimate-go/certimate/pkg/sdk3rd-trimmed/github.com/volcengine/volcengine-go-sdk/service/certificateservice"
+
+	"github.com/certimate-go/certimate/pkg/core"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
 	// 火山引擎 AccessKeyId。
 	AccessKeyId string `json:"accessKeyId"`
-	// 火山引擎 AccessKeySecret。
-	AccessKeySecret string `json:"accessKeySecret"`
+	// 火山引擎 SecretAccessKey。
+	SecretAccessKey string `json:"secretAccessKey"`
+	// 火山引擎项目名称。
+	ProjectName string `json:"projectName,omitempty"`
 	// 火山引擎地域。
 	Region string `json:"region"`
 }
@@ -27,14 +37,14 @@ type Certmgr struct {
 	sdkClient *vecertificateservice.CERTIFICATESERVICE
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
 		return nil, fmt.Errorf("the configuration of the certmgr provider is nil")
 	}
 
-	client, err := createSDKClient(config.AccessKeyId, config.AccessKeySecret, config.Region)
+	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
@@ -54,10 +64,11 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 上传证书
 	// REF: https://www.volcengine.com/docs/6638/1365580
 	importCertificateReq := &vecertificateservice.ImportCertificateInput{
+		ProjectName: lo.EmptyableToPtr(c.config.ProjectName),
 		CertificateInfo: &vecertificateservice.CertificateInfoForImportCertificateInput{
 			CertificateChain: ve.String(certPEM),
 			PrivateKey:       ve.String(privkeyPEM),
@@ -82,22 +93,22 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		return nil, fmt.Errorf("received empty certificate id, both `InstanceId` and `RepeatId` are empty")
 	}
 
-	return &certmgr.UploadResult{
+	return &UploadResult{
 		CertId: sslId,
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
-	return nil, certmgr.ErrUnsupported
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
+	return nil, core.ErrUnsupported
 }
 
-func createSDKClient(accessKeyId, accessKeySecret, region string) (*vecertificateservice.CERTIFICATESERVICE, error) {
+func createSDKClient(accessKeyId, secretAccessKey, region string) (*vecertificateservice.CERTIFICATESERVICE, error) {
 	if region == "" {
 		region = "cn-beijing" // 证书中心默认区域：北京
 	}
 
 	config := ve.NewConfig().
-		WithAkSk(accessKeyId, accessKeySecret).
+		WithAkSk(accessKeyId, secretAccessKey).
 		WithRegion(region)
 
 	session, err := vesession.NewSession(config)

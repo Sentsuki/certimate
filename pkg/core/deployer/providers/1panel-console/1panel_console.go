@@ -7,9 +7,14 @@ import (
 	"log/slog"
 	"strconv"
 
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	onepanelsdk "github.com/certimate-go/certimate/pkg/sdk3rd/1panel"
 	onepanelsdk2 "github.com/certimate-go/certimate/pkg/sdk3rd/1panel/v2"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -32,7 +37,7 @@ type Deployer struct {
 	sdkClient any
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -59,7 +64,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 设置面板 SSL 证书
 	switch sdkClient := d.sdkClient.(type) {
 	case *onepanelsdk.Client:
@@ -98,7 +103,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		panic("unreachable")
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 const (
@@ -108,7 +113,9 @@ const (
 
 func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool) (any, error) {
 	if apiVersion == sdkVersionV1 {
-		client, err := onepanelsdk.NewClient(serverUrl, apiKey)
+		client, err := onepanelsdk.NewClient(serverUrl,
+			onepanelsdk.WithApiKey(apiKey),
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +126,9 @@ func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool) (
 
 		return client, nil
 	} else if apiVersion == sdkVersionV2 {
-		client, err := onepanelsdk2.NewClient(serverUrl, apiKey)
+		client, err := onepanelsdk2.NewClient(serverUrl,
+			onepanelsdk2.WithApiKey(apiKey),
+		)
 		if err != nil {
 			return nil, err
 		}

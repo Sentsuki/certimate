@@ -68,7 +68,7 @@ func (ne *bizMonitorNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeE
 			}
 		}
 
-		certs, err = ne.tryRetrievePeerCertificates(execCtx, targetAddr, targetDomain, nodeCfg.RequestPath)
+		certs, err = ne.execRetrieveCertificates(execCtx, targetAddr, targetDomain, nodeCfg.RequestPath)
 		if err == nil {
 			break
 		}
@@ -119,10 +119,11 @@ func (ne *bizMonitorNodeExecutor) Execute(execCtx *NodeExecutionContext) (*NodeE
 	return execRes, nil
 }
 
-func (ne *bizMonitorNodeExecutor) tryRetrievePeerCertificates(execCtx *NodeExecutionContext, addr, domain, requestPath string) ([]*x509.Certificate, error) {
+func (ne *bizMonitorNodeExecutor) execRetrieveCertificates(execCtx *NodeExecutionContext, addr, domain, requestPath string) ([]*x509.Certificate, error) {
 	transport := xhttp.NewDefaultTransport()
 	transport.DisableKeepAlives = true
 	transport.TLSClientConfig = xtls.NewInsecureConfig()
+	transport.TLSClientConfig.ServerName = domain
 
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {

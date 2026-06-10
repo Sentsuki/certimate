@@ -31,7 +31,7 @@ const BizDeployNodeConfigFieldsProviderVolcEngineCertCenter = () => {
 
 const getInitialValues = (): Nullish<z.infer<ReturnType<typeof getSchema>>> => {
   return {
-    region: "",
+    region: "cn-beijing",
   };
 };
 

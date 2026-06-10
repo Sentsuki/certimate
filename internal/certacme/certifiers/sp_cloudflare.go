@@ -5,7 +5,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
-	"github.com/certimate-go/certimate/pkg/core/certifier/challengers/dns01/cloudflare"
+	chlgimpl "github.com/certimate-go/certimate/pkg/core/certifier/challengers/dns01/cloudflare"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
@@ -16,9 +16,9 @@ func init() {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := cloudflare.NewChallenger(&cloudflare.ChallengerConfig{
-			DnsApiToken:           credentials.DnsApiToken,
-			ZoneApiToken:          credentials.ZoneApiToken,
+		provider, err := chlgimpl.NewChallenger(&chlgimpl.ChallengerConfig{
+			ApiToken:              credentials.ApiToken,
+			ApiTokenForZone:       credentials.ApiTokenForZone,
 			DnsPropagationTimeout: options.DnsPropagationTimeout,
 			DnsTTL:                options.DnsTTL,
 		})

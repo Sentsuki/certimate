@@ -11,9 +11,15 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
+	"github.com/certimate-go/certimate/pkg/core"
 	ctyuncms "github.com/certimate-go/certimate/pkg/sdk3rd/ctyun/cms"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -29,7 +35,7 @@ type Certmgr struct {
 	sdkClient *ctyuncms.Client
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -56,7 +62,7 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 避免重复上传
 	if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM); err != nil {
 		return nil, err
@@ -66,7 +72,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}
 
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
@@ -79,7 +85,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	uploadCertificateReq := &ctyuncms.UploadCertificateRequest{
 		Name:               lo.ToPtr(certName),
 		Certificate:        lo.ToPtr(serverCertPEM),
-		CertificateChain:   lo.ToPtr(intermediaCertPEM),
+		CertificateChain:   lo.ToPtr(issuerCertPEM),
 		PrivateKey:         lo.ToPtr(privkeyPEM),
 		EncryptionStandard: lo.ToPtr("INTERNATIONAL"),
 	}
@@ -110,11 +116,11 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
-	return nil, certmgr.ErrUnsupported
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
+	return nil, core.ErrUnsupported
 }
 
-func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM string) (*certmgr.UploadResult, bool, error) {
+func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM string) (*UploadResult, bool, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -172,7 +178,7 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM string) 
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
 			c.logger.Info("ssl certificate already exists")
-			return &certmgr.UploadResult{
+			return &UploadResult{
 				CertId:   certItem.Id,
 				CertName: certItem.Name,
 			}, true, nil
@@ -189,5 +195,12 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM string) 
 }
 
 func createSDKClient(accessKeyId, secretAccessKey string) (*ctyuncms.Client, error) {
-	return ctyuncms.NewClient(accessKeyId, secretAccessKey)
+	client, err := ctyuncms.NewClient(
+		ctyuncms.WithAkSk(accessKeyId, secretAccessKey),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

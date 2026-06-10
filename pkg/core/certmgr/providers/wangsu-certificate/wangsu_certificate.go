@@ -10,9 +10,15 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	wangsusdk "github.com/certimate-go/certimate/pkg/sdk3rd/wangsu/certificate"
+	"github.com/certimate-go/certimate/pkg/core"
+	wangsucertificate "github.com/certimate-go/certimate/pkg/sdk3rd/wangsu/certificate"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -25,10 +31,10 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *wangsusdk.Client
+	sdkClient *wangsucertificate.Client
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -55,7 +61,7 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -87,8 +93,8 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
 			c.logger.Info("ssl certificate already exists")
-			return &certmgr.UploadResult{
-				CertId:   certItem.CertificateId,
+			return &UploadResult{
+				CertId:   certItem.Id,
 				CertName: certItem.Name,
 			}, nil
 		}
@@ -99,7 +105,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 
 	// 新增证书
 	// REF: https://www.wangsu.com/document/api-doc/25199?productCode=certificatemanagement
-	createCertificateReq := &wangsusdk.CreateCertificateRequest{
+	createCertificateReq := &wangsucertificate.CreateCertificateRequest{
 		Name:        lo.ToPtr(certName),
 		Certificate: lo.ToPtr(certPEM),
 		PrivateKey:  lo.ToPtr(privkeyPEM),
@@ -119,19 +125,19 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		return nil, fmt.Errorf("received empty certificate id")
 	}
 
-	return &certmgr.UploadResult{
+	return &UploadResult{
 		CertId:   wangsuCertIdMatches[1],
 		CertName: certName,
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
 	certId := certIdOrName
 	certName := fmt.Sprintf("certimate_%d", time.Now().UnixMilli())
 
 	// 修改证书
 	// REF: https://www.wangsu.com/document/api-doc/25568?productCode=certificatemanagement
-	updateCertificateReq := &wangsusdk.UpdateCertificateRequest{
+	updateCertificateReq := &wangsucertificate.UpdateCertificateRequest{
 		Name:        lo.ToPtr(certName),
 		Certificate: lo.ToPtr(certPEM),
 		PrivateKey:  lo.ToPtr(privkeyPEM),
@@ -143,9 +149,16 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		return nil, fmt.Errorf("failed to execute sdk request 'certificatemanagement.UpdateCertificate': %w", err)
 	}
 
-	return &certmgr.ReplaceResult{}, nil
+	return &ReplaceResult{}, nil
 }
 
-func createSDKClient(accessKeyId, accessKeySecret string) (*wangsusdk.Client, error) {
-	return wangsusdk.NewClient(accessKeyId, accessKeySecret)
+func createSDKClient(accessKeyId, accessKeySecret string) (*wangsucertificate.Client, error) {
+	client, err := wangsucertificate.NewClient(
+		wangsucertificate.WithAkSk(accessKeyId, accessKeySecret),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

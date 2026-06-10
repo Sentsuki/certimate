@@ -7,9 +7,14 @@ import (
 	"path/filepath"
 
 	"github.com/certimate-go/certimate/internal/tools/ftp"
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
 	xcertpfx "github.com/certimate-go/certimate/pkg/utils/cert/pfx"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -56,7 +61,7 @@ type Deployer struct {
 	logger *slog.Logger
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -77,9 +82,9 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
@@ -142,7 +147,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 				if err := ftpClient.ChangeDir(ctx, filepath.Dir(d.config.FilePathForCrtOnlyIntermedia)); err != nil {
 					return nil, fmt.Errorf("failed to upload intermedia certificate file: %w", err)
 				}
-				if err := ftpClient.StoreString(ctx, filepath.Base(d.config.FilePathForCrtOnlyIntermedia), intermediaCertPEM); err != nil {
+				if err := ftpClient.StoreString(ctx, filepath.Base(d.config.FilePathForCrtOnlyIntermedia), issuerCertPEM); err != nil {
 					return nil, fmt.Errorf("failed to upload intermedia certificate file: %w", err)
 				}
 				d.logger.Info("ssl intermedia certificate file uploaded", slog.String("path", d.config.FilePathForCrtOnlyIntermedia))
@@ -216,7 +221,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, fmt.Errorf("unsupported file format '%s'", d.config.FileFormat)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 func createFtpClient(config DeployerConfig) (*ftp.Client, error) {

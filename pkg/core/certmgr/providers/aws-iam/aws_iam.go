@@ -1,6 +1,7 @@
 package awsiam
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"log/slog"
@@ -11,8 +12,14 @@ import (
 	awscred "github.com/aws/aws-sdk-go-v2/credentials"
 	awsiam "github.com/aws/aws-sdk-go-v2/service/iam"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
+	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -33,7 +40,7 @@ type Certmgr struct {
 	sdkClient *awsiam.Client
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -60,7 +67,7 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -68,14 +75,14 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}
 
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
 
 	// 获取证书列表，避免重复上传
-	// REF: https://docs.aws.amazon.com/en_us/IAM/latest/APIReference/API_ListServerCertificates.html
-	// REF: https://docs.aws.amazon.com/en_us/IAM/latest/APIReference/API_GetServerCertificate.html
+	// REF: https://docs.aws.amazon.com/IAM/latest/APIReference/API_ListServerCertificates.html
+	// REF: https://docs.aws.amazon.com/IAM/latest/APIReference/API_GetServerCertificate.html
 	listServerCertificatesMarker := (*string)(nil)
 	for {
 		select {
@@ -123,9 +130,13 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
 			c.logger.Info("ssl certificate already exists")
-			return &certmgr.UploadResult{
+			return &UploadResult{
 				CertId:   aws.ToString(certItem.ServerCertificateId),
 				CertName: aws.ToString(certItem.ServerCertificateName),
+				ExtendedData: map[string]any{
+					"Arn":  aws.ToString(certItem.Arn),
+					"Path": aws.ToString(certItem.Path),
+				},
 			}, nil
 		}
 
@@ -140,16 +151,13 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	certName := fmt.Sprintf("certimate-%d", time.Now().UnixMilli())
 
 	// 导入证书
-	// REF: https://docs.aws.amazon.com/en_us/IAM/latest/APIReference/API_UploadServerCertificate.html
+	// REF: https://docs.aws.amazon.com/IAM/latest/APIReference/API_UploadServerCertificate.html
 	uploadServerCertificateReq := &awsiam.UploadServerCertificateInput{
 		ServerCertificateName: aws.String(certName),
-		Path:                  aws.String(c.config.CertificatePath),
+		Path:                  aws.String(cmp.Or(c.config.CertificatePath, "/")),
 		CertificateBody:       aws.String(serverCertPEM),
-		CertificateChain:      aws.String(intermediaCertPEM),
+		CertificateChain:      aws.String(issuerCertPEM),
 		PrivateKey:            aws.String(privkeyPEM),
-	}
-	if c.config.CertificatePath == "" {
-		uploadServerCertificateReq.Path = aws.String("/")
 	}
 	uploadServerCertificateResp, err := c.sdkClient.UploadServerCertificate(ctx, uploadServerCertificateReq)
 	c.logger.Debug("sdk request 'iam.UploadServerCertificate'", slog.Any("request", uploadServerCertificateReq), slog.Any("response", uploadServerCertificateResp))
@@ -157,14 +165,18 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		return nil, fmt.Errorf("failed to execute sdk request 'iam.UploadServerCertificate': %w", err)
 	}
 
-	return &certmgr.UploadResult{
+	return &UploadResult{
 		CertId:   aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.ServerCertificateId),
-		CertName: certName,
+		CertName: aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.ServerCertificateName),
+		ExtendedData: map[string]any{
+			"Arn":  aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.Arn),
+			"Path": aws.ToString(uploadServerCertificateResp.ServerCertificateMetadata.Path),
+		},
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
-	return nil, certmgr.ErrUnsupported
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
+	return nil, core.ErrUnsupported
 }
 
 func createSDKClient(accessKeyId, secretAccessKey, region string) (*awsiam.Client, error) {

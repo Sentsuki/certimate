@@ -10,8 +10,13 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	cdnflysdk "github.com/certimate-go/certimate/pkg/sdk3rd/cdnfly"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -39,7 +44,7 @@ type Deployer struct {
 	sdkClient *cdnflysdk.Client
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -66,7 +71,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 根据部署目标决定业务流程
 	switch d.config.DeployTarget {
 	case DEPLOY_TARGET_WEBSITE:
@@ -83,7 +88,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, fmt.Errorf("unsupported deploy target '%s'", d.config.DeployTarget)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 func (d *Deployer) deployToSite(ctx context.Context, certPEM, privkeyPEM string) error {
@@ -94,7 +99,7 @@ func (d *Deployer) deployToSite(ctx context.Context, certPEM, privkeyPEM string)
 	// 获取单个网站详情
 	// REF: https://doc.cdnfly.cn/wangzhanguanli-v1-sites.html#%E8%8E%B7%E5%8F%96%E5%8D%95%E4%B8%AA%E7%BD%91%E7%AB%99%E8%AF%A6%E6%83%85
 	getSiteResp, err := d.sdkClient.GetSiteWithContext(ctx, d.config.SiteId)
-	d.logger.Debug("sdk request 'GetSite'", slog.String("siteId", d.config.SiteId), slog.Any("response", getSiteResp))
+	d.logger.Debug("sdk request 'GetSite'", slog.String("params.siteId", d.config.SiteId), slog.Any("response", getSiteResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'GetSite': %w", err)
 	}
@@ -122,7 +127,7 @@ func (d *Deployer) deployToSite(ctx context.Context, certPEM, privkeyPEM string)
 		HttpsListen: lo.ToPtr(updateSiteReqHttpsListen),
 	}
 	updateSiteResp, err := d.sdkClient.UpdateSiteWithContext(ctx, d.config.SiteId, updateSiteReq)
-	d.logger.Debug("sdk request 'UpdateSite'", slog.String("siteId", d.config.SiteId), slog.Any("request", updateSiteReq), slog.Any("response", updateSiteResp))
+	d.logger.Debug("sdk request 'UpdateSite'", slog.String("params.siteId", d.config.SiteId), slog.Any("request", updateSiteReq), slog.Any("response", updateSiteResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'UpdateSite': %w", err)
 	}
@@ -143,7 +148,7 @@ func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM 
 		Key:  lo.ToPtr(privkeyPEM),
 	}
 	updateCertResp, err := d.sdkClient.UpdateCertWithContext(ctx, d.config.CertificateId, updateCertReq)
-	d.logger.Debug("sdk request 'UpdateCert'", slog.String("certId", d.config.CertificateId), slog.Any("request", updateCertReq), slog.Any("response", updateCertResp))
+	d.logger.Debug("sdk request 'UpdateCert'", slog.String("params.certId", d.config.CertificateId), slog.Any("request", updateCertReq), slog.Any("response", updateCertResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'UpdateCert': %w", err)
 	}
@@ -152,7 +157,9 @@ func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM 
 }
 
 func createSDKClient(serverUrl, apiKey, apiSecret string, skipTlsVerify bool) (*cdnflysdk.Client, error) {
-	client, err := cdnflysdk.NewClient(serverUrl, apiKey, apiSecret)
+	client, err := cdnflysdk.NewClient(serverUrl,
+		cdnflysdk.WithApiKey(apiKey, apiSecret),
+	)
 	if err != nil {
 		return nil, err
 	}

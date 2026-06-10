@@ -10,9 +10,15 @@ import (
 	"github.com/ucloud/ucloud-sdk-go/ucloud"
 	"github.com/ucloud/ucloud-sdk-go/ucloud/auth"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
+	"github.com/certimate-go/certimate/pkg/core"
 	ucloudsdk "github.com/certimate-go/certimate/pkg/sdk3rd/ucloud/ulb"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -32,7 +38,7 @@ type Certmgr struct {
 	sdkClient *ucloudsdk.ULBClient
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -59,7 +65,7 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 避免重复上传
 	if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM, privkeyPEM); err != nil {
 		return nil, err
@@ -69,7 +75,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}
 
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
@@ -83,22 +89,22 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	createSSLReq.SSLName = ucloud.String(certName)
 	createSSLReq.SSLType = ucloud.String("Pem")
 	createSSLReq.UserCert = ucloud.String(serverCertPEM)
-	createSSLReq.CaCert = ucloud.String(intermediaCertPEM)
+	createSSLReq.CaCert = ucloud.String(issuerCertPEM)
 	createSSLReq.PrivateKey = ucloud.String(privkeyPEM)
 	createSSLResp, err := c.sdkClient.CreateSSL(createSSLReq)
 	c.logger.Debug("sdk request 'ulb.CreateSSL'", slog.Any("request", createSSLReq), slog.Any("response", createSSLResp))
 
-	return &certmgr.UploadResult{
+	return &UploadResult{
 		CertId:   createSSLResp.SSLId,
 		CertName: certName,
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
-	return nil, certmgr.ErrUnsupported
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
+	return nil, core.ErrUnsupported
 }
 
-func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, bool, error) {
+func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, bool, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -133,7 +139,7 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkey
 
 			// 对比证书及私钥内容
 			// 按照“网站证书、私钥、中间证书”的方式拼接
-			serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+			serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 			if err != nil {
 				continue
 			} else {
@@ -143,7 +149,7 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkey
 				oldSSLContent = strings.ReplaceAll(oldSSLContent, "\t", "")
 				oldSSLContent = strings.ReplaceAll(oldSSLContent, " ", "")
 
-				newSSLContent := serverCertPEM + privkeyPEM + intermediaCertPEM
+				newSSLContent := serverCertPEM + privkeyPEM + issuerCertPEM
 				newSSLContent = strings.ReplaceAll(newSSLContent, "\r", "")
 				newSSLContent = strings.ReplaceAll(newSSLContent, "\n", "")
 				newSSLContent = strings.ReplaceAll(newSSLContent, "\t", "")
@@ -155,7 +161,7 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkey
 			}
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
-			return &certmgr.UploadResult{
+			return &UploadResult{
 				CertId:   sslItem.SSLId,
 				CertName: sslItem.SSLName,
 			}, true, nil

@@ -8,9 +8,14 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	cpanelsdk "github.com/certimate-go/certimate/pkg/sdk3rd/cpanel"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -35,7 +40,7 @@ type Deployer struct {
 	sdkClient *cpanelsdk.Client
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -62,7 +67,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 根据部署目标决定业务流程
 	switch d.config.DeployTarget {
 	case DEPLOY_TARGET_WEBSITE:
@@ -74,7 +79,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, fmt.Errorf("unsupported deploy target '%s'", d.config.DeployTarget)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 func (d *Deployer) deployToWebsite(ctx context.Context, certPEM, privkeyPEM string) error {
@@ -83,7 +88,7 @@ func (d *Deployer) deployToWebsite(ctx context.Context, certPEM, privkeyPEM stri
 	}
 
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return fmt.Errorf("failed to extract certs: %w", err)
 	}
@@ -94,7 +99,7 @@ func (d *Deployer) deployToWebsite(ctx context.Context, certPEM, privkeyPEM stri
 		Domain:   lo.ToPtr(d.config.Domain),
 		Cert:     lo.ToPtr(serverCertPEM),
 		Key:      lo.ToPtr(privkeyPEM),
-		CABundle: lo.ToPtr(intermediaCertPEM),
+		CABundle: lo.ToPtr(issuerCertPEM),
 	}
 	sslInstallSSLResp, err := d.sdkClient.SSLInstallSSL(sslInstallSSLReq)
 	d.logger.Debug("sdk request 'SSL.install_ssl'", slog.Any("request", sslInstallSSLReq), slog.Any("response", sslInstallSSLResp))
@@ -106,7 +111,10 @@ func (d *Deployer) deployToWebsite(ctx context.Context, certPEM, privkeyPEM stri
 }
 
 func createSDKClient(serverUrl, username, apiToken string, skipTlsVerify bool) (*cpanelsdk.Client, error) {
-	client, err := cpanelsdk.NewClient(serverUrl, username, apiToken)
+	client, err := cpanelsdk.NewClient(serverUrl,
+		cpanelsdk.WithUsername(username),
+		cpanelsdk.WithApiToken(apiToken),
+	)
 	if err != nil {
 		return nil, err
 	}

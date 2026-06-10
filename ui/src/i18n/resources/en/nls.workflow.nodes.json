@@ -453,15 +453,15 @@
         "help": "Notes: The certificate to be deployed comes from the previous nodes of application or upload."
       },
       "provider": {
-        "label": "Provider",
-        "placeholder": "Please select provider",
+        "label": "Hosting provider",
+        "placeholder": "Please select hosting provider",
         "search": {
-          "placeholder": "Search provider ..."
+          "placeholder": "Search hosting provider ..."
         }
       },
       "provider_access": {
-        "label": "Provider credential",
-        "placeholder": "Please select an credential of the provider",
+        "label": "Hosting provider credential",
+        "placeholder": "Please select an credential of the hosting provider",
         "button": "Create"
       },
       "skip_on_last_succeeded": {
@@ -819,12 +819,12 @@
       "aliyun_ga_accelerator_id": {
         "label": "Alibaba Cloud GA accelerator ID",
         "placeholder": "Please enter Alibaba Cloud GA accelerator ID",
-        "tooltip": "For more information, <a href=\"https://ga.console.aliyun.com\" target=\"_blank\">https://ga.console.aliyun.com</a>"
+        "tooltip": "For more information, see <a href=\"https://ga.console.aliyun.com\" target=\"_blank\">https://ga.console.aliyun.com</a>"
       },
       "aliyun_ga_listener_id": {
         "label": "Alibaba Cloud GA listener ID",
         "placeholder": "Please enter Alibaba Cloud GA listener ID",
-        "tooltip": "For more information, <a href=\"https://ga.console.aliyun.com\" target=\"_blank\">https://ga.console.aliyun.com</a>"
+        "tooltip": "For more information, see <a href=\"https://ga.console.aliyun.com\" target=\"_blank\">https://ga.console.aliyun.com</a>"
       },
       "aliyun_ga_snidomain": {
         "label": "Alibaba Cloud GA SNI domain (Optional)",
@@ -955,6 +955,78 @@
         "placeholder": "Please enter AWS ACM certificate ARN",
         "help": "Notes: Leave it blank to import a new certificate."
       },
+      "aws_alb_region": {
+        "label": "AWS Region",
+        "placeholder": "Please enter AWS ALB region (e.g. us-east-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints\" target=\"_blank\">https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints</a>"
+      },
+      "aws_alb_loadbalancer_arn": {
+        "label": "AWS ALB load balancer ARN",
+        "placeholder": "Please enter AWS ALB load balancer ARN",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/application/create-application-load-balancer.html\" target=\"_blank\">https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/application/create-application-load-balancer.html</a>"
+      },
+      "aws_alb_listener_arn": {
+        "label": "AWS ALB listener ARN",
+        "placeholder": "Please enter AWS ALB listener ARN",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/application/create-listener.html\" target=\"_blank\">https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/application/create-listener.html</a>"
+      },
+      "aws_alb_certificate_source": {
+        "label": "AWS ALB certificate source",
+        "placeholder": "Please select AWS ALB certificate source"
+      },
+      "aws_alb_is_default": {
+        "label": "Set as default certificate"
+      },
+      "aws_amplify_region": {
+        "label": "AWS Region",
+        "placeholder": "Please enter AWS Amplify region (e.g. us-east-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints\" target=\"_blank\">https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints</a>"
+      },
+      "aws_amplify_app_id": {
+        "label": "AWS Amplify application ID",
+        "placeholder": "Please enter AWS Amplify application ID",
+        "tooltip": "For more information, see <a href=\"https://console.aws.amazon.com/amplify/\" target=\"_blank\">https://console.aws.amazon.com/amplify/</a>"
+      },
+      "aws_amplify_domain": {
+        "label": "AWS Amplify custom domain",
+        "placeholder": "Please enter AWS Amplify custom domain name"
+      },
+      "aws_amplify_certificate_source": {
+        "label": "AWS Amplify certificate source",
+        "placeholder": "Please select AWS Amplify certificate source"
+      },
+      "aws_apigateway_region": {
+        "label": "AWS Region",
+        "placeholder": "Please enter AWS API Gateway region (e.g. us-east-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints\" target=\"_blank\">https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints</a>"
+      },
+      "aws_apigateway_domain": {
+        "label": "AWS API Gateway custom domain",
+        "placeholder": "Please enter AWS API Gateway custom domain name"
+      },
+      "aws_apigateway_certificate_source": {
+        "label": "AWS API Gateway certificate source",
+        "placeholder": "Please select AWS API Gateway certificate source"
+      },
+      "aws_clb_region": {
+        "label": "AWS Region",
+        "placeholder": "Please enter AWS CLB region (e.g. us-east-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints\" target=\"_blank\">https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints</a>"
+      },
+      "aws_clb_loadbalancer_name": {
+        "label": "AWS CLB load balancer name",
+        "placeholder": "Please enter AWS CLB load balancer name",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/classic/elb-create-https-ssl-load-balancer.html\" target=\"_blank\">https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/classic/elb-create-https-ssl-load-balancer.html</a>"
+      },
+      "aws_clb_loadbalancer_port": {
+        "label": "AWS CLB load balancer port",
+        "placeholder": "Please enter AWS CLB load balancer port",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/classic/elb-create-https-ssl-load-balancer.html\" target=\"_blank\">https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/classic/elb-create-https-ssl-load-balancer.html</a>"
+      },
+      "aws_clb_certificate_source": {
+        "label": "AWS CLB certificate source",
+        "placeholder": "Please select AWS CLB certificate source"
+      },
       "aws_cloudfront_region": {
         "label": "AWS Region",
         "placeholder": "Please enter AWS CloudFront region (e.g. us-east-1)",
@@ -981,6 +1053,28 @@
           "invalid": "Invalid certificate path"
         },
         "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/reference_identifiers.html\" target=\"_blank\">https://docs.aws.amazon.com/en_us/IAM/latest/UserGuide/reference_identifiers.html</a>"
+      },
+      "aws_nlb_region": {
+        "label": "AWS Region",
+        "placeholder": "Please enter AWS NLB region (e.g. us-east-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints\" target=\"_blank\">https://docs.aws.amazon.com/en_us/general/latest/gr/rande.html#regional-endpoints</a>"
+      },
+      "aws_nlb_loadbalancer_arn": {
+        "label": "AWS NLB load balancer ARN",
+        "placeholder": "Please enter AWS NLB load balancer ARN",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/network/create-network-load-balancer.html\" target=\"_blank\">https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/network/create-network-load-balancer.html</a>"
+      },
+      "aws_nlb_listener_arn": {
+        "label": "AWS NLB listener ARN",
+        "placeholder": "Please enter AWS NLB listener ARN",
+        "tooltip": "For more information, see <a href=\"https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/network/create-listener.html\" target=\"_blank\">https://docs.aws.amazon.com/en_us/elasticloadbalancing/latest/network/create-listener.html</a>"
+      },
+      "aws_nlb_certificate_source": {
+        "label": "AWS NLB certificate source",
+        "placeholder": "Please select AWS NLB certificate source"
+      },
+      "aws_nlb_is_default": {
+        "label": "Set as default certificate"
       },
       "azure_keyvault_name": {
         "label": "Azure KeyVault name",
@@ -1209,9 +1303,94 @@
         "placeholder": "Please enter Bunny CDN hostname",
         "tooltip": "What is this? See <a href=\"https://dash.bunny.net/cdn\" target=\"_blank\">https://dash.bunny.net/cdn</a>"
       },
+      "byteplus_alb_region": {
+        "label": "BytePlus region",
+        "placeholder": "Please enter BytePlus ALB region (e.g. ap-southeast-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.byteplus.com/en/docs/clb/Regions-and-Availability-Zones\" target=\"_blank\">https://docs.byteplus.com/en/docs/clb/Regions-and-Availability-Zones</a>"
+      },
+      "byteplus_alb_deploy_target": {
+        "option": {
+          "loadbalancer": {
+            "label": "ALB load balancer"
+          },
+          "listener": {
+            "label": "ALB listener"
+          }
+        }
+      },
+      "byteplus_alb_loadbalancer_id": {
+        "label": "BytePlus ALB load balancer ID",
+        "placeholder": "Please enter BytePlus ALB load balancer ID",
+        "tooltip": "For more information, see <a href=\"https://console.byteplus.com/alb\" target=\"_blank\">https://console.byteplus.com/alb</a>"
+      },
+      "byteplus_alb_listener_id": {
+        "label": "BytePlus ALB listener ID",
+        "placeholder": "Please enter BytePlus ALB listener ID",
+        "tooltip": "For more information, see <a href=\"https://console.byteplus.com/alb\" target=\"_blank\">https://console.byteplus.com/alb</a>"
+      },
+      "byteplus_alb_snidomain": {
+        "label": "BytePlus ALB SNI domain (Optional)",
+        "placeholder": "Please enter BytePlus ALB SNI domain name",
+        "help": "Notes: Leave it blank to set the default certificate; otherwise, to set the extension one for SNI."
+      },
+      "byteplus_apig_region": {
+        "label": "BytePlus region",
+        "placeholder": "Please enter BytePlus API gateway region (e.g. ap-southeast-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.byteplus.com/en/docs/apig/Regions_and_availability_zones\" target=\"_blank\">https://docs.byteplus.com/en/docs/apig/Regions_and_availability_zones</a>"
+      },
+      "byteplus_apig_domain": {
+        "label": "BytePlus API gateway custom domain",
+        "placeholder": "Please enter BytePlus API gateway custom domain name"
+      },
       "byteplus_cdn_domain": {
         "label": "BytePlus CDN domain",
         "placeholder": "Please enter BytePlus CDN domain name"
+      },
+      "byteplus_certcenter_region": {
+        "label": "BytePlus region",
+        "placeholder": "Please enter BytePlus Certificate Center region (e.g. ap-singapore-1)"
+      },
+      "byteplus_clb_region": {
+        "label": "BytePlus region",
+        "placeholder": "Please enter BytePlus CLB region (e.g. ap-southeast-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.byteplus.com/en/docs/clb/Product-Overview-08\" target=\"_blank\">https://docs.byteplus.com/en/docs/clb/Product-Overview-08</a>"
+      },
+      "byteplus_clb_deploy_target": {
+        "option": {
+          "loadbalancer": {
+            "label": "CLB load balancer"
+          },
+          "listener": {
+            "label": "CLB listener"
+          }
+        }
+      },
+      "byteplus_clb_loadbalancer_id": {
+        "label": "BytePlus CLB load balancer ID",
+        "placeholder": "Please enter BytePlus CLB load balancer ID",
+        "tooltip": "For more information, see <a href=\"https://console.byteplus.com/clb/LoadBalancer\" target=\"_blank\">https://console.byteplus.com/clb/LoadBalancer</a>"
+      },
+      "byteplus_clb_listener_id": {
+        "label": "BytePlus CLB listener ID",
+        "placeholder": "Please enter BytePlus CLB listener ID",
+        "tooltip": "For more information, see <a href=\"https://console.byteplus.com/clb/LoadBalancer\" target=\"_blank\">https://console.byteplus.com/clb/LoadBalancer</a>"
+      },
+      "byteplus_medialive_domain": {
+        "label": "BytePlus MediaLive streaming domain",
+        "placeholder": "Please enter BytePlus MediaLive streaming domain name"
+      },
+      "byteplus_tos_region": {
+        "label": "BytePlus region",
+        "placeholder": "Please enter BytePlus TOS region (e.g. ap-southeast-1)",
+        "tooltip": "For more information, see <a href=\"https://docs.byteplus.com/en/docs/tos/docs-region-and-endpoint\" target=\"_blank\">https://docs.byteplus.com/en/docs/tos/docs-region-and-endpoint</a>"
+      },
+      "byteplus_tos_bucket": {
+        "label": "BytePlus TOS bucket",
+        "placeholder": "Please enter BytePlus TOS bucket name"
+      },
+      "byteplus_tos_domain": {
+        "label": "BytePlus TOS custom domain",
+        "placeholder": "Please enter BytePlus TOS bucket custom domain name"
       },
       "cdnfly_deploy_target": {
         "option": {
@@ -1232,6 +1411,22 @@
         "label": "Cdnfly certificate ID",
         "placeholder": "Please enter Cdnfly certificate ID",
         "tooltip": "You can find it on Cdnfly dashboard."
+      },
+      "cloudflare_ssl_environment": {
+        "label": "Cloudflare environment",
+        "placeholder": "Please enter Cloudflare environment",
+        "tooltip": "For more information, see <a href=\"https://developers.cloudflare.com/ssl/edge-certificates/staging-environment/\" target=\"_blank\">https://developers.cloudflare.com/ssl/edge-certificates/staging-environment/</a>"
+      },
+      "cloudflare_ssl_zone_id": {
+        "label": "Cloudflare DNS zone ID",
+        "placeholder": "Please enter Cloudflare DNS zone ID",
+        "tooltip": "For more information, see <a href=\"https://developers.cloudflare.com/fundamentals/account/find-account-and-zone-ids/#copy-your-zone-id\" target=\"_blank\">https://developers.cloudflare.com/fundamentals/account/find-account-and-zone-ids/</a>"
+      },
+      "cloudflare_ssl_certificate_id": {
+        "label": "Cloudflare custom certificate ID (Optional)",
+        "placeholder": "Please enter Cloudflare custom certificate ID",
+        "help": "Notes: Leave it blank to import a new certificate; otherwise, to replace the existing one.",
+        "tooltip": "For more information, see <a href=\"https://developers.cloudflare.com/ssl/edge-certificates/custom-certificates/uploading/\" target=\"_blank\">https://developers.cloudflare.com/ssl/edge-certificates/custom-certificates/uploading/</a>"
       },
       "cpanel_deploy_target": {
         "option": {
@@ -2519,7 +2714,7 @@
       "zenlayer_cdn_certificate_id": {
         "label": "Zenlayer CDN certificate ID",
         "placeholder": "Please enter Zenlayer CDN certificate ID",
-        "tooltip": "For more information, <a href=\"https://console.zenlayer.com/cdn/\" target=\"_blank\">https://console.zenlayer.com/cdn/</a>"
+        "tooltip": "For more information, see <a href=\"https://console.zenlayer.com/cdn/\" target=\"_blank\">https://console.zenlayer.com/cdn/</a>"
       },
       "zenlayer_ga_deploy_target": {
         "option": {
@@ -2534,12 +2729,12 @@
       "zenlayer_ga_accelerator_id": {
         "label": "Zenlayer ZGA accelerator ID",
         "placeholder": "Please enter Zenlayer ZGA accelerator ID",
-        "tooltip": "For more information, <a href=\"https://console.zenlayer.com/gia/\" target=\"_blank\">https://console.zenlayer.com/gia/</a>"
+        "tooltip": "For more information, see <a href=\"https://console.zenlayer.com/gia/\" target=\"_blank\">https://console.zenlayer.com/gia/</a>"
       },
       "zenlayer_ga_certificate_id": {
         "label": "Zenlayer ZGA certificate ID",
         "placeholder": "Please enter Zenlayer ZGA certificate ID",
-        "tooltip": "For more information, <a href=\"https://console.zenlayer.com/gia/\" target=\"_blank\">https://console.zenlayer.com/gia/</a>"
+        "tooltip": "For more information, see <a href=\"https://console.zenlayer.com/gia/\" target=\"_blank\">https://console.zenlayer.com/gia/</a>"
       }
     }
   },

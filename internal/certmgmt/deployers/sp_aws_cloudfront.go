@@ -5,7 +5,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
-	awscloudfront "github.com/certimate-go/certimate/pkg/core/deployer/providers/aws-cloudfront"
+	dplyimpl "github.com/certimate-go/certimate/pkg/core/deployer/providers/aws-cloudfront"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
@@ -16,12 +16,12 @@ func init() {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := awscloudfront.NewDeployer(&awscloudfront.DeployerConfig{
+		provider, err := dplyimpl.NewDeployer(&dplyimpl.DeployerConfig{
 			AccessKeyId:       credentials.AccessKeyId,
 			SecretAccessKey:   credentials.SecretAccessKey,
 			Region:            xmaps.GetString(options.ProviderExtendedConfig, "region"),
 			DistributionId:    xmaps.GetString(options.ProviderExtendedConfig, "distributionId"),
-			CertificateSource: xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "certificateSource", "ACM"),
+			CertificateSource: xmaps.GetOrDefaultString(options.ProviderExtendedConfig, "certificateSource", dplyimpl.CERTIFICATE_SOURCE_ACM),
 		})
 		return provider, err
 	})

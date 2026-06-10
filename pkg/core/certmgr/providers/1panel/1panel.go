@@ -9,9 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
+	"github.com/certimate-go/certimate/pkg/core"
 	onepanelsdk "github.com/certimate-go/certimate/pkg/sdk3rd/1panel"
 	onepanelsdk2 "github.com/certimate-go/certimate/pkg/sdk3rd/1panel/v2"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -34,7 +40,7 @@ type Certmgr struct {
 	sdkClient any
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -61,7 +67,7 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 避免重复上传
 	if upres, upok, err := c.tryGetResultIfCertExists(ctx, certPEM, privkeyPEM); err != nil {
 		return nil, err
@@ -119,7 +125,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 	}
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
 	sslId, err := strconv.ParseInt(certIdOrName, 10, 64)
 	if err != nil {
 		return nil, err
@@ -130,7 +136,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		{
 			// 获取证书详情
 			websiteSSLGetResp, err := sdkClient.WebsiteSSLGetWithContext(ctx, sslId)
-			c.logger.Debug("sdk request 'WebsiteSSLGet'", slog.Int64("sslId", sslId), slog.Any("response", websiteSSLGetResp))
+			c.logger.Debug("sdk request 'WebsiteSSLGet'", slog.Int64("params.sslId", sslId), slog.Any("response", websiteSSLGetResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLGet': %w", err)
 			}
@@ -154,7 +160,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		{
 			// 获取证书详情
 			websiteSSLGetResp, err := sdkClient.WebsiteSSLGetWithContext(ctx, sslId)
-			c.logger.Debug("sdk request 'WebsiteSSLGet'", slog.Any("sslId", sslId), slog.Any("response", websiteSSLGetResp))
+			c.logger.Debug("sdk request 'WebsiteSSLGet'", slog.Int64("params.sslId", sslId), slog.Any("response", websiteSSLGetResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'WebsiteSSLGet': %w", err)
 			}
@@ -178,10 +184,10 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		panic("unreachable")
 	}
 
-	return &certmgr.ReplaceResult{}, nil
+	return &ReplaceResult{}, nil
 }
 
-func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, bool, error) {
+func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, bool, error) {
 	switch sdkClient := c.sdkClient.(type) {
 	case *onepanelsdk.Client:
 		{
@@ -215,7 +221,7 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkey
 					newPrivkeyPEM := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(privkeyPEM, "\r", ""), "\n", ""))
 					if oldCertPEM == newCertPEM && oldPrivkeyPEM == newPrivkeyPEM {
 						// 如果已存在相同证书，直接返回
-						return &certmgr.UploadResult{
+						return &UploadResult{
 							CertId:   fmt.Sprintf("%d", sslItem.ID),
 							CertName: sslItem.Description,
 						}, true, nil
@@ -264,7 +270,7 @@ func (c *Certmgr) tryGetResultIfCertExists(ctx context.Context, certPEM, privkey
 					newPrivkeyPEM := strings.TrimSpace(strings.ReplaceAll(strings.ReplaceAll(privkeyPEM, "\r", ""), "\n", ""))
 					if oldCertPEM == newCertPEM && oldPrivkeyPEM == newPrivkeyPEM {
 						// 如果已存在相同证书，直接返回
-						return &certmgr.UploadResult{
+						return &UploadResult{
 							CertId:   fmt.Sprintf("%d", sslItem.ID),
 							CertName: sslItem.Description,
 						}, true, nil
@@ -293,7 +299,9 @@ const (
 
 func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool, nodeName string) (any, error) {
 	if apiVersion == sdkVersionV1 {
-		client, err := onepanelsdk.NewClient(serverUrl, apiKey)
+		client, err := onepanelsdk.NewClient(serverUrl,
+			onepanelsdk.WithApiKey(apiKey),
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -304,14 +312,10 @@ func createSDKClient(serverUrl, apiVersion, apiKey string, skipTlsVerify bool, n
 
 		return client, nil
 	} else if apiVersion == sdkVersionV2 {
-		var client *onepanelsdk2.Client
-		var err error
-
-		if nodeName == "" {
-			client, err = onepanelsdk2.NewClient(serverUrl, apiKey)
-		} else {
-			client, err = onepanelsdk2.NewClientWithNode(serverUrl, apiKey, nodeName)
-		}
+		client, err := onepanelsdk2.NewClient(serverUrl,
+			onepanelsdk2.WithApiKey(apiKey),
+			onepanelsdk2.WithNode(nodeName),
+		)
 		if err != nil {
 			return nil, err
 		}

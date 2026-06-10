@@ -302,6 +302,15 @@
       "placeholder": "请输入堡塔云 WAF 接口密钥",
       "tooltip": "这是什么？请参阅 <a href=\"https://github.com/aaPanel/aaWAF/blob/main/API.md\" target=\"_blank\">https://github.com/aaPanel/aaWAF/blob/main/API.md</a>"
     },
+    "beget_username": {
+      "label": "Beget 用户名",
+      "placeholder": "请输入 Beget 用户名"
+    },
+    "beget_api_password": {
+      "label": "Beget API 密码",
+      "placeholder": "请输入 Beget API 密码",
+      "tooltip": "这是什么？请参阅 <a href=\"https://cp.beget.com/settings/security/api\" target=\"_blank\">https://cp.beget.com/settings/security/api</a>"
+    },
     "bookmyname_username": {
       "label": "BookMyName 用户名",
       "placeholder": "请输入 BookMyName 用户名"
@@ -315,15 +324,20 @@
       "placeholder": "请输入 Bunny API Key",
       "tooltip": "这是什么？请参阅 <a href=\"https://docs.bunny.net/reference/bunnynet-api-overview\" target=\"_blank\">https://docs.bunny.net/reference/bunnynet-api-overview</a>"
     },
-    "byteplus_access_key": {
-      "label": "BytePlus AccessKey",
-      "placeholder": "请输入 BytePlus AccessKey",
+    "byteplus_access_key_id": {
+      "label": "BytePlus AccessKeyID",
+      "placeholder": "请输入 BytePlus AccessKeyID",
       "tooltip": "这是什么？请参阅 <a href=\"https://docs.byteplus.com/zh-CN/docs/byteplus-platform/docs-managing-keys\" target=\"_blank\">https://docs.byteplus.com/zh-CN/docs/byteplus-platform/docs-managing-keys</a>"
     },
-    "byteplus_secret_key": {
-      "label": "BytePlus SecretKey",
-      "placeholder": "请输入 BytePlus SecretKey",
+    "byteplus_secret_access_key": {
+      "label": "BytePlus SecretAccessKey",
+      "placeholder": "请输入 BytePlus SecretAccessKey",
       "tooltip": "这是什么？请参阅 <a href=\"https://docs.byteplus.com/zh-CN/docs/byteplus-platform/docs-managing-keys\" target=\"_blank\">https://docs.byteplus.com/zh-CN/docs/byteplus-platform/docs-managing-keys</a>"
+    },
+    "byteplus_project_name": {
+      "label": "BytePlus 项目名称（可选）",
+      "placeholder": "请输入 BytePlus 项目名称",
+      "tooltip": "这是什么？请参阅 <a href=\"https://docs.byteplus.com/zh-CN/docs/resourcemanagement/Project_Management\" target=\"_blank\">https://docs.byteplus.com/zh-CN/docs/resourcemanagement/Project_Management</a>"
     },
     "cachefly_api_token": {
       "label": "CacheFly API Token",
@@ -344,15 +358,15 @@
       "placeholder": "请输入 Cdnfly 用户端 API Secret",
       "tooltip": "这是什么？请参阅 <a href=\"https://doc.cdnfly.cn/shiyongjieshao.html\" target=\"_blank\">https://doc.cdnfly.cn/shiyongjieshao.html</a>"
     },
-    "cloudflare_dns_api_token": {
-      "label": "Cloudflare DNS API 令牌",
-      "placeholder": "请输入 Cloudflare DNS API 令牌",
+    "cloudflare_api_token": {
+      "label": "Cloudflare API 令牌",
+      "placeholder": "请输入 Cloudflare API 令牌",
       "tooltip": "这是什么？请参阅 <a href=\"https://developers.cloudflare.com/fundamentals/api/get-started/create-token/\" target=\"_blank\">https://developers.cloudflare.com/fundamentals/api/get-started/create-token/</a>"
     },
-    "cloudflare_zone_api_token": {
+    "cloudflare_api_token_for_zone": {
       "label": "Cloudflare Zone API 令牌（可选）",
       "placeholder": "请输入 Cloudflare Zone API 令牌",
-      "help": "提示：仅当你将 DNS API 令牌范围指定为<b>特定域</b>时需要填写，请将 Zone API 令牌范围指定为<b>全部域</b>，并分配 <i>Zone/Zone/Read</i> 权限。",
+      "help": "提示：仅当你将 API 令牌范围指定为<b>特定域</b>时需要填写，请将 Zone API 令牌范围指定为<b>全部域</b>，并分配 <i>Zone/Zone/Read</i> 权限。",
       "tooltip": "这是什么？请参阅 <a href=\"https://developers.cloudflare.com/fundamentals/api/get-started/create-token/\" target=\"_blank\">https://developers.cloudflare.com/fundamentals/api/get-started/create-token/</a>"
     },
     "cloudns_auth_id": {
@@ -374,6 +388,62 @@
       "label": "移动云 AccessKeySecret",
       "placeholder": "请输入移动云 AccessKeySecret",
       "tooltip": "这是什么？请参阅 <a href=\"https://ecloud.10086.cn/op-help-center/doc/article/49739\" target=\"_blank\">https://ecloud.10086.cn/op-help-center/doc/article/49739</a>"
+    },
+    "conohavps_api_version": {
+      "label": "ConoHa VPS 版本",
+      "placeholder": "请选择 ConoHa VPS 版本"
+    },
+    "conohavps_api_v2_username": {
+      "label": "ConoHa VPS API 用户名",
+      "placeholder": "请输入 ConoHa VPS 2.0 API 用户名",
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/</a>"
+    },
+    "conohavps_api_v2_password": {
+      "label": "ConoHa VPS API 密码",
+      "placeholder": "请输入 ConoHa VPS 2.0 API 密码",
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/</a>"
+    },
+    "conohavps_api_v2_tenant_id": {
+      "label": "ConoHa VPS 租户 ID",
+      "placeholder": "请输入 ConoHa VPS 2.0 租户 ID",
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps2/api-identity-vps2/identity-post_tokens-v2/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps2/api-identity-vps2/identity-post_tokens-v2/</a>"
+    },
+    "conohavps_api_v3_user_id": {
+      "label": "ConoHa VPS API 用户 ID",
+      "placeholder": "请输入 ConoHa VPS 3.0 API 用户 ID",
+      "errmsg": {
+        "conflict": "与字段「API 用户名」冲突，请二选一"
+      },
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/</a>"
+    },
+    "conohavps_api_v3_user_name": {
+      "label": "ConoHa VPS API 用户名",
+      "placeholder": "请输入 ConoHa VPS 3.0 API 用户名",
+      "errmsg": {
+        "conflict": "与字段「API 用户 ID」冲突，请二选一"
+      },
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/</a>"
+    },
+    "conohavps_api_v3_password": {
+      "label": "ConoHa VPS API 密码",
+      "placeholder": "请输入 ConoHa VPS 3.0 API 密码",
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/</a>"
+    },
+    "conohavps_api_v3_project_id": {
+      "label": "ConoHa VPS 项目 ID",
+      "placeholder": "请输入 ConoHa VPS 3.0 租户项目 ID",
+      "errmsg": {
+        "conflict": "与字段「项目名称」冲突，请二选一"
+      },
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/</a>"
+    },
+    "conohavps_api_v3_project_name": {
+      "label": "ConoHa VPS 项目名称",
+      "placeholder": "请输入 ConoHa VPS 3.0 租户项目名称",
+      "errmsg": {
+        "conflict": "与字段「项目 ID」冲突，请二选一"
+      },
+      "tooltip": "这是什么？请参阅 <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/</a>"
     },
     "constellix_api_key": {
       "label": "Constellix API Key",
@@ -614,6 +684,9 @@
       "placeholder": "请输入 G-Core API Token",
       "tooltip": "这是什么？请参阅 <a href=\"https://api.gcore.com/docs/iam#section/Authentication\" target=\"_blank\">https://api.gcore.com/docs/iam#section/Authentication</a>"
     },
+    "globalsignatlas_eab": {
+      "guide": "点击下方链接了解如何获取 GlobalSign Atlas EAB：<br><a href=\"https://globalsign.cn/acme-automated-certificate-management\" target=\"_blank\">https://globalsign.cn/acme-automated-certificate-management</a>"
+    },
     "gname_app_id": {
       "label": "GNAME AppID",
       "placeholder": "请输入 GNAME AppID",
@@ -660,8 +733,15 @@
       "placeholder": "请输入 GoEdge AccessKey",
       "tooltip": "这是什么？请参阅 <a href=\"https://goedge.cloud/docs/API/Auth.md\" target=\"_blank\">https://goedge.cloud/docs/API/Auth.md</a>"
     },
-    "globalsignatlas_eab": {
-      "guide": "点击下方链接了解如何获取 GlobalSign Atlas EAB：<br><a href=\"https://globalsign.cn/acme-automated-certificate-management\" target=\"_blank\">https://globalsign.cn/acme-automated-certificate-management</a>"
+    "googlecloud_project_id": {
+      "label": "Google Cloud 项目 ID",
+      "placeholder": "请输入 Google Cloud 项目 ID",
+      "tooltip": "这是什么？请参阅 <a href=\"https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects?hl=zh-cn\" target=\"_blank\">https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects</a>"
+    },
+    "googlecloud_service_account_key": {
+      "label": "Google Cloud 服务账号密钥",
+      "placeholder": "请输入 Google Cloud 服务账号密钥",
+      "tooltip": "这是什么？请参阅 <a href=\"https://docs.cloud.google.com/iam/docs/keys-create-delete?hl=zh-cn\" target=\"_blank\">https://docs.cloud.google.com/iam/docs/keys-create-delete</a>"
     },
     "googletrustservices_eab": {
       "guide": "点击下方链接了解如何获取 Google Trust Services EAB：<br><a href=\"https://cloud.google.com/certificate-manager/docs/public-ca-tutorial\" target=\"_blank\">https://cloud.google.com/certificate-manager/docs/public-ca-tutorial</a>"
@@ -1016,6 +1096,30 @@
       "placeholder": "请输入耗子面板 AccessToken",
       "tooltip": "这是什么？请参阅 <a href=\"https://ratpanel.github.io/advanced/api.html\" target=\"_blank\">https://ratpanel.github.io/advanced/api.html</a>"
     },
+    "regru_username": {
+      "label": "Reg.ru 用户名",
+      "placeholder": "请输入 Reg.ru 用户名"
+    },
+    "regru_password": {
+      "label": "Reg.ru 密码",
+      "placeholder": "请输入 Reg.ru 密码或 API 密码"
+    },
+    "regru_mtls_certificate": {
+      "label": "Reg.ru SSL 双向认证证书（可选）",
+      "placeholder": "请输入 Reg.ru SSL 双向认证证书",
+      "errmsg": {
+        "invalid": "无效的证书"
+      },
+      "tooltip": "这是什么？请参阅 <a href=\"https://www.reg.ru/user/account/#/settings/api/\" target=\"_blank\">https://www.reg.ru/user/account/#/settings/api/api/</a>"
+    },
+    "regru_mtls_private_key": {
+      "label": "Reg.ru SSL 双向认证私钥（可选）",
+      "placeholder": "请输入 Reg.ru SSL 双向认证私钥",
+      "errmsg": {
+        "invalid": "无效的私钥"
+      },
+      "tooltip": "这是什么？请参阅 <a href=\"https://www.reg.ru/user/account/#/settings/api/\" target=\"_blank\">https://www.reg.ru/user/account/#/settings/api/api/</a>"
+    },
     "rfc2136_host": {
       "label": "DNS 服务器地址",
       "placeholder": "请输入 DNS 服务器地址"
@@ -1035,6 +1139,24 @@
     "rfc2136_tsig_secret": {
       "label": "TSIG 认证密钥 Secret（可选）",
       "placeholder": "请输入 TSIG 认证密钥 Secret"
+    },
+    "rucenter_username": {
+      "label": "Ru-Center 用户名",
+      "placeholder": "请输入 Ru-Center 用户名"
+    },
+    "rucenter_password": {
+      "label": "Ru-Center 密码",
+      "placeholder": "请输入 Ru-Center 密码"
+    },
+    "rucenter_application_id": {
+      "label": "Ru-Center 应用服务 ID",
+      "placeholder": "请输入 Ru-Center 应用服务 ID",
+      "tooltip": "这是什么？请参阅 <a href=\"https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list\" target=\"_blank\">https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list</a>"
+    },
+    "rucenter_application_token": {
+      "label": "Ru-Center 应用服务 Token",
+      "placeholder": "请输入 Ru-Center 应用服务 Token",
+      "tooltip": "这是什么？请参阅 <a href=\"https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list\" target=\"_blank\">https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list</a>"
     },
     "s3_endpoint": {
       "label": "终端节点",
@@ -1216,6 +1338,11 @@
       "placeholder": "请输入腾讯云 SecretKey",
       "tooltip": "这是什么？请参阅 <a href=\"https://cloud.tencent.com/document/product/598/40488\" target=\"_blank\">https://cloud.tencent.com/document/product/598/40488</a>"
     },
+    "tencentcloud_project_id": {
+      "label": "腾讯云项目 ID（可选）",
+      "placeholder": "请输入腾讯云项目 ID",
+      "tooltip": "这是什么？请参阅 <a href=\"https://console.cloud.tencent.cn/project\" target=\"_blank\">https://console.cloud.tencent.cn/project</a>"
+    },
     "todaynic_user_id": {
       "label": "时代互联代理商用户 ID",
       "placeholder": "请输入时代互联代理商用户 ID"
@@ -1273,12 +1400,17 @@
     "volcengine_access_key_id": {
       "label": "火山引擎 AccessKeyID",
       "placeholder": "请输入火山引擎 AccessKeyID",
-      "tooltip": "这是什么？请参阅 <a href=\"https://www.volcengine.com/docs/6291/216571\" target=\"_blank\">https://www.volcengine.com/docs/6291/216571</a>"
+      "tooltip": "这是什么？请参阅 <a href=\"https://www.volcengine.com/docs/6291/65568\" target=\"_blank\">https://www.volcengine.com/docs/6291/65568</a>"
     },
     "volcengine_secret_access_key": {
       "label": "火山引擎 SecretAccessKey",
       "placeholder": "请输入火山引擎 SecretAccessKey",
-      "tooltip": "这是什么？请参阅 <a href=\"https://www.volcengine.com/docs/6291/216571\" target=\"_blank\">https://www.volcengine.com/docs/6291/216571</a>"
+      "tooltip": "这是什么？请参阅 <a href=\"https://www.volcengine.com/docs/6291/65568\" target=\"_blank\">https://www.volcengine.com/docs/6291/65568</a>"
+    },
+    "volcengine_project_name": {
+      "label": "火山引擎项目名称（可选）",
+      "placeholder": "请输入火山引擎项目名称",
+      "tooltip": "这是什么？请参阅 <a href=\"https://www.volcengine.com/docs/6649/94336\" target=\"_blank\">https://www.volcengine.com/docs/6649/94336</a>"
     },
     "vultr_api_key": {
       "label": "Vultr API Key",

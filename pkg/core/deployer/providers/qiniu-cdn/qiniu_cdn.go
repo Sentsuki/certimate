@@ -10,11 +10,15 @@ import (
 	"github.com/qiniu/go-sdk/v7/auth"
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/qiniu-sslcert"
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
+	cmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/qiniu-sslcert"
 	qiniusdk "github.com/certimate-go/certimate/pkg/sdk3rd/qiniu"
 	xcerthostname "github.com/certimate-go/certimate/pkg/utils/cert/hostname"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -33,10 +37,10 @@ type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
 	sdkClient  *qiniusdk.CdnManager
-	sdkCertmgr certmgr.Provider
+	sdkCertmgr core.Certmgr
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -45,7 +49,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 
 	client := qiniusdk.NewCdnManager(auth.New(config.AccessKey, config.SecretKey))
 
-	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
+	pcertmgr, err := cmgrimpl.NewCertmgr(&cmgrimpl.CertmgrConfig{
 		AccessKey: config.AccessKey,
 		SecretKey: config.SecretKey,
 	})
@@ -71,7 +75,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	d.sdkCertmgr.SetLogger(logger)
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 上传证书
 	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
@@ -159,7 +163,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		}
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
@@ -176,7 +180,7 @@ func (d *Deployer) getAllDomains(ctx context.Context) ([]string, error) {
 		}
 
 		getDomainListResp, err := d.sdkClient.GetDomainList(ctx, getDomainListMarker, 100)
-		d.logger.Debug("sdk request 'cdn.GetDomainList'", slog.String("request.marker", getDomainListMarker), slog.Any("response", getDomainListResp))
+		d.logger.Debug("sdk request 'cdn.GetDomainList'", slog.String("params.marker", getDomainListMarker), slog.Any("response", getDomainListResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'cdn.GetDomainList': %w", err)
 		}
@@ -204,7 +208,7 @@ func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, c
 	// 获取域名信息
 	// REF: https://developer.qiniu.com/fusion/4246/the-domain-name
 	getDomainInfoResp, err := d.sdkClient.GetDomainInfo(ctx, domain)
-	d.logger.Debug("sdk request 'cdn.GetDomainInfo'", slog.String("request.domain", domain), slog.Any("response", getDomainInfoResp))
+	d.logger.Debug("sdk request 'cdn.GetDomainInfo'", slog.String("params.domain", domain), slog.Any("response", getDomainInfoResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'cdn.GetDomainInfo': %w", err)
 	}
@@ -214,13 +218,13 @@ func (d *Deployer) updateDomainCertificate(ctx context.Context, domain string, c
 	// REF: https://developer.qiniu.com/fusion/4246/the-domain-name
 	if getDomainInfoResp.Https == nil || getDomainInfoResp.Https.CertID == "" {
 		enableDomainHttpsResp, err := d.sdkClient.EnableDomainHttps(ctx, domain, cloudCertId, true, true)
-		d.logger.Debug("sdk request 'cdn.EnableDomainHttps'", slog.String("request.domain", domain), slog.String("request.certId", cloudCertId), slog.Any("response", enableDomainHttpsResp))
+		d.logger.Debug("sdk request 'cdn.EnableDomainHttps'", slog.String("params.domain", domain), slog.String("params.certId", cloudCertId), slog.Any("response", enableDomainHttpsResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'cdn.EnableDomainHttps': %w", err)
 		}
 	} else if getDomainInfoResp.Https.CertID != cloudCertId {
 		modifyDomainHttpsConfResp, err := d.sdkClient.ModifyDomainHttpsConf(ctx, domain, cloudCertId, getDomainInfoResp.Https.ForceHttps, getDomainInfoResp.Https.Http2Enable)
-		d.logger.Debug("sdk request 'cdn.ModifyDomainHttpsConf'", slog.String("request.domain", domain), slog.String("request.certId", cloudCertId), slog.Any("response", modifyDomainHttpsConfResp))
+		d.logger.Debug("sdk request 'cdn.ModifyDomainHttpsConf'", slog.String("params.domain", domain), slog.String("params.certId", cloudCertId), slog.Any("response", modifyDomainHttpsConfResp))
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'cdn.ModifyDomainHttpsConf': %w", err)
 		}

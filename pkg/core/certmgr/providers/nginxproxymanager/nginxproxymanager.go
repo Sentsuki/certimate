@@ -8,9 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
+	"github.com/certimate-go/certimate/pkg/core"
 	npmsdk "github.com/certimate-go/certimate/pkg/sdk3rd/nginxproxymanager"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -36,7 +42,7 @@ type Certmgr struct {
 	sdkClient *npmsdk.Client
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -63,9 +69,9 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
@@ -80,10 +86,10 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		for _, certItem := range *listCertificatesResp {
 			if certItem.Meta.Certificate == serverCertPEM &&
 				certItem.Meta.CertificateKey == privkeyPEM &&
-				certItem.Meta.IntermediateCertificate == intermediaCertPEM {
+				certItem.Meta.IntermediateCertificate == issuerCertPEM {
 				// 如果已存在相同证书，直接返回
 				c.logger.Info("ssl certificate already exists")
-				return &certmgr.UploadResult{
+				return &UploadResult{
 					CertId:   fmt.Sprintf("%d", certItem.Id),
 					CertName: certItem.NiceName,
 				}, nil
@@ -107,7 +113,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		CertificateMeta: npmsdk.CertificateMeta{
 			Certificate:             serverCertPEM,
 			CertificateKey:          privkeyPEM,
-			IntermediateCertificate: intermediaCertPEM,
+			IntermediateCertificate: issuerCertPEM,
 		},
 	}
 	ngincxUploadCertificateResp, err := c.sdkClient.NginxUploadCertificateWithContext(ctx, nginxCreateCertificateResp.Id, ngincxUploadCertificateReq)
@@ -116,20 +122,20 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		return nil, fmt.Errorf("failed to execute sdk request 'nginx.UploadCertificate': %w", err)
 	}
 
-	return &certmgr.UploadResult{
+	return &UploadResult{
 		CertId:   fmt.Sprintf("%d", nginxCreateCertificateResp.Id),
 		CertName: nginxCreateCertificateResp.NiceName,
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
 	certId, err := strconv.ParseInt(certIdOrName, 10, 64)
 	if err != nil {
 		return nil, err
 	}
 
 	// 提取服务器证书和中间证书
-	serverCertPEM, intermediaCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
+	serverCertPEM, issuerCertPEM, err := xcert.ExtractCertificatesFromPEM(certPEM)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certs: %w", err)
 	}
@@ -139,7 +145,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		CertificateMeta: npmsdk.CertificateMeta{
 			Certificate:             serverCertPEM,
 			CertificateKey:          privkeyPEM,
-			IntermediateCertificate: intermediaCertPEM,
+			IntermediateCertificate: issuerCertPEM,
 		},
 	}
 	ngincxUploadCertificateResp, err := c.sdkClient.NginxUploadCertificateWithContext(ctx, certId, ngincxUploadCertificateReq)
@@ -148,7 +154,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		return nil, fmt.Errorf("failed to execute sdk request 'nginx.UploadCertificate': %w", err)
 	}
 
-	return &certmgr.ReplaceResult{}, nil
+	return &ReplaceResult{}, nil
 }
 
 func createSDKClient(serverUrl, authMethod, username, password, apiToken string, skipTlsVerify bool) (*npmsdk.Client, error) {
@@ -158,12 +164,16 @@ func createSDKClient(serverUrl, authMethod, username, password, apiToken string,
 	switch authMethod {
 	case "", AUTH_METHOD_PASSWORD:
 		{
-			client, err = npmsdk.NewClient(serverUrl, username, password)
+			client, err = npmsdk.NewClient(serverUrl,
+				npmsdk.WithLogins(username, password),
+			)
 		}
 
 	case AUTH_METHOD_TOKEN:
 		{
-			client, err = npmsdk.NewClientWithJwtToken(serverUrl, apiToken)
+			client, err = npmsdk.NewClient(serverUrl,
+				npmsdk.WithJwtToken(apiToken),
+			)
 		}
 	}
 

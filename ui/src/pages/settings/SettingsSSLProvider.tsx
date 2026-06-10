@@ -4,7 +4,7 @@ import { useMount } from "ahooks";
 import { App, Button, Card, Divider, Form, Input, Select, Skeleton } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { produce } from "immer";
-import { core, z } from "zod";
+import { z } from "zod";
 
 import Show from "@/components/Show";
 import Tips from "@/components/Tips";
@@ -286,7 +286,7 @@ const InternalCASharedFormEabFields = ({ i18nKey }: { i18nKey: string }) => {
   const hasGuide = i18n.exists(`access.form.${i18nKey}_eab.guide`);
 
   const formSchema = z.object({
-    endpoint: z.url({ protocol: core.regexes.httpProtocol }),
+    endpoint: z.url({ protocol: z.core.regexes.httpProtocol }),
     eabKid: z.string().nonempty(),
     eabHmacKey: z.string().nonempty(),
   });
@@ -378,7 +378,6 @@ const InternalCASettingsFormProviderSectigo = () => {
       <Form.Item name="validationType" initialValue="dv" label={t("access.form.sectigo_validation_type.label")} rules={[formRule]}>
         <Select
           options={["dv", "ov", "ev"].map((s) => ({
-            key: s,
             label: t(`access.form.sectigo_validation_type.option.${s}.label`),
             value: s,
           }))}
@@ -411,7 +410,7 @@ const InternalCASettingsFormProviderACMECA = () => {
   const { t } = useTranslation();
 
   const formSchema = z.object({
-    endpoint: z.url({ protocol: core.regexes.httpProtocol }),
+    endpoint: z.url({ protocol: z.core.regexes.httpProtocol }),
     eabKid: z.string().nullish(),
     eabHmacKey: z.string().nullish(),
   });

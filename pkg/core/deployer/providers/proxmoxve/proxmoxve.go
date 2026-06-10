@@ -5,14 +5,14 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log/slog"
-	"net/http"
-	"net/url"
-	"strings"
 
-	"github.com/luthermonson/go-proxmox"
+	"github.com/certimate-go/certimate/pkg/core"
+	proxmoxvesdk "github.com/certimate-go/certimate/pkg/sdk3rd/proxmoxve"
+)
 
-	"github.com/certimate-go/certimate/pkg/core/deployer"
-	xhttp "github.com/certimate-go/certimate/pkg/utils/http"
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -33,10 +33,10 @@ type DeployerConfig struct {
 type Deployer struct {
 	config    *DeployerConfig
 	logger    *slog.Logger
-	sdkClient *proxmox.Client
+	sdkClient *proxmoxvesdk.Client
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -63,57 +63,39 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	if d.config.NodeName == "" {
 		return nil, fmt.Errorf("config `nodeName` is required")
 	}
 
-	// 获取节点信息
-	// REF: https://pve.proxmox.com/pve-docs/api-viewer/index.html#/nodes/{node}
-	node, err := d.sdkClient.Node(ctx, d.config.NodeName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get node '%s': %w", d.config.NodeName, err)
-	}
-
 	// 上传自定义证书
 	// REF: https://pve.proxmox.com/pve-docs/api-viewer/index.html#/nodes/{node}/certificates/custom
-	err = node.UploadCustomCertificate(ctx, &proxmox.CustomCertificate{
+	nodeUploadCustomCertificateReq := &proxmoxvesdk.NodeUploadCustomCertificateRequest{
 		Certificates: certPEM,
 		Key:          privkeyPEM,
 		Force:        true,
 		Restart:      d.config.AutoRestart,
-	})
+	}
+	nodeUploadCustomCertificateResp, err := d.sdkClient.NodeUploadCustomCertificateWithContext(ctx, d.config.NodeName, nodeUploadCustomCertificateReq)
+	d.logger.Debug("sdk request 'node.UploadCustomCertificate'", slog.String("params.node", d.config.NodeName), slog.Any("request", nodeUploadCustomCertificateReq), slog.Any("response", nodeUploadCustomCertificateResp))
 	if err != nil {
-		return nil, fmt.Errorf("failed to upload custom certificate to node '%s': %w", node.Name, err)
+		return nil, fmt.Errorf("failed to execute sdk request 'node.UploadCustomCertificate': %w", err)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
-func createSDKClient(serverUrl, apiToken, apiTokenSecret string, skipTlsVerify bool) (*proxmox.Client, error) {
-	if _, err := url.Parse(serverUrl); err != nil {
-		return nil, fmt.Errorf("pve: invalid server url")
-	}
-
-	if apiToken == "" {
-		return nil, fmt.Errorf("pve: invalid api token")
-	}
-
-	httpClient := &http.Client{
-		Transport: xhttp.NewDefaultTransport(),
-		Timeout:   http.DefaultClient.Timeout,
-	}
-	if skipTlsVerify {
-		transport := xhttp.NewDefaultTransport()
-		transport.DisableKeepAlives = true
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-		httpClient.Transport = transport
-	}
-	client := proxmox.NewClient(
-		strings.TrimSuffix(serverUrl, "/")+"/api2/json",
-		proxmox.WithHTTPClient(httpClient),
-		proxmox.WithAPIToken(apiToken, apiTokenSecret),
+func createSDKClient(serverUrl, apiToken, apiTokenSecret string, skipTlsVerify bool) (*proxmoxvesdk.Client, error) {
+	client, err := proxmoxvesdk.NewClient(serverUrl,
+		proxmoxvesdk.WithApiToken(apiToken, apiTokenSecret),
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	if skipTlsVerify {
+		client.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
+	}
 
 	return client, nil
 }

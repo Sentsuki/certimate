@@ -8,7 +8,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
-	tencentcloudeo "github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-eo"
+	dplyimpl "github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-eo"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
@@ -19,9 +19,10 @@ func init() {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := tencentcloudeo.NewDeployer(&tencentcloudeo.DeployerConfig{
+		provider, err := dplyimpl.NewDeployer(&dplyimpl.DeployerConfig{
 			SecretId:           credentials.SecretId,
 			SecretKey:          credentials.SecretKey,
+			ProjectId:          credentials.ProjectId,
 			Endpoint:           xmaps.GetString(options.ProviderExtendedConfig, "endpoint"),
 			ZoneId:             xmaps.GetString(options.ProviderExtendedConfig, "zoneId"),
 			DomainMatchPattern: xmaps.GetString(options.ProviderExtendedConfig, "domainMatchPattern"),

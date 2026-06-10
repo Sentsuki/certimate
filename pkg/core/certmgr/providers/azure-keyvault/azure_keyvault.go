@@ -13,9 +13,15 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azcertificates"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	azenv "github.com/certimate-go/certimate/pkg/sdk3rd/azure/env"
+	"github.com/certimate-go/certimate/pkg/core"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+	xazure "github.com/certimate-go/certimate/pkg/utils/third-party/azure"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -37,7 +43,7 @@ type Certmgr struct {
 	sdkClient *azcertificates.Client
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -64,7 +70,7 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -112,7 +118,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 
 			// 对比证书内容
 			getCertificateResp, err := c.sdkClient.GetCertificate(ctx, certItem.ID.Name(), certItem.ID.Version(), nil)
-			c.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", certItem.ID.Name()), slog.String("request.certificateVersion", certItem.ID.Version()), slog.Any("response", getCertificateResp))
+			c.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("params.certificateName", certItem.ID.Name()), slog.String("params.certificateVersion", certItem.ID.Version()), slog.Any("response", getCertificateResp))
 			if err != nil {
 				return nil, fmt.Errorf("failed to execute sdk request 'keyvault.GetCertificate': %w", err)
 			} else {
@@ -123,7 +129,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 
 			// 如果以上信息都一致，则视为已存在相同证书，直接返回
 			c.logger.Info("ssl certificate already exists")
-			return &certmgr.UploadResult{
+			return &UploadResult{
 				CertId:   string(*certItem.ID),
 				CertName: certItem.ID.Name(),
 			}, nil
@@ -156,18 +162,18 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		},
 	}
 	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, certName, importCertificateParams, nil)
-	c.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("request.certificateName", certName), slog.Any("request.parameters", importCertificateParams), slog.Any("response", importCertificateResp))
+	c.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("params.certificateName", certName), slog.Any("request", importCertificateParams), slog.Any("response", importCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'keyvault.ImportCertificate': %w", err)
 	}
 
-	return &certmgr.UploadResult{
+	return &UploadResult{
 		CertId:   string(*importCertificateResp.ID),
 		CertName: certName,
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
 	// 解析证书内容
 	certX509, err := xcert.ParseCertificateFromPEM(certPEM)
 	if err != nil {
@@ -183,7 +189,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 	// 获取证书
 	// REF: https://learn.microsoft.com/en-us/rest/api/keyvault/certificates/get-certificate/get-certificate
 	getCertificateResp, err := c.sdkClient.GetCertificate(ctx, certIdOrName, "", nil)
-	c.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("request.certificateName", certIdOrName), slog.Any("response", getCertificateResp))
+	c.logger.Debug("sdk request 'keyvault.GetCertificate'", slog.String("params.certificateName", certIdOrName), slog.Any("response", getCertificateResp))
 	if err != nil {
 		var respErr *azcore.ResponseError
 		if !errors.As(err, &respErr) || (respErr.ErrorCode != "ResourceNotFound" && respErr.ErrorCode != "CertificateNotFound") {
@@ -192,7 +198,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 	} else {
 		// 如果已存在相同证书，直接返回
 		if xcert.EqualCertificatesFromPEM(certPEM, string(getCertificateResp.CER)) {
-			return &certmgr.ReplaceResult{}, nil
+			return &ReplaceResult{}, nil
 		}
 	}
 
@@ -211,12 +217,12 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 		},
 	}
 	importCertificateResp, err := c.sdkClient.ImportCertificate(ctx, certIdOrName, importCertificateParams, nil)
-	c.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("request.certificateName", certIdOrName), slog.Any("request.parameters", importCertificateParams), slog.Any("response", importCertificateResp))
+	c.logger.Debug("sdk request 'keyvault.ImportCertificate'", slog.String("params.certificateName", certIdOrName), slog.Any("request", importCertificateParams), slog.Any("response", importCertificateResp))
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute sdk request 'keyvault.ImportCertificate': %w", err)
 	}
 
-	return &certmgr.ReplaceResult{}, nil
+	return &ReplaceResult{}, nil
 }
 
 const (
@@ -225,7 +231,7 @@ const (
 )
 
 func createSDKClient(cloudName, tenantId, clientId, clientSecret, keyvaultName string) (*azcertificates.Client, error) {
-	env, err := azenv.GetCloudEnvConfiguration(cloudName)
+	env, err := xazure.GetCloudEnvConfiguration(cloudName)
 	if err != nil {
 		return nil, err
 	}
@@ -238,9 +244,9 @@ func createSDKClient(cloudName, tenantId, clientId, clientSecret, keyvaultName s
 	}
 
 	endpoint := fmt.Sprintf("https://%s.vault.azure.net", keyvaultName)
-	if azenv.IsUSGovernmentEnv(cloudName) {
+	if xazure.IsUSGovernmentEnv(cloudName) {
 		endpoint = fmt.Sprintf("https://%s.vault.usgovcloudapi.net", keyvaultName)
-	} else if azenv.IsChinaEnv(cloudName) {
+	} else if xazure.IsChinaEnv(cloudName) {
 		endpoint = fmt.Sprintf("https://%s.vault.azure.cn", keyvaultName)
 	}
 

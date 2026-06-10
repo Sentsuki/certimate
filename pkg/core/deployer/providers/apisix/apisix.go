@@ -8,9 +8,14 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	apisixsdk "github.com/certimate-go/certimate/pkg/sdk3rd/apisix"
 	xcert "github.com/certimate-go/certimate/pkg/utils/cert"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -33,7 +38,7 @@ type Deployer struct {
 	sdkClient *apisixsdk.Client
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -60,7 +65,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 根据部署目标决定业务流程
 	switch d.config.DeployTarget {
 	case DEPLOY_TARGET_CERTIFICATE:
@@ -72,7 +77,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, fmt.Errorf("unsupported deploy target '%s'", d.config.DeployTarget)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM string) error {
@@ -88,25 +93,27 @@ func (d *Deployer) deployToCertificate(ctx context.Context, certPEM, privkeyPEM 
 
 	// 更新 SSL 证书
 	// REF: https://apisix.apache.org/zh/docs/apisix/admin-api/#ssl
-	sslUpdateReq := &apisixsdk.SslUpdateRequest{
+	updateSSLReq := &apisixsdk.UpdateSSLRequest{
 		ID:          lo.ToPtr(d.config.CertificateId),
 		Certificate: lo.ToPtr(certPEM),
 		PrivateKey:  lo.ToPtr(privkeyPEM),
-		SNIs:        lo.ToPtr(certX509.DNSNames),
+		SNIs:        lo.Map(certX509.DNSNames, func(s string, _ int) *string { return lo.ToPtr(s) }),
 		Type:        lo.ToPtr("server"),
 		Status:      lo.ToPtr(int32(1)),
 	}
-	sslUpdateResp, err := d.sdkClient.SslUpdateWithContext(ctx, d.config.CertificateId, sslUpdateReq)
-	d.logger.Debug("sdk request 'SslUpdate'", slog.Any("request", sslUpdateReq), slog.Any("response", sslUpdateResp))
+	updateSSLResp, err := d.sdkClient.UpdateSSLWithContext(ctx, d.config.CertificateId, updateSSLReq)
+	d.logger.Debug("sdk request 'UpdateSSL'", slog.Any("request", updateSSLReq), slog.Any("response", updateSSLResp))
 	if err != nil {
-		return fmt.Errorf("failed to execute sdk request 'SslUpdate': %w", err)
+		return fmt.Errorf("failed to execute sdk request 'UpdateSSL': %w", err)
 	}
 
 	return nil
 }
 
 func createSDKClient(serverUrl, apiKey string, skipTlsVerify bool) (*apisixsdk.Client, error) {
-	client, err := apisixsdk.NewClient(serverUrl, apiKey)
+	client, err := apisixsdk.NewClient(serverUrl,
+		apisixsdk.WithApiKey(apiKey),
+	)
 	if err != nil {
 		return nil, err
 	}

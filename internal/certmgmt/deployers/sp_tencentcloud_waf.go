@@ -5,7 +5,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
-	tencentcloudwaf "github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-waf"
+	dplyimpl "github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-waf"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
@@ -16,9 +16,10 @@ func init() {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := tencentcloudwaf.NewDeployer(&tencentcloudwaf.DeployerConfig{
+		provider, err := dplyimpl.NewDeployer(&dplyimpl.DeployerConfig{
 			SecretId:   credentials.SecretId,
 			SecretKey:  credentials.SecretKey,
+			ProjectId:  credentials.ProjectId,
 			Endpoint:   xmaps.GetString(options.ProviderExtendedConfig, "endpoint"),
 			Region:     xmaps.GetString(options.ProviderExtendedConfig, "region"),
 			InstanceId: xmaps.GetString(options.ProviderExtendedConfig, "instanceId"),

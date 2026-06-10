@@ -12,9 +12,13 @@ import (
 	"github.com/pocketbase/pocketbase/tools/security"
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	certmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/baiducloud-cert"
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
+	cmgrimpl "github.com/certimate-go/certimate/pkg/core/certmgr/providers/baiducloud-cert"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -41,10 +45,10 @@ type Deployer struct {
 	config     *DeployerConfig
 	logger     *slog.Logger
 	sdkClient  *bceblb.Client
-	sdkCertmgr certmgr.Provider
+	sdkCertmgr core.Certmgr
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -56,7 +60,7 @@ func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
 
-	pcertmgr, err := certmgrimpl.NewCertmgr(&certmgrimpl.CertmgrConfig{
+	pcertmgr, err := cmgrimpl.NewCertmgr(&cmgrimpl.CertmgrConfig{
 		AccessKeyId:     config.AccessKeyId,
 		SecretAccessKey: config.SecretAccessKey,
 	})
@@ -80,7 +84,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 上传证书
 	upres, err := d.sdkCertmgr.Upload(ctx, certPEM, privkeyPEM)
 	if err != nil {
@@ -105,7 +109,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, fmt.Errorf("unsupported deploy target '%s'", d.config.DeployTarget)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
 func (d *Deployer) deployToLoadbalancer(ctx context.Context, cloudCertId string) error {
@@ -116,7 +120,7 @@ func (d *Deployer) deployToLoadbalancer(ctx context.Context, cloudCertId string)
 	// 查询 BLB 实例详情
 	// REF: https://cloud.baidu.com/doc/BLB/s/njwvxnv79#describeloadbalancerdetail%E6%9F%A5%E8%AF%A2blb%E5%AE%9E%E4%BE%8B%E8%AF%A6%E6%83%85
 	describeLoadBalancerDetailResp, err := d.sdkClient.DescribeLoadBalancerDetail(d.config.LoadbalancerId)
-	d.logger.Debug("sdk request 'blb.DescribeLoadBalancerAttribute'", slog.String("blbId", d.config.LoadbalancerId), slog.Any("response", describeLoadBalancerDetailResp))
+	d.logger.Debug("sdk request 'blb.DescribeLoadBalancerAttribute'", slog.String("params.blbId", d.config.LoadbalancerId), slog.Any("response", describeLoadBalancerDetailResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'blb.DescribeLoadBalancerDetail': %w", err)
 	}
@@ -184,7 +188,7 @@ func (d *Deployer) deployToListener(ctx context.Context, cloudCertId string) err
 		ListenerPort: uint16(d.config.ListenerPort),
 	}
 	describeAllListenersResp, err := d.sdkClient.DescribeAllListeners(d.config.LoadbalancerId, describeAllListenersRequest)
-	d.logger.Debug("sdk request 'blb.DescribeAllListeners'", slog.String("blbId", d.config.LoadbalancerId), slog.Any("request", describeAllListenersRequest), slog.Any("response", describeAllListenersResp))
+	d.logger.Debug("sdk request 'blb.DescribeAllListeners'", slog.String("params.blbId", d.config.LoadbalancerId), slog.Any("request", describeAllListenersRequest), slog.Any("response", describeAllListenersResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'blb.DescribeAllListeners': %w", err)
 	}
@@ -252,7 +256,7 @@ func (d *Deployer) updateHttpsListenerCertificate(ctx context.Context, cloudLoad
 		MaxKeys:      1,
 	}
 	describeHTTPSListenersResp, err := d.sdkClient.DescribeHTTPSListeners(cloudLoadbalancerId, describeHTTPSListenersReq)
-	d.logger.Debug("sdk request 'blb.DescribeHTTPSListeners'", slog.String("blbId", cloudLoadbalancerId), slog.Any("request", describeHTTPSListenersReq), slog.Any("response", describeHTTPSListenersResp))
+	d.logger.Debug("sdk request 'blb.DescribeHTTPSListeners'", slog.String("params.blbId", cloudLoadbalancerId), slog.Any("request", describeHTTPSListenersReq), slog.Any("response", describeHTTPSListenersResp))
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'blb.DescribeHTTPSListeners': %w", err)
 	} else if len(describeHTTPSListenersResp.ListenerList) == 0 {

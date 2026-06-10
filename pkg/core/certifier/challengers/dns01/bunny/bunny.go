@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-acme/lego/v4/providers/dns/bunny"
+	"github.com/go-acme/lego/v5/providers/dns/bunny"
 
-	"github.com/certimate-go/certimate/pkg/core/certifier"
+	"github.com/certimate-go/certimate/pkg/core"
 )
 
 type ChallengerConfig struct {
@@ -15,7 +15,7 @@ type ChallengerConfig struct {
 	DnsTTL                int    `json:"dnsTTL,omitempty"`
 }
 
-func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
+func NewChallenger(config *ChallengerConfig) (core.ACMEChallenger, error) {
 	if config == nil {
 		return nil, fmt.Errorf("the configuration of the acme challenge provider is nil")
 	}

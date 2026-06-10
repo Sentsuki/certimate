@@ -5,7 +5,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
-	volcenginecdn "github.com/certimate-go/certimate/pkg/core/deployer/providers/volcengine-cdn"
+	dplyimpl "github.com/certimate-go/certimate/pkg/core/deployer/providers/volcengine-cdn"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
@@ -16,9 +16,10 @@ func init() {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := volcenginecdn.NewDeployer(&volcenginecdn.DeployerConfig{
+		provider, err := dplyimpl.NewDeployer(&dplyimpl.DeployerConfig{
 			AccessKeyId:        credentials.AccessKeyId,
-			AccessKeySecret:    credentials.SecretAccessKey,
+			SecretAccessKey:    credentials.SecretAccessKey,
+			ProjectName:        credentials.ProjectName,
 			DomainMatchPattern: xmaps.GetString(options.ProviderExtendedConfig, "domainMatchPattern"),
 			Domain:             xmaps.GetString(options.ProviderExtendedConfig, "domain"),
 		})

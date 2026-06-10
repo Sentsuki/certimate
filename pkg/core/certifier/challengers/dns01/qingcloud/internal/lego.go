@@ -1,13 +1,14 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
 
-	"github.com/go-acme/lego/v4/challenge"
-	"github.com/go-acme/lego/v4/challenge/dns01"
-	"github.com/go-acme/lego/v4/platform/config/env"
+	"github.com/go-acme/lego/v5/challenge"
+	"github.com/go-acme/lego/v5/challenge/dns01"
+	"github.com/go-acme/lego/v5/platform/env"
 	"github.com/samber/lo"
 
 	qingcloudsdk "github.com/certimate-go/certimate/pkg/sdk3rd/qingcloud/dns"
@@ -31,9 +32,9 @@ type Config struct {
 	AccessKey    string
 	AccessSecret string
 
+	TTL                int
 	PropagationTimeout time.Duration
 	PollingInterval    time.Duration
-	TTL                int
 	HTTPTimeout        time.Duration
 }
 
@@ -72,7 +73,9 @@ func NewDNSProviderConfig(config *Config) (*DNSProvider, error) {
 		return nil, fmt.Errorf("qingcloud: the configuration of the DNS provider is nil")
 	}
 
-	client, err := qingcloudsdk.NewClient(config.AccessKey, config.AccessSecret)
+	client, err := qingcloudsdk.NewClient(
+		qingcloudsdk.WithAkSk(config.AccessKey, config.AccessSecret),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("qingcloud: %w", err)
 	} else {
@@ -87,10 +90,10 @@ func NewDNSProviderConfig(config *Config) (*DNSProvider, error) {
 	}, nil
 }
 
-func (d *DNSProvider) Present(domain, token, keyAuth string) error {
-	info := dns01.GetChallengeInfo(domain, keyAuth)
+func (d *DNSProvider) Present(ctx context.Context, domain, token, keyAuth string) error {
+	info := dns01.GetChallengeInfo(ctx, domain, keyAuth)
 
-	authZone, err := dns01.FindZoneByFqdn(info.EffectiveFQDN)
+	authZone, err := dns01.DefaultClient().FindZoneByFqdn(ctx, info.EffectiveFQDN)
 	if err != nil {
 		return fmt.Errorf("qingcloud: could not find zone for domain %q: %w", domain, err)
 	}
@@ -116,7 +119,7 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 		Mode:      lo.ToPtr(int32(1)),
 		AutoMerge: lo.ToPtr(int32(1)),
 	}
-	response, err := d.client.CreateRecord(request)
+	response, err := d.client.CreateRecordWithContext(ctx, request)
 	if err != nil {
 		return fmt.Errorf("qingcloud: error when create record: %w", err)
 	}
@@ -128,8 +131,8 @@ func (d *DNSProvider) Present(domain, token, keyAuth string) error {
 	return nil
 }
 
-func (d *DNSProvider) CleanUp(domain, token, keyAuth string) error {
-	info := dns01.GetChallengeInfo(domain, keyAuth)
+func (d *DNSProvider) CleanUp(ctx context.Context, domain, token, keyAuth string) error {
+	info := dns01.GetChallengeInfo(ctx, domain, keyAuth)
 
 	d.recordIDsMu.Lock()
 	recordID, ok := d.recordIDs[token]
@@ -139,9 +142,13 @@ func (d *DNSProvider) CleanUp(domain, token, keyAuth string) error {
 	}
 
 	// REF: https://docsv4.qingcloud.com/user_guide/development_docs/api/api_list/dns/record/#_deleterecord
-	if _, err := d.client.DeleteRecord([]*int64{recordID}); err != nil {
+	if _, err := d.client.DeleteRecordWithContext(ctx, []*int64{recordID}); err != nil {
 		return fmt.Errorf("qingcloud: error when delete record: %w", err)
 	}
+
+	d.recordIDsMu.Lock()
+	delete(d.recordIDs, token)
+	d.recordIDsMu.Unlock()
 
 	return nil
 }

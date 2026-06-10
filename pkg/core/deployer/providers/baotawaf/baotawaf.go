@@ -10,9 +10,14 @@ import (
 
 	"github.com/samber/lo"
 
-	"github.com/certimate-go/certimate/pkg/core/deployer"
+	"github.com/certimate-go/certimate/pkg/core"
 	btwafsdk "github.com/certimate-go/certimate/pkg/sdk3rd/btwaf"
 	xwait "github.com/certimate-go/certimate/pkg/utils/wait"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -35,7 +40,7 @@ type Deployer struct {
 	sdkClient *btwafsdk.Client
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -62,7 +67,7 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	if len(d.config.SiteNames) == 0 {
 		return nil, fmt.Errorf("config `siteNames` is required")
 	}
@@ -85,10 +90,10 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		return nil, errors.Join(errs...)
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
-func (d *Deployer) findSiteByName(ctx context.Context, siteName string) (*btwafsdk.SiteRecord, error) {
+func (d *Deployer) findSiteByName(ctx context.Context, siteName string) (*btwafsdk.SiteData, error) {
 	// 查询网站列表
 	getSiteListPage := 1
 	getSiteListPageSize := 100
@@ -146,7 +151,7 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteName string, s
 		SiteId: lo.ToPtr(siteData.SiteId),
 		Type:   lo.ToPtr("openCert"),
 		Server: &btwafsdk.SiteServerInfoMod{
-			ListenSSLPorts: lo.ToPtr([]string{fmt.Sprintf("%d", d.config.SitePort)}),
+			ListenSSLPorts: []*string{lo.ToPtr(fmt.Sprintf("%d", d.config.SitePort))},
 			SSL: &btwafsdk.SiteServerSSLInfo{
 				IsSSL:      lo.ToPtr(int32(1)),
 				FullChain:  lo.ToPtr(certPEM),
@@ -164,7 +169,9 @@ func (d *Deployer) updateSiteCertificate(ctx context.Context, siteName string, s
 }
 
 func createSDKClient(serverUrl, apiKey string, skipTlsVerify bool) (*btwafsdk.Client, error) {
-	client, err := btwafsdk.NewClient(serverUrl, apiKey)
+	client, err := btwafsdk.NewClient(serverUrl,
+		btwafsdk.WithApiKey(apiKey),
+	)
 	if err != nil {
 		return nil, err
 	}

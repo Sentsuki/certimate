@@ -8,7 +8,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
-	tencentcloudsslupdate "github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-ssl-update"
+	dplyimpl "github.com/certimate-go/certimate/pkg/core/deployer/providers/tencentcloud-ssl-update"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
@@ -19,9 +19,10 @@ func init() {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := tencentcloudsslupdate.NewDeployer(&tencentcloudsslupdate.DeployerConfig{
+		provider, err := dplyimpl.NewDeployer(&dplyimpl.DeployerConfig{
 			SecretId:         credentials.SecretId,
 			SecretKey:        credentials.SecretKey,
+			ProjectId:        credentials.ProjectId,
 			Endpoint:         xmaps.GetString(options.ProviderExtendedConfig, "endpoint"),
 			CertificateId:    xmaps.GetString(options.ProviderExtendedConfig, "certificateId"),
 			ResourceRegions:  lo.Filter(strings.Split(xmaps.GetString(options.ProviderExtendedConfig, "resourceRegions"), ";"), func(s string, _ int) bool { return s != "" }),

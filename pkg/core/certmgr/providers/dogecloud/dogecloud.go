@@ -6,8 +6,14 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/certimate-go/certimate/pkg/core/certmgr"
-	dogesdk "github.com/certimate-go/certimate/pkg/sdk3rd/dogecloud"
+	"github.com/certimate-go/certimate/pkg/core"
+	dogecloudsdk "github.com/certimate-go/certimate/pkg/sdk3rd/dogecloud"
+)
+
+type (
+	Provider      = core.Certmgr
+	UploadResult  = core.CertmgrUploadResult
+	ReplaceResult = core.CertmgrReplaceResult
 )
 
 type CertmgrConfig struct {
@@ -20,10 +26,10 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *dogesdk.Client
+	sdkClient *dogecloudsdk.Client
 }
 
-var _ certmgr.Provider = (*Certmgr)(nil)
+var _ Provider = (*Certmgr)(nil)
 
 func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 	if config == nil {
@@ -50,13 +56,13 @@ func (c *Certmgr) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*certmgr.UploadResult, error) {
+func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*UploadResult, error) {
 	// 生成新证书名（需符合多吉云命名规则）
 	certName := fmt.Sprintf("certimate-%d", time.Now().UnixMilli())
 
 	// 上传新证书
 	// REF: https://docs.dogecloud.com/cdn/api-cert-upload
-	uploadSslCertReq := &dogesdk.UploadCdnCertRequest{
+	uploadSslCertReq := &dogecloudsdk.UploadCdnCertRequest{
 		Note:        certName,
 		Certificate: certPEM,
 		PrivateKey:  privkeyPEM,
@@ -67,16 +73,23 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*cert
 		return nil, fmt.Errorf("failed to execute sdk request 'cdn.UploadCdnCert': %w", err)
 	}
 
-	return &certmgr.UploadResult{
+	return &UploadResult{
 		CertId:   fmt.Sprintf("%d", uploadSslCertResp.Data.Id),
 		CertName: certName,
 	}, nil
 }
 
-func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*certmgr.ReplaceResult, error) {
-	return nil, certmgr.ErrUnsupported
+func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, privkeyPEM string) (*ReplaceResult, error) {
+	return nil, core.ErrUnsupported
 }
 
-func createSDKClient(accessKey, secretKey string) (*dogesdk.Client, error) {
-	return dogesdk.NewClient(accessKey, secretKey)
+func createSDKClient(accessKey, secretKey string) (*dogecloudsdk.Client, error) {
+	client, err := dogecloudsdk.NewClient(
+		dogecloudsdk.WithAkSk(accessKey, secretKey),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

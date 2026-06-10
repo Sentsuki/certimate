@@ -1,7 +1,7 @@
 import { getI18n, useTranslation } from "react-i18next";
 import { Form, Input, Radio, Select, Switch } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
-import { core, z } from "zod";
+import { z } from "zod";
 
 import { useFormNestedFieldsContext } from "./_context";
 
@@ -31,7 +31,12 @@ const AccessConfigFormFieldsProviderLeCDN = () => {
       </Form.Item>
 
       <Form.Item name={[parentNamePath, "apiRole"]} initialValue={initialValues.apiRole} label={t("access.form.lecdn_api_role.label")} rules={[formRule]}>
-        <Radio.Group options={["client", "master"].map((s) => ({ label: t(`access.form.lecdn_api_role.option.${s}.label`), value: s }))} />
+        <Radio.Group
+          options={["client", "master"].map((s) => ({
+            label: t(`access.form.lecdn_api_role.option.${s}.label`),
+            value: s,
+          }))}
+        />
       </Form.Item>
 
       <Form.Item name={[parentNamePath, "username"]} initialValue={initialValues.username} label={t("access.form.lecdn_username.label")} rules={[formRule]}>
@@ -68,7 +73,7 @@ const getSchema = ({ i18n = getI18n() }: { i18n: ReturnType<typeof getI18n> }) =
   const { t: _ } = i18n;
 
   return z.object({
-    serverUrl: z.url({ protocol: core.regexes.httpProtocol }),
+    serverUrl: z.url({ protocol: z.core.regexes.httpProtocol }),
     apiVersion: z.enum(["v3"]),
     apiRole: z.enum(["client", "master"]),
     username: z.string().nonempty(),

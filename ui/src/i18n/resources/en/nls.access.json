@@ -304,6 +304,15 @@
       "placeholder": "Please enter aaWAF API key",
       "tooltip": "For more information, see <a href=\"https://github.com/aaPanel/aaWAF/blob/main/API.md\" target=\"_blank\">https://github.com/aaPanel/aaWAF/blob/main/API.md</a>"
     },
+    "beget_username": {
+      "label": "Beget username",
+      "placeholder": "Please enter Beget username"
+    },
+    "beget_api_password": {
+      "label": "Beget API password",
+      "placeholder": "Please enter Beget API password",
+      "tooltip": "For more information, see <a href=\"https://cp.beget.com/settings/security/api\" target=\"_blank\">https://cp.beget.com/settings/security/api</a>"
+    },
     "bookmyname_username": {
       "label": "BookMyName username",
       "placeholder": "Please enter BookMyName username"
@@ -317,15 +326,20 @@
       "placeholder": "Please enter Bunny API key",
       "tooltip": "For more information, see <a href=\"https://docs.bunny.net/reference/bunnynet-api-overview\" target=\"_blank\">https://docs.bunny.net/reference/bunnynet-api-overview</a>"
     },
-    "byteplus_access_key": {
-      "label": "BytePlus AccessKey",
-      "placeholder": "Please enter BytePlus AccessKey",
+    "byteplus_access_key_id": {
+      "label": "BytePlus AccessKeyID",
+      "placeholder": "Please enter BytePlus AccessKeyID",
       "tooltip": "For more information, see <a href=\"https://docs.byteplus.com/en/docs/byteplus-platform/docs-managing-keys\" target=\"_blank\">https://docs.byteplus.com/en/docs/byteplus-platform/docs-managing-keys</a>"
     },
-    "byteplus_secret_key": {
-      "label": "BytePlus SecretKey",
-      "placeholder": "Please enter BytePlus SecretKey",
+    "byteplus_secret_access_key": {
+      "label": "BytePlus SecretAccessKey",
+      "placeholder": "Please enter BytePlus SecretAccessKey",
       "tooltip": "For more information, see <a href=\"https://docs.byteplus.com/en/docs/byteplus-platform/docs-managing-keys\" target=\"_blank\">https://docs.byteplus.com/en/docs/byteplus-platform/docs-managing-keys</a>"
+    },
+    "byteplus_project_name": {
+      "label": "BytePlus project ID",
+      "placeholder": "Please enter BytePlus project ID",
+      "tooltip": "For more information, see <a href=\"https://docs.byteplus.com/en/docs/resourcemanagement/Project_Management\" target=\"_blank\">https://docs.byteplus.com/en/docs/resourcemanagement/Project_Management</a>"
     },
     "cachefly_api_token": {
       "label": "CacheFly API token",
@@ -346,15 +360,15 @@
       "placeholder": "Please enter Cdnfly user API secret",
       "tooltip": "For more information, see <a href=\"https://doc.cdnfly.cn/shiyongjieshao.html\" target=\"_blank\">https://doc.cdnfly.cn/shiyongjieshao.html</a>"
     },
-    "cloudflare_dns_api_token": {
-      "label": "Cloudflare DNS API token",
-      "placeholder": "Please enter Cloudflare DNS API token",
+    "cloudflare_api_token": {
+      "label": "Cloudflare API token",
+      "placeholder": "Please enter Cloudflare API token",
       "tooltip": "For more information, see <a href=\"https://developers.cloudflare.com/fundamentals/api/get-started/create-token/\" target=\"_blank\">https://developers.cloudflare.com/fundamentals/api/get-started/create-token/</a>"
     },
-    "cloudflare_zone_api_token": {
+    "cloudflare_api_token_for_zone": {
       "label": "Cloudflare Zone API token (Optional)",
       "placeholder": "Please enter Cloudflare Zone API token",
-      "help": "Notes: Only required when you scope the DNS API token to <b>specific zones</b>. PLease scope the Zone API token to <b>all zones</b> with <i>Zone/Zone/Read</i> permission.",
+      "help": "Notes: Only required when you scope the API token to <b>specific zones</b>. PLease scope the Zone API token to <b>all zones</b> with <i>Zone/Zone/Read</i> permission.",
       "tooltip": "For more information, see <a href=\"https://developers.cloudflare.com/fundamentals/api/get-started/create-token/\" target=\"_blank\">https://developers.cloudflare.com/fundamentals/api/get-started/create-token/</a>"
     },
     "cloudns_auth_id": {
@@ -376,6 +390,62 @@
       "label": "CMCC ECloud AccessKeySecret",
       "placeholder": "Please enter CMCC ECloud AccessKeySecret",
       "tooltip": "For more information, see <a href=\"https://ecloud.10086.cn/op-help-center/doc/article/49739\" target=\"_blank\">https://ecloud.10086.cn/op-help-center/doc/article/49739</a>"
+    },
+    "conohavps_api_version": {
+      "label": "ConoHa VPS version",
+      "placeholder": "Please select ConoHa VPS version"
+    },
+    "conohavps_api_v2_username": {
+      "label": "ConoHa VPS API username",
+      "placeholder": "Please enter ConoHa VPS 2.0 API username",
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/</a>"
+    },
+    "conohavps_api_v2_password": {
+      "label": "ConoHa VPS API password",
+      "placeholder": "Please enter ConoHa VPS 2.0 API password",
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps2/api-guideline-vps2/api-guideline-v2/</a>"
+    },
+    "conohavps_api_v2_tenant_id": {
+      "label": "ConoHa VPS tenant ID",
+      "placeholder": "Please enter ConoHa VPS 2.0 tenant ID",
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps2/api-identity-vps2/identity-post_tokens-v2/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps2/api-identity-vps2/identity-post_tokens-v2/</a>"
+    },
+    "conohavps_api_v3_user_id": {
+      "label": "ConoHa VPS API user ID",
+      "placeholder": "Please enter ConoHa VPS 3.0 API user ID",
+      "errmsg": {
+        "conflict": "Conflict with the \"API user name\", please retain only one field"
+      },
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/</a>"
+    },
+    "conohavps_api_v3_user_name": {
+      "label": "ConoHa VPS API user name",
+      "placeholder": "Please enter ConoHa VPS 3.0 API user name",
+      "errmsg": {
+        "conflict": "Conflict with the \"API user ID\", please retain only one field"
+      },
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/</a>"
+    },
+    "conohavps_api_v3_password": {
+      "label": "ConoHa VPS API password",
+      "placeholder": "Please enter ConoHa VPS 3.0 API password",
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-create_api_user-v3/</a>"
+    },
+    "conohavps_api_v3_project_id": {
+      "label": "ConoHa VPS project ID",
+      "placeholder": "Please enter ConoHa VPS 3.0 tenant project ID",
+      "errmsg": {
+        "conflict": "Conflict with the \"project name\", please retain only one field"
+      },
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/</a>"
+    },
+    "conohavps_api_v3_project_name": {
+      "label": "ConoHa VPS project name",
+      "placeholder": "Please enter ConoHa VPS 3.0 tenant project name",
+      "errmsg": {
+        "conflict": "Conflict with the \"project ID\", please retain only one field"
+      },
+      "tooltip": "For more information, see <a href=\"https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/\" target=\"_blank\">https://doc.conoha.jp/reference/api-vps3/api-cp-vps3/cp-get_api_info-v3/</a>"
     },
     "constellix_api_key": {
       "label": "Constellix API key",
@@ -616,6 +686,9 @@
       "placeholder": "Please enter G-Core API token",
       "tooltip": "For more information, see <a href=\"https://api.gcore.com/docs/iam#section/Authentication\" target=\"_blank\">https://api.gcore.com/docs/iam#section/Authentication</a>"
     },
+    "globalsignatlas_eab": {
+      "guide": "Learn more about using EAB key in GlobalSign Atlas: <br><a href=\"https://www.globalsign.com/en/acme-automated-certificate-management\" target=\"_blank\">https://www.globalsign.com/en/acme-automated-certificate-management</a>"
+    },
     "gname_app_id": {
       "label": "GNAME AppID",
       "placeholder": "Please enter GNAME AppID",
@@ -662,8 +735,15 @@
       "placeholder": "Please enter GoEdge AccessKey",
       "tooltip": "For more information, see <a href=\"https://goedge.cloud/docs/API/Auth.md\" target=\"_blank\">https://goedge.cloud/docs/API/Auth.md</a>"
     },
-    "globalsignatlas_eab": {
-      "guide": "Learn more about using EAB key in GlobalSign Atlas: <br><a href=\"https://www.globalsign.com/en/acme-automated-certificate-management\" target=\"_blank\">https://www.globalsign.com/en/acme-automated-certificate-management</a>"
+    "googlecloud_project_id": {
+      "label": "Google Cloud project ID",
+      "placeholder": "Please enter Google Cloud project ID",
+      "tooltip": "For more information, see <a href=\"https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects\" target=\"_blank\">https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects</a>"
+    },
+    "googlecloud_service_account_key": {
+      "label": "Google Cloud service account key",
+      "placeholder": "Please enter Google Cloud service account key",
+      "tooltip": "For more information, see <a href=\"https://docs.cloud.google.com/iam/docs/keys-create-delete\" target=\"_blank\">https://docs.cloud.google.com/iam/docs/keys-create-delete</a>"
     },
     "googletrustservices_eab": {
       "guide": "Learn more about using EAB key in Google Trust Services: <br><a href=\"https://cloud.google.com/certificate-manager/docs/public-ca-tutorial\" target=\"_blank\">https://cloud.google.com/certificate-manager/docs/public-ca-tutorial</a>"
@@ -1018,6 +1098,30 @@
       "placeholder": "Please enter RatPanel access token",
       "tooltip": "For more information, see <a href=\"https://ratpanel.github.io/advanced/api.html\" target=\"_blank\">https://ratpanel.github.io/advanced/api.html</a>"
     },
+    "regru_username": {
+      "label": "Reg.ru username",
+      "placeholder": "Please enter Reg.ru username"
+    },
+    "regru_password": {
+      "label": "Reg.ru password",
+      "placeholder": "Please enter Reg.ru password or API password"
+    },
+    "regru_mtls_certificate": {
+      "label": "Reg.ru mTLS certificate (Optional)",
+      "placeholder": "Please enter Reg.ru mTLS certificate",
+      "errmsg": {
+        "invalid": "Invalid certificate"
+      },
+      "tooltip": "For more information, see <a href=\"https://www.reg.ru/user/account/#/settings/api/\" target=\"_blank\">https://www.reg.ru/user/account/#/settings/api/api/</a>"
+    },
+    "regru_mtls_private_key": {
+      "label": "Reg.ru mTLS private key (Optional)",
+      "placeholder": "Please enter Reg.ru mTLS private key",
+      "errmsg": {
+        "invalid": "Invalid private key"
+      },
+      "tooltip": "For more information, see <a href=\"https://www.reg.ru/user/account/#/settings/api/\" target=\"_blank\">https://www.reg.ru/user/account/#/settings/api/api/</a>"
+    },
     "rfc2136_host": {
       "label": "DNS server host",
       "placeholder": "Please enter DNS server host"
@@ -1037,6 +1141,24 @@
     "rfc2136_tsig_secret": {
       "label": "TSIG authentication secret (Optional)",
       "placeholder": "Please enter TSIG authentication secret"
+    },
+    "rucenter_username": {
+      "label": "Ru-Center username",
+      "placeholder": "Please enter Ru-Center username"
+    },
+    "rucenter_password": {
+      "label": "Ru-Center password",
+      "placeholder": "Please enter Ru-Center password"
+    },
+    "rucenter_application_id": {
+      "label": "Ru-Center application ID",
+      "placeholder": "Please enter Ru-Center application ID",
+      "tooltip": "For more information, see <a href=\"https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list\" target=\"_blank\">https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list</a>"
+    },
+    "rucenter_application_token": {
+      "label": "Ru-Center application token",
+      "placeholder": "Please enter Ru-Center application token",
+      "tooltip": "For more information, see <a href=\"https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list\" target=\"_blank\">https://www.nic.ru/manager/oauth.cgi?step=oauth.app_list</a>"
     },
     "s3_endpoint": {
       "label": "Endpoint",
@@ -1212,12 +1334,17 @@
     "tencentcloud_secret_id": {
       "label": "Tencent Cloud SecretID",
       "placeholder": "Please enter Tencent Cloud SecretID",
-      "tooltip": "For more information, see <a href=\"https://www.tencentcloud.com/zh/document/product/598/34228\" target=\"_blank\">https://www.tencentcloud.com/zh/document/product/598/34228</a>"
+      "tooltip": "For more information, see <a href=\"https://www.tencentcloud.com/en/document/product/598/34228\" target=\"_blank\">https://www.tencentcloud.com/en/document/product/598/34228</a>"
     },
     "tencentcloud_secret_key": {
       "label": "Tencent Cloud SecretKey",
       "placeholder": "Please enter Tencent Cloud SecretKey",
-      "tooltip": "For more information, see <a href=\"https://www.tencentcloud.com/zh/document/product/598/34228\" target=\"_blank\">https://www.tencentcloud.com/zh/document/product/598/34228</a>"
+      "tooltip": "For more information, see <a href=\"https://www.tencentcloud.com/en/document/product/598/34228\" target=\"_blank\">https://www.tencentcloud.com/en/document/product/598/34228</a>"
+    },
+    "tencentcloud_project_id": {
+      "label": "Tencent Cloud project ID (Optional)",
+      "placeholder": "Please enter Tencent Cloud project ID",
+      "tooltip": "For more information, see <a href=\"https://console.tencentcloud.com/project\" target=\"_blank\">https://console.tencentcloud.com/project</a>"
     },
     "todaynic_user_id": {
       "label": "TodayNIC.com agent user ID",
@@ -1276,12 +1403,17 @@
     "volcengine_access_key_id": {
       "label": "VolcEngine AccessKeyID",
       "placeholder": "Please enter VolcEngine AccessKeyID",
-      "tooltip": "For more information, see <a href=\"https://www.volcengine.com/docs/6291/216571\" target=\"_blank\">https://www.volcengine.com/docs/6291/216571</a>"
+      "tooltip": "For more information, see <a href=\"https://www.volcengine.com/docs/6291/65568\" target=\"_blank\">https://www.volcengine.com/docs/6291/65568</a>"
     },
     "volcengine_secret_access_key": {
       "label": "VolcEngine SecretAccessKey",
       "placeholder": "Please enter VolcEngine SecretAccessKey",
-      "tooltip": "For more information, see <a href=\"https://www.volcengine.com/docs/6291/216571\" target=\"_blank\">https://www.volcengine.com/docs/6291/216571</a>"
+      "tooltip": "For more information, see <a href=\"https://www.volcengine.com/docs/6291/65568\" target=\"_blank\">https://www.volcengine.com/docs/6291/65568</a>"
+    },
+    "volcengine_project_name": {
+      "label": "VolcEngine project ID",
+      "placeholder": "Please enter VolcEngine project ID",
+      "tooltip": "For more information, see <a href=\"https://www.volcengine.com/docs/6649/94336\" target=\"_blank\">https://www.volcengine.com/docs/6649/94336</a>"
     },
     "vultr_api_key": {
       "label": "Vultr API key",

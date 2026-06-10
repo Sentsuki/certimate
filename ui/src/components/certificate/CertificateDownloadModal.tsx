@@ -31,8 +31,11 @@ const CertificateDownloadModal = ({ afterClose, data, trigger, ...props }: Certi
   });
   const setOpen = (open: boolean) => {
     _setOpen(open);
-    setTableExpandedKeys([]);
-    formInst.resetFields();
+
+    if (!open) {
+      setTableExpandedKeys([]);
+      formInst.resetFields();
+    }
   };
 
   const triggerEl = useTriggerElement(trigger, { onClick: () => setOpen(true) });
@@ -104,7 +107,6 @@ const CertificateDownloadModal = ({ afterClose, data, trigger, ...props }: Certi
               <Form.Item name="pfxEncoder" label={t("certificate.action.download.modal.form.pfx_encoder.label")}>
                 <Select
                   options={["LegacyRC2", "LegacyDES", "Modern2023", "Modern2026"].map((s) => ({
-                    key: s,
                     label: t(`certificate.action.download.modal.form.pfx_encoder.option.${s.toLowerCase()}.label`),
                     value: s,
                   }))}
@@ -146,7 +148,9 @@ const CertificateDownloadModal = ({ afterClose, data, trigger, ...props }: Certi
   ];
   const [tableExpandedKeys, setTableExpandedKeys] = useState<string[]>([]);
 
-  const handleCancelClick = () => {};
+  const handleCancelClick = () => {
+    setOpen(false);
+  };
 
   const handleDownloadClick = async (format: CertificateFormatType) => {
     await formInst.validateFields();

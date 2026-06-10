@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { DEPLOYMENT_PROVIDERS, type DeploymentProviderType } from "@/domain/provider";
 
@@ -23,8 +23,13 @@ import BizDeployNodeConfigFieldsProviderAliyunVOD from "./BizDeployNodeConfigFie
 import BizDeployNodeConfigFieldsProviderAliyunWAF from "./BizDeployNodeConfigFieldsProviderAliyunWAF";
 import BizDeployNodeConfigFieldsProviderAPISIX from "./BizDeployNodeConfigFieldsProviderAPISIX";
 import BizDeployNodeConfigFieldsProviderAWSACM from "./BizDeployNodeConfigFieldsProviderAWSACM";
+import BizDeployNodeConfigFieldsProviderAWSALB from "./BizDeployNodeConfigFieldsProviderAWSALB";
+import BizDeployNodeConfigFieldsProviderAWSAmplify from "./BizDeployNodeConfigFieldsProviderAWSAmplify";
+import BizDeployNodeConfigFieldsProviderAWSAPIGateway from "./BizDeployNodeConfigFieldsProviderAWSAPIGateway";
+import BizDeployNodeConfigFieldsProviderAWSCLB from "./BizDeployNodeConfigFieldsProviderAWSCLB";
 import BizDeployNodeConfigFieldsProviderAWSCloudFront from "./BizDeployNodeConfigFieldsProviderAWSCloudFront";
 import BizDeployNodeConfigFieldsProviderAWSIAM from "./BizDeployNodeConfigFieldsProviderAWSIAM";
+import BizDeployNodeConfigFieldsProviderAWSNLB from "./BizDeployNodeConfigFieldsProviderAWSNLB";
 import BizDeployNodeConfigFieldsProviderAzureKeyVault from "./BizDeployNodeConfigFieldsProviderAzureKeyVault";
 import BizDeployNodeConfigFieldsProviderBaiduCloudAppBLB from "./BizDeployNodeConfigFieldsProviderBaiduCloudAppBLB";
 import BizDeployNodeConfigFieldsProviderBaiduCloudBLB from "./BizDeployNodeConfigFieldsProviderBaiduCloudBLB";
@@ -37,8 +42,15 @@ import BizDeployNodeConfigFieldsProviderBaotaPanelGoConsole from "./BizDeployNod
 import BizDeployNodeConfigFieldsProviderBaotaWAF from "./BizDeployNodeConfigFieldsProviderBaotaWAF";
 import BizDeployNodeConfigFieldsProviderBaotaWAFConsole from "./BizDeployNodeConfigFieldsProviderBaotaWAFConsole";
 import BizDeployNodeConfigFieldsProviderBunnyCDN from "./BizDeployNodeConfigFieldsProviderBunnyCDN";
+import BizDeployNodeConfigFieldsProviderBytePlusALB from "./BizDeployNodeConfigFieldsProviderBytePlusALB";
+import BizDeployNodeConfigFieldsProviderBytePlusAPIG from "./BizDeployNodeConfigFieldsProviderBytePlusAPIG";
 import BizDeployNodeConfigFieldsProviderBytePlusCDN from "./BizDeployNodeConfigFieldsProviderBytePlusCDN";
+import BizDeployNodeConfigFieldsProviderBytePlusCertCenter from "./BizDeployNodeConfigFieldsProviderBytePlusCertCenter";
+import BizDeployNodeConfigFieldsProviderBytePlusCLB from "./BizDeployNodeConfigFieldsProviderBytePlusCLB";
+import BizDeployNodeConfigFieldsProviderBytePlusMediaLive from "./BizDeployNodeConfigFieldsProviderBytePlusMediaLive";
+import BizDeployNodeConfigFieldsProviderBytePlusTOS from "./BizDeployNodeConfigFieldsProviderBytePlusTOS";
 import BizDeployNodeConfigFieldsProviderCdnfly from "./BizDeployNodeConfigFieldsProviderCdnfly";
+import BizDeployNodeConfigFieldsProviderCloudflareSSL from "./BizDeployNodeConfigFieldsProviderCloudflareSSL";
 import BizDeployNodeConfigFieldsProviderCPanel from "./BizDeployNodeConfigFieldsProviderCPanel";
 import BizDeployNodeConfigFieldsProviderCTCCCloudAO from "./BizDeployNodeConfigFieldsProviderCTCCCloudAO";
 import BizDeployNodeConfigFieldsProviderCTCCCloudCDN from "./BizDeployNodeConfigFieldsProviderCTCCCloudCDN";
@@ -151,8 +163,13 @@ const providerComponentMap: Partial<Record<DeploymentProviderType, React.Compone
   [DEPLOYMENT_PROVIDERS.ALIYUN_WAF]: BizDeployNodeConfigFieldsProviderAliyunWAF,
   [DEPLOYMENT_PROVIDERS.APISIX]: BizDeployNodeConfigFieldsProviderAPISIX,
   [DEPLOYMENT_PROVIDERS.AWS_ACM]: BizDeployNodeConfigFieldsProviderAWSACM,
+  [DEPLOYMENT_PROVIDERS.AWS_ALB]: BizDeployNodeConfigFieldsProviderAWSALB,
+  [DEPLOYMENT_PROVIDERS.AWS_AMPLIFY]: BizDeployNodeConfigFieldsProviderAWSAmplify,
+  [DEPLOYMENT_PROVIDERS.AWS_APIGATEWAY]: BizDeployNodeConfigFieldsProviderAWSAPIGateway,
+  [DEPLOYMENT_PROVIDERS.AWS_CLB]: BizDeployNodeConfigFieldsProviderAWSCLB,
   [DEPLOYMENT_PROVIDERS.AWS_CLOUDFRONT]: BizDeployNodeConfigFieldsProviderAWSCloudFront,
   [DEPLOYMENT_PROVIDERS.AWS_IAM]: BizDeployNodeConfigFieldsProviderAWSIAM,
+  [DEPLOYMENT_PROVIDERS.AWS_NLB]: BizDeployNodeConfigFieldsProviderAWSNLB,
   [DEPLOYMENT_PROVIDERS.AZURE_KEYVAULT]: BizDeployNodeConfigFieldsProviderAzureKeyVault,
   [DEPLOYMENT_PROVIDERS.BAIDUCLOUD_APPBLB]: BizDeployNodeConfigFieldsProviderBaiduCloudAppBLB,
   [DEPLOYMENT_PROVIDERS.BAIDUCLOUD_BLB]: BizDeployNodeConfigFieldsProviderBaiduCloudBLB,
@@ -165,8 +182,15 @@ const providerComponentMap: Partial<Record<DeploymentProviderType, React.Compone
   [DEPLOYMENT_PROVIDERS.BAOTAWAF]: BizDeployNodeConfigFieldsProviderBaotaWAF,
   [DEPLOYMENT_PROVIDERS.BAOTAWAF_CONSOLE]: BizDeployNodeConfigFieldsProviderBaotaWAFConsole,
   [DEPLOYMENT_PROVIDERS.BUNNY_CDN]: BizDeployNodeConfigFieldsProviderBunnyCDN,
+  [DEPLOYMENT_PROVIDERS.BYTEPLUS_ALB]: BizDeployNodeConfigFieldsProviderBytePlusALB,
+  [DEPLOYMENT_PROVIDERS.BYTEPLUS_APIG]: BizDeployNodeConfigFieldsProviderBytePlusAPIG,
   [DEPLOYMENT_PROVIDERS.BYTEPLUS_CDN]: BizDeployNodeConfigFieldsProviderBytePlusCDN,
+  [DEPLOYMENT_PROVIDERS.BYTEPLUS_CERTCENTER]: BizDeployNodeConfigFieldsProviderBytePlusCertCenter,
+  [DEPLOYMENT_PROVIDERS.BYTEPLUS_CLB]: BizDeployNodeConfigFieldsProviderBytePlusCLB,
+  [DEPLOYMENT_PROVIDERS.BYTEPLUS_MEDIALIVE]: BizDeployNodeConfigFieldsProviderBytePlusMediaLive,
+  [DEPLOYMENT_PROVIDERS.BYTEPLUS_TOS]: BizDeployNodeConfigFieldsProviderBytePlusTOS,
   [DEPLOYMENT_PROVIDERS.CDNFLY]: BizDeployNodeConfigFieldsProviderCdnfly,
+  [DEPLOYMENT_PROVIDERS.CLOUDFLARE_SSL]: BizDeployNodeConfigFieldsProviderCloudflareSSL,
   [DEPLOYMENT_PROVIDERS.CPANEL]: BizDeployNodeConfigFieldsProviderCPanel,
   [DEPLOYMENT_PROVIDERS.CTCCCLOUD_AO]: BizDeployNodeConfigFieldsProviderCTCCCloudAO,
   [DEPLOYMENT_PROVIDERS.CTCCCLOUD_CDN]: BizDeployNodeConfigFieldsProviderCTCCCloudCDN,

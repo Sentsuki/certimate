@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-acme/lego/v4/providers/dns/azuredns"
+	"github.com/go-acme/lego/v5/providers/dns/azuredns"
 
-	"github.com/certimate-go/certimate/pkg/core/certifier"
-	azenv "github.com/certimate-go/certimate/pkg/sdk3rd/azure/env"
+	"github.com/certimate-go/certimate/pkg/core"
+	xazure "github.com/certimate-go/certimate/pkg/utils/third-party/azure"
 )
 
 type ChallengerConfig struct {
@@ -21,7 +21,7 @@ type ChallengerConfig struct {
 	DnsTTL                int    `json:"dnsTTL,omitempty"`
 }
 
-func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
+func NewChallenger(config *ChallengerConfig) (core.ACMEChallenger, error) {
 	if config == nil {
 		return nil, fmt.Errorf("the configuration of the acme challenge provider is nil")
 	}
@@ -34,7 +34,7 @@ func NewChallenger(config *ChallengerConfig) (certifier.ACMEChallenger, error) {
 	providerConfig.SubscriptionID = config.SubscriptionId
 	providerConfig.ResourceGroup = config.ResourceGroupName
 	if config.CloudName != "" {
-		env, err := azenv.GetCloudEnvConfiguration(config.CloudName)
+		env, err := xazure.GetCloudEnvConfiguration(config.CloudName)
 		if err != nil {
 			return nil, err
 		}

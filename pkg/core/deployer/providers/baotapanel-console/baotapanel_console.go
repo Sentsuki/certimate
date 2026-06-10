@@ -6,8 +6,13 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/certimate-go/certimate/pkg/core/deployer"
-	btsdk "github.com/certimate-go/certimate/pkg/sdk3rd/btpanel"
+	"github.com/certimate-go/certimate/pkg/core"
+	btpanelsdk "github.com/certimate-go/certimate/pkg/sdk3rd/btpanel"
+)
+
+type (
+	Provider     = core.Deployer
+	DeployResult = core.DeployerDeployResult
 )
 
 type DeployerConfig struct {
@@ -24,10 +29,10 @@ type DeployerConfig struct {
 type Deployer struct {
 	config    *DeployerConfig
 	logger    *slog.Logger
-	sdkClient *btsdk.Client
+	sdkClient *btpanelsdk.Client
 }
 
-var _ deployer.Provider = (*Deployer)(nil)
+var _ Provider = (*Deployer)(nil)
 
 func NewDeployer(config *DeployerConfig) (*Deployer, error) {
 	if config == nil {
@@ -54,9 +59,9 @@ func (d *Deployer) SetLogger(logger *slog.Logger) {
 	}
 }
 
-func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*deployer.DeployResult, error) {
+func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*DeployResult, error) {
 	// 设置面板 SSL 证书
-	configSavePanelSSLReq := &btsdk.ConfigSavePanelSSLRequest{
+	configSavePanelSSLReq := &btpanelsdk.ConfigSavePanelSSLRequest{
 		PrivateKey:  privkeyPEM,
 		Certificate: certPEM,
 	}
@@ -68,7 +73,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 
 	if d.config.AutoRestart {
 		// 重启面板（无需关心响应，因为宝塔重启时会断开连接产生 error）
-		systemServiceAdminReq := &btsdk.SystemServiceAdminRequest{
+		systemServiceAdminReq := &btpanelsdk.SystemServiceAdminRequest{
 			Name: "nginx",
 			Type: "restart",
 		}
@@ -76,11 +81,13 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*dep
 		d.logger.Debug("sdk request 'system.ServiceAdmin'", slog.Any("request", systemServiceAdminReq), slog.Any("response", systemServiceAdminResp))
 	}
 
-	return &deployer.DeployResult{}, nil
+	return &DeployResult{}, nil
 }
 
-func createSDKClient(serverUrl, apiKey string, skipTlsVerify bool) (*btsdk.Client, error) {
-	client, err := btsdk.NewClient(serverUrl, apiKey)
+func createSDKClient(serverUrl, apiKey string, skipTlsVerify bool) (*btpanelsdk.Client, error) {
+	client, err := btpanelsdk.NewClient(serverUrl,
+		btpanelsdk.WithApiKey(apiKey),
+	)
 	if err != nil {
 		return nil, err
 	}

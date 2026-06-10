@@ -5,7 +5,7 @@ import (
 
 	"github.com/certimate-go/certimate/internal/domain"
 	"github.com/certimate-go/certimate/pkg/core"
-	volcenginevod "github.com/certimate-go/certimate/pkg/core/deployer/providers/volcengine-vod"
+	dplyimpl "github.com/certimate-go/certimate/pkg/core/deployer/providers/volcengine-vod"
 	xmaps "github.com/certimate-go/certimate/pkg/utils/maps"
 )
 
@@ -16,9 +16,10 @@ func init() {
 			return nil, fmt.Errorf("failed to populate provider access config: %w", err)
 		}
 
-		provider, err := volcenginevod.NewDeployer(&volcenginevod.DeployerConfig{
+		provider, err := dplyimpl.NewDeployer(&dplyimpl.DeployerConfig{
 			AccessKeyId:        credentials.AccessKeyId,
-			AccessKeySecret:    credentials.SecretAccessKey,
+			SecretAccessKey:    credentials.SecretAccessKey,
+			ProjectName:        credentials.ProjectName,
 			SpaceName:          xmaps.GetString(options.ProviderExtendedConfig, "spaceName"),
 			DomainMatchPattern: xmaps.GetString(options.ProviderExtendedConfig, "domainMatchPattern"),
 			DomainType:         xmaps.GetString(options.ProviderExtendedConfig, "domainType"),
