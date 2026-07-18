@@ -82,7 +82,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*Uplo
 		}
 
 		getSslCertListResp, err := c.sdkClient.GetSslCertList(ctx, getSslCertListMarker, 200)
-		c.logger.Debug("sdk request 'sslcert.GetList'", slog.Any("request.marker", getSslCertListMarker), slog.Any("response", getSslCertListResp))
+		c.logger.Debug("sdk request 'sslcert.GetList'", slog.Any("params.marker", getSslCertListMarker), slog.Any("response", getSslCertListResp))
 		if err != nil {
 			return nil, fmt.Errorf("failed to execute sdk request 'sslcert.GetList': %w", err)
 		}
@@ -93,13 +93,15 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*Uplo
 				continue
 			}
 
-			// 对比证书多域名
+			// 对比证书备用名称
 			if !slices.Equal(certX509.DNSNames, sslItem.DnsNames) {
 				continue
 			}
 
 			// 对比证书有效期
-			if certX509.NotBefore.Unix() != sslItem.NotBefore || certX509.NotAfter.Unix() != sslItem.NotAfter {
+			if certX509.NotBefore.Unix() != sslItem.NotBefore {
+				continue
+			} else if certX509.NotAfter.Unix() != sslItem.NotAfter {
 				continue
 			}
 
@@ -118,7 +120,6 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*Uplo
 					continue
 				}
 			default:
-				// 未知算法，跳过
 				continue
 			}
 

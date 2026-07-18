@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
           persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
 
@@ -34,7 +34,7 @@ jobs:
           npm --prefix=./ui run build
 
       - name: Upload UI build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: ui-build
           path: ./ui/dist
@@ -45,10 +45,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
           persist-credentials: false
+          submodules: true
 
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -56,7 +57,7 @@ jobs:
           go-version-file: "go.mod"
 
       - name: Download UI build artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: ui-build
           path: ./ui/dist
@@ -74,7 +75,7 @@ jobs:
           done
 
       - name: Upload Linux binaries
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: linux-binaries
           path: dist/linux/
@@ -87,13 +88,13 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
           persist-credentials: false
 
       - name: Download all binaries
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           path: ./artifacts
 
@@ -120,7 +121,7 @@ jobs:
           sha256sum *.zip > checksums.txt
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/*.zip
