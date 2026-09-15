@@ -113,6 +113,9 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*Dep
 	if err != nil {
 		return nil, err
 	}
+	if len(domainsInZone) == 0 {
+		return nil, fmt.Errorf("could not find domains in zone '%s'", d.config.ZoneId)
+	}
 
 	// 获取待部署的域名列表
 	var domains []string
@@ -186,6 +189,10 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*Dep
 
 			return !deployed
 		})
+		if len(domains) == 0 {
+			d.logger.Info("no need to deploy edgeone custom domain certificate")
+			return &DeployResult{}, nil
+		}
 
 		// 配置域名证书
 		// REF: https://cloud.tencent.com/document/api/1552/80764
@@ -228,7 +235,7 @@ func (d *Deployer) Deploy(ctx context.Context, certPEM, privkeyPEM string) (*Dep
 							continue
 						}
 
-						certExpireTime, _ := time.Parse("2006-01-02T15:04:05Z", lo.FromPtr(certInfo.ExpireTime))
+						certExpireTime, _ := time.Parse(time.RFC3339, lo.FromPtr(certInfo.ExpireTime))
 						if certExpireTime.Before(time.Now()) {
 							continue
 						}

@@ -10,7 +10,8 @@ import (
 	aws "github.com/aws/aws-sdk-go-v2/aws"
 	awscfg "github.com/aws/aws-sdk-go-v2/config"
 	awscred "github.com/aws/aws-sdk-go-v2/credentials"
-	awsacm "github.com/aws/aws-sdk-go-v2/service/acm"
+	"github.com/aws/aws-sdk-go-v2/credentials/ec2rolecreds"
+	"github.com/aws/aws-sdk-go-v2/service/acm"
 	"github.com/aws/smithy-go"
 
 	"github.com/certimate-go/certimate/pkg/core"
@@ -24,6 +25,10 @@ type (
 )
 
 type CertmgrConfig struct {
+	// AWS API 认证方式。
+	// 可取值 "accesskey"、"imds"。
+	// 零值时默认值 [AUTH_METHOD_ACCESSKEY]。
+	AuthMethod string `json:"authMethod,omitempty"`
 	// AWS AccessKeyId。
 	AccessKeyId string `json:"accessKeyId"`
 	// AWS SecretAccessKey。
@@ -35,7 +40,7 @@ type CertmgrConfig struct {
 type Certmgr struct {
 	config    *CertmgrConfig
 	logger    *slog.Logger
-	sdkClient *awsacm.Client
+	sdkClient *acm.Client
 }
 
 var _ Provider = (*Certmgr)(nil)
@@ -45,7 +50,7 @@ func NewCertmgr(config *CertmgrConfig) (*Certmgr, error) {
 		return nil, fmt.Errorf("the configuration of the certmgr provider is nil")
 	}
 
-	client, err := createSDKClient(config.AccessKeyId, config.SecretAccessKey, config.Region)
+	client, err := createSDKClient(config.AuthMethod, config.AccessKeyId, config.SecretAccessKey, config.Region)
 	if err != nil {
 		return nil, fmt.Errorf("could not create client: %w", err)
 	}
@@ -89,7 +94,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*Uplo
 		default:
 		}
 
-		listCertificatesReq := &awsacm.ListCertificatesInput{
+		listCertificatesReq := &acm.ListCertificatesInput{
 			NextToken: listCertificatesNextToken,
 			MaxItems:  aws.Int32(1000),
 		}
@@ -113,14 +118,14 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*Uplo
 			}
 
 			// 对比证书内容
-			getCertificateReq := &awsacm.GetCertificateInput{
+			getCertificateReq := &acm.GetCertificateInput{
 				CertificateArn: certItem.CertificateArn,
 			}
 			getCertificateResp, err := c.sdkClient.GetCertificate(ctx, getCertificateReq)
 			if err != nil {
 				var sdkErr smithy.APIError
 				if errors.As(err, &sdkErr) {
-					if sdkErrCode := sdkErr.ErrorCode(); sdkErrCode == "NoSuchEntity" {
+					if sdkErrCode := sdkErr.ErrorCode(); sdkErrCode == "InvalidArnException" || sdkErrCode == "ResourceNotFoundException" {
 						continue
 					}
 				}
@@ -151,7 +156,7 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*Uplo
 
 	// 导入证书
 	// REF: https://docs.aws.amazon.com/acm/latest/APIReference/API_ImportCertificate.html
-	importCertificateReq := &awsacm.ImportCertificateInput{
+	importCertificateReq := &acm.ImportCertificateInput{
 		Certificate:      ([]byte)(serverCertPEM),
 		CertificateChain: ([]byte)(issuerCertPEM),
 		PrivateKey:       ([]byte)(privkeyPEM),
@@ -179,7 +184,7 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 
 	// 导入证书
 	// REF: https://docs.aws.amazon.com/acm/latest/APIReference/API_ImportCertificate.html
-	importCertificateReq := &awsacm.ImportCertificateInput{
+	importCertificateReq := &acm.ImportCertificateInput{
 		CertificateArn:   aws.String(certIdOrName),
 		Certificate:      ([]byte)(serverCertPEM),
 		CertificateChain: ([]byte)(issuerCertPEM),
@@ -194,15 +199,31 @@ func (c *Certmgr) Replace(ctx context.Context, certIdOrName string, certPEM, pri
 	return &ReplaceResult{}, nil
 }
 
-func createSDKClient(accessKeyId, secretAccessKey, region string) (*awsacm.Client, error) {
-	cfg, err := awscfg.LoadDefaultConfig(context.Background())
+func createSDKClient(authMethod, accessKeyId, secretAccessKey, region string) (*acm.Client, error) {
+	opts := []func(options *awscfg.LoadOptions) error{
+		awscfg.WithRegion(region),
+	}
+
+	staticCredsProvider := awscred.NewStaticCredentialsProvider(accessKeyId, secretAccessKey, "")
+	imdsCredsProvider := aws.NewCredentialsCache(ec2rolecreds.New())
+	switch authMethod {
+	case "":
+		if accessKeyId != "" && secretAccessKey != "" {
+			opts = append(opts, awscfg.WithCredentialsProvider(staticCredsProvider))
+		}
+	case AUTH_METHOD_ACCESSKEY:
+		opts = append(opts, awscfg.WithCredentialsProvider(staticCredsProvider))
+	case AUTH_METHOD_IMDS:
+		opts = append(opts, awscfg.WithCredentialsProvider(imdsCredsProvider))
+	default:
+		return nil, fmt.Errorf("unsupported auth method '%s'", authMethod)
+	}
+
+	cfg, err := awscfg.LoadDefaultConfig(context.Background(), opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	client := awsacm.NewFromConfig(cfg, func(o *awsacm.Options) {
-		o.Region = region
-		o.Credentials = aws.NewCredentialsCache(awscred.NewStaticCredentialsProvider(accessKeyId, secretAccessKey, ""))
-	})
+	client := acm.NewFromConfig(cfg)
 	return client, nil
 }

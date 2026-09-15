@@ -13,7 +13,9 @@ import AccessConfigFieldsProviderAkamai from "./AccessConfigFieldsProviderAkamai
 import AccessConfigFieldsProviderAliyun from "./AccessConfigFieldsProviderAliyun";
 import AccessConfigFieldsProviderAPISIX from "./AccessConfigFieldsProviderAPISIX";
 import AccessConfigFieldsProviderArvanCloud from "./AccessConfigFieldsProviderArvanCloud";
+import AccessConfigFieldsProviderAsiaISPCDN from "./AccessConfigFieldsProviderAsiaISPCDN";
 import AccessConfigFieldsProviderAWS from "./AccessConfigFieldsProviderAWS";
+import AccessConfigFieldsProviderAxisNow from "./AccessConfigFieldsProviderAxisNow";
 import AccessConfigFieldsProviderAzure from "./AccessConfigFieldsProviderAzure";
 import AccessConfigFieldsProviderBaiduCloud from "./AccessConfigFieldsProviderBaiduCloud";
 import AccessConfigFieldsProviderBaishan from "./AccessConfigFieldsProviderBaishan";
@@ -63,6 +65,7 @@ import AccessConfigFieldsProviderHetzner from "./AccessConfigFieldsProviderHetzn
 import AccessConfigFieldsProviderHostingde from "./AccessConfigFieldsProviderHostingde";
 import AccessConfigFieldsProviderHostinger from "./AccessConfigFieldsProviderHostinger";
 import AccessConfigFieldsProviderHuaweiCloud from "./AccessConfigFieldsProviderHuaweiCloud";
+import AccessConfigFieldsProviderHuaweiIBMC from "./AccessConfigFieldsProviderHuaweiIBMC";
 import AccessConfigFieldsProviderInfomaniak from "./AccessConfigFieldsProviderInfomaniak";
 import AccessConfigFieldsProviderIONOS from "./AccessConfigFieldsProviderIONOS";
 import AccessConfigFieldsProviderJDCloud from "./AccessConfigFieldsProviderJDCloud";
@@ -87,6 +90,7 @@ import AccessConfigFieldsProviderOracleCloud from "./AccessConfigFieldsProviderO
 import AccessConfigFieldsProviderOVHcloud from "./AccessConfigFieldsProviderOVHcloud";
 import AccessConfigFieldsProviderPorkbun from "./AccessConfigFieldsProviderPorkbun";
 import AccessConfigFieldsProviderPowerDNS from "./AccessConfigFieldsProviderPowerDNS";
+import AccessConfigFieldsProviderProxmoxBS from "./AccessConfigFieldsProviderProxmoxBS";
 import AccessConfigFieldsProviderProxmoxVE from "./AccessConfigFieldsProviderProxmoxVE";
 import AccessConfigFieldsProviderQingCloud from "./AccessConfigFieldsProviderQingCloud";
 import AccessConfigFieldsProviderQiniu from "./AccessConfigFieldsProviderQiniu";
@@ -120,6 +124,7 @@ import AccessConfigFieldsProviderWebhook from "./AccessConfigFieldsProviderWebho
 import AccessConfigFieldsProviderWeComBot from "./AccessConfigFieldsProviderWeComBot";
 import AccessConfigFieldsProviderWestcn from "./AccessConfigFieldsProviderWestcn";
 import AccessConfigFieldsProviderXinnet from "./AccessConfigFieldsProviderXinnet";
+import AccessConfigFieldsProviderYandexCloud from "./AccessConfigFieldsProviderYandexCloud";
 import AccessConfigFieldsProviderZenlayer from "./AccessConfigFieldsProviderZenlayer";
 import AccessConfigFieldsProviderZeroSSL from "./AccessConfigFieldsProviderZeroSSL";
 
@@ -139,7 +144,9 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.ALIYUN]: AccessConfigFieldsProviderAliyun,
   [ACCESS_PROVIDERS.APISIX]: AccessConfigFieldsProviderAPISIX,
   [ACCESS_PROVIDERS.ARVANCLOUD]: AccessConfigFieldsProviderArvanCloud,
+  [ACCESS_PROVIDERS.ASIAISPCDN]: AccessConfigFieldsProviderAsiaISPCDN,
   [ACCESS_PROVIDERS.AWS]: AccessConfigFieldsProviderAWS,
+  [ACCESS_PROVIDERS.AXISNOW]: AccessConfigFieldsProviderAxisNow,
   [ACCESS_PROVIDERS.AZURE]: AccessConfigFieldsProviderAzure,
   [ACCESS_PROVIDERS.BAIDUCLOUD]: AccessConfigFieldsProviderBaiduCloud,
   [ACCESS_PROVIDERS.BAISHAN]: AccessConfigFieldsProviderBaishan,
@@ -189,6 +196,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.HOSTINGDE]: AccessConfigFieldsProviderHostingde,
   [ACCESS_PROVIDERS.HOSTINGER]: AccessConfigFieldsProviderHostinger,
   [ACCESS_PROVIDERS.HUAWEICLOUD]: AccessConfigFieldsProviderHuaweiCloud,
+  [ACCESS_PROVIDERS.HUAWEIIBMC]: AccessConfigFieldsProviderHuaweiIBMC,
   [ACCESS_PROVIDERS.IONOS]: AccessConfigFieldsProviderIONOS,
   [ACCESS_PROVIDERS.JDCLOUD]: AccessConfigFieldsProviderJDCloud,
   [ACCESS_PROVIDERS.KONG]: AccessConfigFieldsProviderKong,
@@ -213,6 +221,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.OVHCLOUD]: AccessConfigFieldsProviderOVHcloud,
   [ACCESS_PROVIDERS.PORKBUN]: AccessConfigFieldsProviderPorkbun,
   [ACCESS_PROVIDERS.POWERDNS]: AccessConfigFieldsProviderPowerDNS,
+  [ACCESS_PROVIDERS.PROXMOXBS]: AccessConfigFieldsProviderProxmoxBS,
   [ACCESS_PROVIDERS.PROXMOXVE]: AccessConfigFieldsProviderProxmoxVE,
   [ACCESS_PROVIDERS.QINGCLOUD]: AccessConfigFieldsProviderQingCloud,
   [ACCESS_PROVIDERS.QINIU]: AccessConfigFieldsProviderQiniu,
@@ -246,6 +255,7 @@ const providerComponentMap: Partial<Record<AccessProviderType, React.ComponentTy
   [ACCESS_PROVIDERS.WECOMBOT]: AccessConfigFieldsProviderWeComBot,
   [ACCESS_PROVIDERS.WESTCN]: AccessConfigFieldsProviderWestcn,
   [ACCESS_PROVIDERS.XINNET]: AccessConfigFieldsProviderXinnet,
+  [ACCESS_PROVIDERS.YANDEXCLOUD]: AccessConfigFieldsProviderYandexCloud,
   [ACCESS_PROVIDERS.ZENLAYER]: AccessConfigFieldsProviderZenlayer,
   [ACCESS_PROVIDERS.ZEROSSL]: AccessConfigFieldsProviderZeroSSL,
 };

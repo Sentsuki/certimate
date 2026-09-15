@@ -5,6 +5,8 @@ package teomakers
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -26,8 +28,13 @@ func NewClient(optFns ...OptionsFunc) (*Client, error) {
 		return nil, fmt.Errorf("sdkerr: unset apiToken")
 	}
 
+	baseUrl := options.BaseEndpoint
+	if baseUrl == "" {
+		baseUrl = endpointChinaBaseURL
+	}
+
 	httper := resty.New().
-		SetBaseURL("https://pages-api.cloud.tencent.com/v1").
+		SetBaseURL(strings.TrimSuffix(baseUrl, "/")+"/v1").
 		SetHeader("Accept", "application/json").
 		SetHeader("Authorization", "Bearer "+options.ApiToken).
 		SetHeader("Content-Type", "application/json").
@@ -41,26 +48,29 @@ func (c *Client) SetTimeout(timeout time.Duration) *Client {
 	return c
 }
 
-func (c *Client) newRequest(method string, path string, action string, params sdkRequest) (*resty.Request, error) {
-	if method == "" {
-		return nil, fmt.Errorf("sdkerr: unset method")
-	}
-	if path == "" {
-		return nil, fmt.Errorf("sdkerr: unset path")
-	}
-	if action == "" {
+func (c *Client) newRequest(params any, xAction string) (*resty.Request, error) {
+	if xAction == "" {
 		return nil, fmt.Errorf("sdkerr: unset action")
 	}
 
-	req := c.rc.R()
-	req.Method = method
-	req.URL = path
-
+	paramsMap := map[string]any{}
+	paramsMap["Action"] = xAction
 	if params != nil {
-		params.SetAction(action)
-		req.SetBody(params)
+		jsonb, _ := json.Marshal(params)
+		json.Unmarshal(jsonb, &paramsMap)
+		if paramsMap["Action"] != xAction {
+			return nil, fmt.Errorf("sdkerr: bad request: action mismatch: expected '%s', got '%s'", xAction, paramsMap["Action"])
+		}
 	}
 
+	req := c.rc.R()
+	req.Method = http.MethodPost
+	req.URL = "/"
+	req.SetBody(paramsMap)
+
+	// WARN:
+	//   DO NOT CALL `req.SetBody` or `req.SetFormData` AGAIN! USE `newRequest` INSTEAD.
+	//   DO NOT CALL `req.SetResult` or `req.SetError` AGAIN! USE `doRequestWithResult` INSTEAD.
 	return req, nil
 }
 
@@ -68,9 +78,6 @@ func (c *Client) doRequest(req *resty.Request) (*resty.Response, error) {
 	if req == nil {
 		return nil, fmt.Errorf("sdkerr: nil request")
 	}
-
-	// WARN:
-	//   PLEASE DO NOT USE `req.SetResult` or `req.SetError` HERE! USE `doRequestWithResult` INSTEAD.
 
 	resp, err := req.Send()
 	if err != nil {

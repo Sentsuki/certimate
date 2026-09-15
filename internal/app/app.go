@@ -1,7 +1,7 @@
-﻿package app
+package app
 
 const (
 	AppName      = "Certimate"
-	AppVersion   = "0.4.27"
+	AppVersion   = "0.4.33"
 	AppUserAgent = AppName + "/" + AppVersion
 )

@@ -1,4 +1,4 @@
-package openapi
+package common
 
 import (
 	"encoding/json"
@@ -40,11 +40,7 @@ func NewClient(baseUrl string, service string, optFns ...OptionsFunc) (*Client, 
 		return nil, fmt.Errorf("sdkerr: unset secretAccessKey")
 	}
 
-	signer := &signer{
-		accessKeyId:     options.AccessKeyId,
-		secretAccessKey: options.SecretAccessKey,
-		service:         service,
-	}
+	signer := NewSigner(options.AccessKeyId, options.SecretAccessKey, service)
 	httper := resty.New().
 		SetBaseURL(baseUrl).
 		SetHeader("Accept", "application/json").
@@ -107,6 +103,9 @@ func (c *Client) NewRequest(method string, path string, params any) (*resty.Requ
 		req.SetBody(paramsMap)
 	}
 
+	// WARN:
+	//   DO NOT CALL `req.SetBody` or `req.SetFormData` AGAIN! USE `newRequest` INSTEAD.
+	//   DO NOT CALL `req.SetResult` or `req.SetError` AGAIN! USE `doRequestWithResult` INSTEAD.
 	return req, nil
 }
 
@@ -114,10 +113,6 @@ func (c *Client) DoRequest(req *resty.Request) (*resty.Response, error) {
 	if req == nil {
 		return nil, fmt.Errorf("sdkerr: nil request")
 	}
-
-	// WARN:
-	//   PLEASE DO NOT USE `req.SetBody` or `req.SetFormData` HERE! USE `newRequest` INSTEAD.
-	//   PLEASE DO NOT USE `req.SetResult` or `req.SetError` HERE! USE `doRequestWithResult` INSTEAD.
 
 	resp, err := req.Send()
 	if err != nil {

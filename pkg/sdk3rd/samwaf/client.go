@@ -36,7 +36,7 @@ func NewClient(serverUrl string, optFns ...OptionsFunc) (*Client, error) {
 	}
 
 	httper := resty.New().
-		SetBaseURL(strings.TrimRight(serverUrl, "/")+"/api/v1").
+		SetBaseURL(strings.TrimSuffix(serverUrl, "/")+"/api/v1").
 		SetHeader("Accept", "application/json").
 		SetHeader("Content-Type", "application/json").
 		SetHeader("User-Agent", app.AppUserAgent).
@@ -66,6 +66,9 @@ func (c *Client) newRequest(method string, path string) (*resty.Request, error) 
 	req := c.rc.R()
 	req.Method = method
 	req.URL = path
+
+	// WARN:
+	//   DO NOT CALL `req.SetResult` or `req.SetError` AGAIN! USE `doRequestWithResult` INSTEAD.
 	return req, nil
 }
 
@@ -73,9 +76,6 @@ func (c *Client) doRequest(req *resty.Request) (*resty.Response, error) {
 	if req == nil {
 		return nil, fmt.Errorf("sdkerr: nil request")
 	}
-
-	// WARN:
-	//   PLEASE DO NOT USE `req.SetResult` or `req.SetError` HERE! USE `doRequestWithResult` INSTEAD.
 
 	resp, err := req.Send()
 	if err != nil {
